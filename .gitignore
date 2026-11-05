@@ -3,3 +3,6 @@ __pycache__/
 data/ecdata/
 .pytest_cache/
 *.egg-info/
+results/sweep_*.jsonl
+results/*.log
+results/smoke.*

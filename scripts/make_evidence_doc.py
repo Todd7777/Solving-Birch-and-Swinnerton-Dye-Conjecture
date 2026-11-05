@@ -70,7 +70,9 @@ def main():
                "the exact vanishing $L(E,1)=0$, and the prime-by-prime finiteness of $Ш[p^\\infty]$.\n")
 
     # sweeps
-    sweeps = sorted(glob.glob(os.path.join(ROOT, "results", "sweep_*.jsonl")))
+    all_sweeps = sorted(glob.glob(os.path.join(ROOT, "results", "sweep_*.jsonl")))
+    sweeps = [p for p in all_sweeps if not p.endswith("_sage.jsonl")]
+    sage_sweeps = [p for p in all_sweeps if p.endswith("_sage.jsonl")]
     if sweeps:
         out.append("## 5.1 Systematic sweeps over Cremona's database\n")
         out.append("For every curve: invariants, analytic rank and leading term, exact $L(E,1)/\\Omega^+$ by modular symbols, "
@@ -93,11 +95,27 @@ def main():
         out.append(f"Rigorous status of $\\operatorname{{ord}}_{{s=1}}L$: {fmt_counter(s['rig'])}.")
         out.append(f"Curves of analytic rank $\\le1$ for which the mechanised theorems prove the $p$-part of (II) at **every** prime $p\\ge5$ in the ledger: "
                    f"{s['proven_all_odd']} of {s['led']}.")
+        if s["errs"]:
+            out.append("\nCurves with warnings:\n")
+            for r in s["errs"][:50]:
+                out.append(f"- {r['label']}: {' | '.join(r['errors'])}")
+        out.append("")
+    for path in sage_sweeps:
+        recs = read_jsonl(path)
+        s = sweep_stats(recs)
+        tag = os.path.basename(path).replace("sweep_", "").replace("_sage.jsonl", "").replace("_", "–")
+        out.append(f"### Proofs of the full formula with Sage, conductor range {tag} ({s['n']} curves)\n")
+        out.append("Same pipeline, plus Sage's provable saturation of every Mordell–Weil basis and, for analytic rank ≤ 1, Sage's `prove_BSD`.\n")
         if s["sage_full"] or s["sage_part"]:
-            out.append(f"\n**Sage `prove_BSD` (Kolyvagin + Kato bounds, 2-descent, Cha/Jetchev/Lawson–Wuthrich/Stein–Wuthrich refinements):** "
+            out.append(f"**Sage `prove_BSD` (Kolyvagin + Kato bounds, 2-descent, Cha/Jetchev/Lawson–Wuthrich/Stein–Wuthrich refinements):** "
                        f"full formula (II) proven at every prime for **{s['sage_full']}** curves; proven at all but the listed primes for {s['sage_part']} curves "
                        f"(unproven primes, with multiplicity: {fmt_counter(s['unproven'])}); not applicable/failed for {s['sage_na']}. "
                        f"Provable saturation changed a PARI basis in {s['sat_fixed']} cases.")
+            partial = [r for r in recs if (r.get("sage") or {}).get("prove_bsd", {}).get("primes_unproven")]
+            if partial:
+                out.append("\nCurves where `prove_BSD` leaves primes open (label: primes): " +
+                           ", ".join(f"{r['label']}: {r['sage']['prove_bsd']['primes_unproven']}" for r in partial[:200]) +
+                           (" …" if len(partial) > 200 else ""))
         if s["errs"]:
             out.append("\nCurves with warnings:\n")
             for r in s["errs"][:50]:

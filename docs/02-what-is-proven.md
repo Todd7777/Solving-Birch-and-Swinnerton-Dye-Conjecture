@@ -62,7 +62,7 @@ $\operatorname{ord}_{s=1}L(E/\mathbb{Q}(\sqrt D),s) = \operatorname{ord}_{s=1}L(
 whenever $r_{\mathrm{an}}\le 1$.
 
 **Theorem (B2 + B3 + B4).** *If $r_{\mathrm{an}}\le1$ then $r = r_{\mathrm{an}}$ and $Ш(E/\mathbb{Q})$ is finite.*
-Equivalently, for every $E/\mathbb{Q}$: $\ r_{\mathrm{an}}\ge\min(r,2)$ — the only general inequality between $r$ and $r_{\mathrm{an}}$ known.
+In particular, for every $E/\mathbb{Q}$: $\ r_{\mathrm{an}}\ge\min(r,2)$ — the only general inequality between $r$ and $r_{\mathrm{an}}$ that is known.
 
 **B5 (Rubin 1987, 1991; Perrin-Riou 1987; later Pollack–Rubin 2004 for supersingular $p$).** For CM curves with
 $r_{\mathrm{an}}\le1$: $Ш$ is finite and the $p$-part of (II) holds for all primes $p\nmid 6$ (ordinary and supersingular cases
@@ -102,7 +102,7 @@ is a theorem for the great majority of curves of conductor $\le 5000$ with $r_{\
 ## C. Statistical results (what is known for "most" curves)
 
 **C1 (Bhargava–Shankar 2015 ff.).** Ordering $E: y^2 = x^3+Ax+B$ by height, the average size of $\operatorname{Sel}_n$ is $\sigma(n)$
-for $n=2,3,4,5$; hence the average rank is $\le 0.885$, and a positive proportion of curves have rank 0 (and, with Dokchitser parity, rank 1 for a positive proportion of the rest).
+for $n=2,3,4,5$; hence the average rank is $\le 0.885$, and (using the $p$-parity theorem A5) a positive proportion of curves have rank 0.
 
 **C2 (Bhargava–Skinner 2014; Bhargava–Skinner–Zhang 2014).** A positive proportion of $E/\mathbb{Q}$ have rank 1 and satisfy BSD (I);
 in total **at least 66.48 % of elliptic curves over $\mathbb{Q}$ satisfy BSD (I) and have finite $Ш$** (ordered by naive height).
@@ -145,7 +145,7 @@ and $Ш(E/F)$ is finite. Modularity is known for all $E$ over real quadratic and
 ## F. $p$-adic BSD and Iwasawa theory
 
 **F1 (Greenberg–Stevens 1993).** The Mazur–Tate–Teitelbaum *exceptional zero conjecture*: if $p$ is split multiplicative,
-$L_p'(E,0) = \dfrac{\log_p q_E}{\operatorname{ord}_p q_E}\cdot\dfrac{L(E,1)}{\Omega_E}$, where $q_E$ is the Tate period. A complete theorem.
+$L_p'(E,0) = \dfrac{\log_p q_E}{\operatorname{ord}_p q_E}\cdot\dfrac{L(E,1)}{\Omega^+}$, where $q_E$ is the Tate period (with the Mazur–Swinnerton-Dyer normalisation of $L_p$ by the period $\Omega^+$). A complete theorem.
 
 **F2 (Perrin-Riou 1987; Kobayashi 2013).** $p$-adic Gross–Zagier: $L_p'(E,0)$ (ordinary) resp. the $\pm$ versions (supersingular) equal an explicit
 multiple of the *$p$-adic* height of the Heegner point.
