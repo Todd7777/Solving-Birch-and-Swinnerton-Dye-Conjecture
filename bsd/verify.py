@@ -28,6 +28,7 @@ class BSDRecord:
     sha_status: str
     p_part: list[dict]
     padic: list[dict]
+    sage: dict | None
     cremona: dict | None
     timings: dict
     errors: list[str]
@@ -57,7 +58,8 @@ def _is_square(n: int) -> bool:
 def verify_curve(ainvs, label: str = "", known_gens=None, run_descent: bool = True, effort: int = 0,
                  saturation_bound: int = 1000, want_exact: bool = True, descent_timeout: float | None = 120.0,
                  analytic_timeout: float | None = 1800.0, cremona=None, ledger: bool = True,
-                 padic_bound: int = 0, padic_prec: int = 5, padic_timeout: float | None = 600.0) -> BSDRecord:
+                 padic_bound: int = 0, padic_prec: int = 5, padic_timeout: float | None = 600.0,
+                 use_sage: bool = False, sage_timeout: float | None = 600.0) -> BSDRecord:
     pari = get_pari()
     t = {}
     errors: list[str] = []
@@ -118,6 +120,29 @@ def verify_curve(ainvs, label: str = "", known_gens=None, run_descent: bool = Tr
                      "note": f"failed: {type(exc).__name__}: {str(exc)[:80]}"}
             d["kato"] = sha_p_finite_via_kato(inv, des.rank_lower, p, d["r_p"])
             padic.append(d)
+    # optional Sage stage: provable saturation + prove_BSD (rank ≤ 1)
+    sage_info = None
+    if use_sage:
+        sage_info = {}
+        try:
+            from .sage_bridge import prove_bsd, provable_saturation
+            if des.gens:
+                sat = provable_saturation(inv.ainvs, des.gens, timeout=sage_timeout)
+                sage_info["saturation"] = sat
+                if sat.get("index") not in (None, 1):
+                    errors.append(f"Sage found the PARI-saturated basis to have index {sat['index']}: regulator corrected")
+                    des.regulator = sat["regulator"]
+                    des.gens = sat["gens"]
+                    des.notes.append("basis replaced by Sage's provably saturated basis")
+                    if r >= 0 and len(des.gens) == r:
+                        sha_an = an.leading_term / (inv.bsd_constant * des.regulator)
+                        sha_int = int(round(sha_an))
+                        rel = abs(sha_an - sha_int) / max(sha_int, 1)
+                        square = _is_square(sha_int) and sha_int >= 1
+            if 0 <= r <= 1:
+                sage_info["prove_bsd"] = prove_bsd(inv.ainvs, timeout=sage_timeout)
+        except Exception as exc:  # noqa: BLE001
+            sage_info["error"] = f"{type(exc).__name__}: {str(exc)[:160]}"
     # comparison with Cremona's tables
     crem = None
     if cremona is not None:
@@ -126,7 +151,7 @@ def verify_curve(ainvs, label: str = "", known_gens=None, run_descent: bool = Tr
             errors.append("mismatch with Cremona's table: " + ", ".join(crem["mismatches"]))
     return BSDRecord(label=label, invariants=inv.to_dict(), analytic=_jsonable(asdict(an)), descent=asdict(des),
                      sha_an=sha_an, sha_an_int=sha_int, sha_is_square=square, sha_rel_err=rel,
-                     rank_status=rank_status, sha_status=sha_status, p_part=pp, padic=padic, cremona=crem, timings=t,
+                     rank_status=rank_status, sha_status=sha_status, p_part=pp, padic=padic, sage=sage_info, cremona=crem, timings=t,
                      errors=errors)
 
 

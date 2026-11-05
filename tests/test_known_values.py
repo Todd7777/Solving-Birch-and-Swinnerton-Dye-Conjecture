@@ -96,3 +96,11 @@ def test_kato_finiteness_logic():
     assert sha_p_finite_via_kato(inv, rank_lower=2, p=5, r_p=2)["sha_p_finite"]
     assert not sha_p_finite_via_kato(inv, rank_lower=2, p=5, r_p=3)["sha_p_finite"]
     assert not sha_p_finite_via_kato(inv, rank_lower=2, p=389, r_p=2)["sha_p_finite"]
+
+
+def test_sage_bridge_prove_bsd():
+    pytest.importorskip("sage.all")
+    from bsd.sage_bridge import prove_bsd, provable_saturation
+    assert prove_bsd([0, -1, 1, -10, -20])["primes_unproven"] == []          # 11a1
+    sat = provable_saturation([0, 0, 1, -7, 6], [["-3", "0"], ["-1", "3"], ["11", "35"]])   # 5077a1, index-3 sublattice
+    assert sat["index"] == 3 and abs(sat["regulator"] - 0.417143558758384) < 1e-9

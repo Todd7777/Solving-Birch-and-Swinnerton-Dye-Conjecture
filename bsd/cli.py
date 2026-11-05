@@ -39,7 +39,7 @@ def cmd_verify(a):
         gens = ref.gens if (ref is not None and a.use_known_gens) else None
         rec = verify_curve(ainvs, label=label, known_gens=gens, run_descent=not a.no_descent, effort=a.effort,
                            saturation_bound=a.sat_bound, descent_timeout=a.timeout, cremona=ref,
-                           padic_bound=a.padic, padic_prec=a.padic_prec).to_dict()
+                           padic_bound=a.padic, padic_prec=a.padic_prec, use_sage=a.sage, sage_timeout=a.sage_timeout).to_dict()
         recs.append(rec)
         print(curve_section(rec))
     print(records_table(recs))
@@ -65,7 +65,8 @@ def cmd_curated(a):
         gens = ref.gens if (ref is not None and a.use_known_gens) else None
         rec = verify_curve(ainvs, label=c.label, known_gens=gens, effort=c.descent_effort, saturation_bound=a.sat_bound,
                            descent_timeout=c.descent_timeout, cremona=ref,
-                           padic_bound=(a.padic if rec_wants_padic(c) else 0), padic_prec=a.padic_prec).to_dict()
+                           padic_bound=(a.padic if rec_wants_padic(c) else 0), padic_prec=a.padic_prec,
+                           use_sage=a.sage, sage_timeout=a.sage_timeout).to_dict()
         rec["note"] = c.note
         if c.claimed_conductor is not None and rec["invariants"]["conductor"] != c.claimed_conductor:
             rec["errors"].append(f"claimed conductor {c.claimed_conductor} ≠ computed {rec['invariants']['conductor']}")
@@ -91,6 +92,11 @@ def _sweep_init(opts):
     _SWEEP_OPTS = opts
     from .pari_session import get_pari
     get_pari()
+    if opts.get("use_sage"):
+        try:
+            import sage.all  # noqa: F401  (import once per worker)
+        except Exception:
+            pass
 
 
 def _sweep_one(item):
@@ -101,7 +107,8 @@ def _sweep_one(item):
     try:
         rec = verify_curve(ainvs, label=label, known_gens=(ref.gens if o["use_known_gens"] else None),
                            run_descent=not o["no_descent"], effort=o["effort"], saturation_bound=o["sat_bound"],
-                           descent_timeout=o["timeout"], cremona=ref, ledger=o["ledger"]).to_dict()
+                           descent_timeout=o["timeout"], cremona=ref, ledger=o["ledger"], use_sage=o["use_sage"],
+                           sage_timeout=o["sage_timeout"], padic_bound=o["padic_bound"], padic_prec=o["padic_prec"]).to_dict()
     except BaseException as exc:  # noqa: BLE001 - keep the sweep alive
         rec = {"label": label, "errors": [f"fatal: {type(exc).__name__}: {str(exc)[:200]}"], "invariants": {"conductor": ref.conductor},
                "analytic": {"analytic_rank": -1}, "descent": {}, "sha_an": None, "sha_an_int": None, "sha_is_square": None,
@@ -129,7 +136,8 @@ def cmd_sweep(a):
     items = [(c.label, c.ainvs, c) for c in curves if c.label not in done]
     print(f"sweep: {len(curves)} curves in [{a.min},{a.max}], {len(items)} to do, {a.workers} workers", flush=True)
     opts = dict(use_known_gens=a.use_known_gens, no_descent=a.no_descent, effort=a.effort, sat_bound=a.sat_bound,
-                timeout=a.timeout, ledger=not a.no_ledger)
+                timeout=a.timeout, ledger=not a.no_ledger, use_sage=a.sage, sage_timeout=a.sage_timeout,
+                padic_bound=a.padic, padic_prec=a.padic_prec)
     t0 = time.time()
     n = 0
     with open(outpath, "a" if a.resume else "w") as f:
@@ -221,6 +229,8 @@ def main(argv=None):
         p.add_argument("--out", default=None)
         p.add_argument("--padic", type=int, default=0, help="also run p-adic BSD for good primes 3 ≤ p ≤ this bound")
         p.add_argument("--padic-prec", type=int, default=5)
+        p.add_argument("--sage", action="store_true", help="use Sage for provable saturation and prove_BSD (rank ≤ 1)")
+        p.add_argument("--sage-timeout", type=float, default=600.0)
 
     p = sub.add_parser("verify"); p.add_argument("curves", nargs="+"); common(p); p.set_defaults(fn=cmd_verify)
     p = sub.add_parser("curated"); common(p); p.add_argument("--small-only", action="store_true"); p.set_defaults(fn=cmd_curated)

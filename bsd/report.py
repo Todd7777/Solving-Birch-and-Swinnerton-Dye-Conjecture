@@ -75,6 +75,17 @@ def curve_section(rec: dict) -> str:
                          f"certified vanishing order of the p-adic L-function; cf. Stein–Wuthrich 2013).")
         if units:
             lines.append("p-adic BSD check (L_p^{(r)}(0)/r! ÷ p-adic regulator, conjecturally #Ш): " + "; ".join(units) + ".")
+    if rec.get("sage"):
+        sg = rec["sage"]
+        if sg.get("saturation"):
+            st = sg["saturation"]
+            lines.append(f"Sage provable saturation: index of PARI basis = {st.get('index')}, provable height lower bound "
+                         f"{st.get('height_lower_bound')}: {st.get('status')}.")
+        if sg.get("prove_bsd"):
+            pb = sg["prove_bsd"]
+            lines.append(f"**Sage `prove_BSD`:** {pb['status']}." + (f" Proof sketch: `{pb['proof_sketch']}`" if pb.get("proof_sketch") else ""))
+        if sg.get("error"):
+            lines.append(f"Sage stage error: {sg['error']}")
     if rec.get("cremona"):
         c = rec["cremona"]
         lines.append(f"Cross-check with Cremona's tables (independent software): rank {c['rank']}, Reg {c['regulator']}, Ш_an {c['sha_an']}"

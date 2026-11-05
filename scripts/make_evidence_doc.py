@@ -32,8 +32,27 @@ def sweep_stats(recs):
             led += 1
             if all(p["status"] == "proven" for p in r["p_part"] if p["p"] >= 5):
                 proven_all_odd += 1
+    sage_full = sage_part = sage_na = 0
+    unproven = Counter()
+    sat_fixed = 0
+    for r in recs:
+        sg = r.get("sage") or {}
+        pb = sg.get("prove_bsd")
+        if pb:
+            if pb.get("primes_unproven") == []:
+                sage_full += 1
+            elif pb.get("primes_unproven"):
+                sage_part += 1
+                for q in pb["primes_unproven"]:
+                    unproven[q] += 1
+            else:
+                sage_na += 1
+        st = sg.get("saturation")
+        if st and st.get("index") not in (None, 1):
+            sat_fixed += 1
     return dict(n=n, ranks=ranks, shas=shas, nonsq=nonsq, errs=errs, mism=mism, rig=rig, maxrel=maxrel,
-                descent_exact=descent_exact, sha2=sha2, led=led, proven_all_odd=proven_all_odd)
+                descent_exact=descent_exact, sha2=sha2, led=led, proven_all_odd=proven_all_odd,
+                sage_full=sage_full, sage_part=sage_part, sage_na=sage_na, unproven=unproven, sat_fixed=sat_fixed)
 
 
 def fmt_counter(c, key=lambda kv: kv[0]):
@@ -74,6 +93,11 @@ def main():
         out.append(f"Rigorous status of $\\operatorname{{ord}}_{{s=1}}L$: {fmt_counter(s['rig'])}.")
         out.append(f"Curves of analytic rank $\\le1$ for which the mechanised theorems prove the $p$-part of (II) at **every** prime $p\\ge5$ in the ledger: "
                    f"{s['proven_all_odd']} of {s['led']}.")
+        if s["sage_full"] or s["sage_part"]:
+            out.append(f"\n**Sage `prove_BSD` (Kolyvagin + Kato bounds, 2-descent, Cha/Jetchev/Lawson–Wuthrich/Stein–Wuthrich refinements):** "
+                       f"full formula (II) proven at every prime for **{s['sage_full']}** curves; proven at all but the listed primes for {s['sage_part']} curves "
+                       f"(unproven primes, with multiplicity: {fmt_counter(s['unproven'])}); not applicable/failed for {s['sage_na']}. "
+                       f"Provable saturation changed a PARI basis in {s['sat_fixed']} cases.")
         if s["errs"]:
             out.append("\nCurves with warnings:\n")
             for r in s["errs"][:50]:

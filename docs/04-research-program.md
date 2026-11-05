@@ -63,12 +63,13 @@ Every one of the following has appeared in attempted proofs. If an argument uses
 **They do:**
 * verify formula (II) numerically to $\sim10^{-9}$ relative precision for every curve of conductor $\le 10\,000$ (and more) in Cremona's database, independently of Cremona's own software (PARI vs eclib), with $\#Ш_{\mathrm{an}}$ always an integer square — see `docs/05-numerical-evidence.md`;
 * certify, for each curve, exactly which part of the conclusion is a *theorem* (file 02) and which is *numerics*: e.g. for 389a1, $r=r_{\mathrm{an}}=2$ is proven, $Ш[p^\infty]$ is finite for every odd $p<100$, and $Ш$ itself is of unknown finiteness;
-* reproduce the 1965 heuristic, the $p$-adic BSD checks, and the hypothesis checks for the Skinner–Urban / Jetchev–Skinner–Wan theorems at each prime.
+* reproduce the 1965 heuristic, the $p$-adic BSD checks, and the hypothesis checks for the Skinner–Urban / Jetchev–Skinner–Wan theorems at each prime;
+* with Sage, re-run the Kolyvagin/Kato-based proof machinery (`prove_BSD`) on every curve of conductor $\le1000$, so that for those curves of analytic rank $\le1$ the *full* formula (II) is a theorem whenever the routine returns no exceptional primes.
 
 **They do not:**
 * prove anything for a curve of rank $\ge2$ beyond prime-by-prime finiteness of $Ш[p^\infty]$;
 * prove formula (II) at any prime for rank $\ge2$;
-* substitute for a provable saturation bound (the Mordell–Weil bases are saturated at all primes $<1000$ and cross-checked against Cremona's independently saturated bases; a full index bound needs Cremona–Siksek height bounds, which PARI does not expose);
+* substitute for a provable saturation bound unless Sage is available (`--sage` uses Sage's provable height lower bound and index bound; without it the bases are saturated at all primes $<1000$ and cross-checked against Cremona's independently saturated bases);
 * use interval arithmetic: "non-zero" for $L^{(k)}(E,1)$ means "larger than $10^{15}$ times the working error", not a certified enclosure.
 
 ## 4.5 If I had to bet

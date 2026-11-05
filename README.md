@@ -35,6 +35,7 @@ it for every curve.
 
 ```bash
 pip install -r requirements.txt          # cypari2 (bundles PARI/GP 2.17), cysignals, matplotlib, pytest
+pip install passagemath-standard         # optional: Sage, for --sage (prove_BSD and provable saturation); large download
 python -m pytest -q                      # 19 regression tests against known values
 python -m bsd verify 11a1 37a1 389a1 5077a1 571a1 --padic 13
 python -m bsd curated --out results/curated --padic 97
@@ -42,6 +43,7 @@ python -m bsd sweep --min 1 --max 1000 --workers 4 --out results/sweep_0001_1000
 python -m bsd report results/sweep_0001_1000.jsonl --md results/sweep_0001_1000.md
 python -m bsd heuristic 11a1 37a1 389a1 5077a1 --X 300000 --plot results/heuristic.png
 python -m bsd padic 389a1 --primes 3,5,7,11
+python -m bsd verify 11a1 571a1 --sage     # Sage: prove the full formula (rank ≤ 1) and provably saturate bases
 ```
 
 Curves of conductor $< 20000$ can be given by Cremona label (the coefficients are fetched from
@@ -59,7 +61,8 @@ a-invariants, e.g. `python -m bsd verify 0,0,1,-79,342` (the rank-5 curve of con
 * for analytic rank $\le1$: the prime-by-prime ledger of the $p$-part of the formula under the mechanised theorems;
 * with `--padic B`: $p$-adic BSD data for good primes $3\le p\le B$ and, for rank $\ge2$ curves, the certificate that $Ш[p^\infty]$ is finite
   (Kato's divisibility + Mazur's control theorem + a certified upper bound for $\operatorname{ord}_{T=0}L_p$);
-* a comparison with Cremona's independently computed table values.
+* a comparison with Cremona's independently computed table values;
+* with `--sage` (optional, needs Sage/passagemath): provable saturation of the Mordell–Weil basis and, for analytic rank $\le1$, Sage's `prove_BSD`, which *proves* formula (II) at every prime it does not list (Kolyvagin's Heegner-index bound, Kato's bound, 2-descent, and the refinements of Cha, Jetchev, Lawson–Wuthrich, Stein–Wuthrich, GJPST).
 
 ## Layout
 
@@ -74,7 +77,7 @@ tests/          pytest regression suite
 ## Caveats, stated plainly
 
 * Numerical non-vanishing ($L^{(k)}(E,1)\ne0$) is asserted when the value exceeds the working precision by many orders of magnitude; PARI does not do interval arithmetic.
-* Saturation of Mordell–Weil bases is verified at all primes below 1000 and cross-checked against Cremona's independently saturated bases; a provable index bound (Cremona–Siksek) is not implemented.
+* Without `--sage`, saturation of Mordell–Weil bases is verified at all primes below 1000 and cross-checked against Cremona's independently saturated bases; with `--sage` it is provable (Cremona–Siksek height bounds).
 * The theorem ledger mechanises the hypotheses of three theorems (Skinner–Urban 2014, Jetchev–Skinner–Wan 2017, Castella 2018) and Kato's rational divisibility. "Not covered" means not covered *by those*, not unknown in the literature.
 * Bibliographic details in `docs/references.md` were compiled from memory and spot-checked; the mathematical statements were checked against the papers' stated hypotheses.
 

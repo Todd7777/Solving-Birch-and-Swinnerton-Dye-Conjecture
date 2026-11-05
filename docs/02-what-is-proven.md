@@ -95,7 +95,7 @@ Zhang's paper also proves **Kolyvagin's conjecture** (some derived Heegner class
 **B10 (Exact verification for individual curves: Grigorov–Jorza–Patrikis–Stein–Tarniţă 2009; Miller 2011; Creutz–Miller 2012).**
 Combining B3, B6, B7 with explicit 2-, 3- and 4-descents and Heegner-index computations, the **full** formula (II) — every prime —
 is a theorem for the great majority of curves of conductor $\le 5000$ with $r_{\mathrm{an}}\le1$; the remaining $(E,p)$ pairs are listed in those papers.
-(Sage's `prove_BSD` implements this machinery.) This is the only sense in which (II) is known "in full" for any curve.
+(Sage's `prove_BSD` implements this machinery; `python -m bsd sweep --sage` runs it on every curve of a conductor range, and `docs/05-numerical-evidence.md` reports for how many curves of conductor $\le1000$ the full formula is thereby a theorem.) This is the only sense in which (II) is known "in full" for any curve.
 
 ---
 
