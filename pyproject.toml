@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bsd-verification"
+version = "0.1.0"
+description = "Computational verification toolkit and theorem ledger for the Birch and Swinnerton-Dyer conjecture over Q"
+requires-python = ">=3.10"
+dependencies = ["cypari2>=2.2", "cysignals>=1.11"]
+
+[project.optional-dependencies]
+plot = ["matplotlib"]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["bsd"]

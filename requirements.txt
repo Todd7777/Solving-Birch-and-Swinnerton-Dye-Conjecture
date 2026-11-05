@@ -1,0 +1,4 @@
+cypari2>=2.2
+cysignals>=1.11
+matplotlib
+pytest
