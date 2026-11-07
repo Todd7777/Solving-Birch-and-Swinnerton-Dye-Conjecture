@@ -8,7 +8,7 @@ from fractions import Fraction
 
 from .pari_session import get_pari, time_limit
 from .invariants import compute_invariants, CurveInvariants
-from .analytic import analytic_data, AnalyticData
+from .analytic import analytic_data, AnalyticData, certify_order
 from .descent import mordell_weil, DescentData
 from .theorems import p_part_ledger, rank_and_sha_status, sha_p_finite_via_kato, SMALL_PRIMES
 from .padic import padic_bsd
@@ -88,6 +88,14 @@ def verify_curve(ainvs, label: str = "", known_gens=None, run_descent: bool = Tr
         errors.append(f"algebraic side failed: {type(exc).__name__}: {str(exc)[:100]}")
         des = DescentData(0, 99, -1, [], [], "failed", 0, float("nan"), [], [str(exc)[:100]])
     t["descent"] = time.time() - t0
+    # sharpen the analytic certificate with the independent points found (Gross–Zagier–Kolyvagin + parity)
+    if an.analytic_rank >= 0 and des.rank_lower >= 1:
+        l1_zero = {"zero": True, "nonzero": False}.get(an.L1_status)
+        lower2, exact2, why2 = certify_order(an.analytic_rank, inv.root_number, an.L1_over_omega_plus_exact,
+                                             l1_zero=l1_zero, l1_source=an.L1_source or "modular symbols",
+                                             points_rank=des.rank_lower)
+        if lower2 > an.rigorous_order_lower or (exact2 and not an.rigorous_order_exact):
+            an.rigorous_order_lower, an.rigorous_order_exact, an.certification = lower2, exact2, why2
     # BSD quotient
     sha_an = sha_int = rel = None
     square = None

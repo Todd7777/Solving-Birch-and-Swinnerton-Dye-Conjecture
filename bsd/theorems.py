@@ -129,12 +129,19 @@ def rank_and_sha_status(analytic_rank: int, rigorous_lower: int, rigorous_exact:
             rk += " 2-descent independently gives rank 1."
         return rk, "finite (theorem, given L'(E,1) ≠ 0)"
     # analytic rank >= 2 (or not rigorously pinned)
+    sha_open = "OPEN: finiteness of Ш is not known for any curve of rank ≥ 2 (only Ш[p^∞] for individual primes p)"
+    if rigorous_exact and rank_lower == rank_upper == analytic_rank:
+        rk = (f"VERIFIED FOR THIS CURVE: rank E(Q) = {rank_lower} (2-descent upper bound, {n_gens} independent points) and "
+              f"ord_{{s=1}} L(E,s) = {analytic_rank} (lower bound proven as in the analytic certificate; non-vanishing of "
+              f"L^({analytic_rank})(E,1) numerical), so the rank part of BSD holds for this curve. No general theorem covers "
+              f"analytic rank ≥ 2: this is a curve-by-curve verification.")
+        return rk, sha_open
     consistent = rank_lower <= analytic_rank <= rank_upper
-    rk = (f"OPEN: analytic rank {analytic_rank} (numerical; rigorous: ord ≥ {rigorous_lower}). 2-descent gives "
+    rk = (f"OPEN for this curve: analytic rank {analytic_rank} numerically, but only ord ≥ {rigorous_lower} is proven "
+          f"(no elliptic curve over Q is known to have provable analytic rank ≥ 4). 2-descent gives "
           f"{rank_lower} ≤ rank ≤ {rank_upper}" + (f" and {n_gens} independent points were found" if n_gens else "") +
-          (". Consistent with the rank conjecture, which is NOT proven for any curve of analytic rank ≥ 2."
-           if consistent else ". INCONSISTENT — investigate (likely a computational failure)."))
-    return rk, "OPEN: finiteness of Ш is not known for any curve of rank ≥ 2"
+          (". Consistent with the rank conjecture." if consistent else ". INCONSISTENT — investigate (likely a computational failure)."))
+    return rk, sha_open
 
 
 def sha_p_finite_via_kato(inv: CurveInvariants, rank_lower: int, p: int, r_p: int) -> dict:

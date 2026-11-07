@@ -21,7 +21,8 @@ def table_header() -> str:
 def table_row(rec: dict) -> str:
     inv, an, des = rec["invariants"], rec["analytic"], rec["descent"]
     rig = f"≥{an['rigorous_order_lower']}" if not an["rigorous_order_exact"] else f"= {an['analytic_rank']}"
-    status = "theorem" if rec["rank_status"].startswith("THEOREM") else "open"
+    status = ("theorem" if rec["rank_status"].startswith("THEOREM") else
+              "verified" if rec["rank_status"].startswith("VERIFIED") else "open")
     sq = "" if rec["sha_is_square"] is None else ("yes" if rec["sha_is_square"] else "**NO**")
     err = " ⚠" if rec["errors"] else ""
     return (f"| {rec['label']} | {inv['conductor']} | {an['analytic_rank']} | {rig} | [{des['rank_lower']},{des['rank_upper']}] | "

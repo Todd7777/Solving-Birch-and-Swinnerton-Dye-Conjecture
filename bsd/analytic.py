@@ -60,11 +60,20 @@ def exact_L1_ratio(E) -> Fraction:
 
 
 def certify_order(r_num: int, root_number: int, exact_ratio: Fraction | None = None,
-                  l1_zero: bool | None = None, l1_source: str = "modular symbols") -> tuple[int, bool, str]:
+                  l1_zero: bool | None = None, l1_source: str = "modular symbols",
+                  points_rank: int = 0) -> tuple[int, bool, str]:
     """Return (rigorous lower bound for ord, whether ord is pinned, explanation).
 
     The exact knowledge about L(E,1) can be given either as `exact_ratio` (an exact rational
     L(E,1)/Ω⁺) or as `l1_zero` (True/False: L(E,1) = 0 known exactly), with `l1_source` saying how.
+
+    `points_rank` is a proven lower bound for rank E(Q) (independent rational points).  By
+    Gross–Zagier + Kolyvagin + Bump–Friedberg–Hoffstein/Murty–Murty, ord_{s=1} L(E,s) ≤ 1 implies
+    rank E(Q) = ord; contrapositively rank ≥ k implies ord ≥ min(k, 2).  With the parity of ord fixed
+    by the root number this gives: one point and root number +1 ⇒ ord ≥ 2; two points and root
+    number −1 ⇒ ord ≥ 3.  (This is why analytic rank 3 is certifiable for curves such as 5077a1;
+    Buhler–Gross–Zagier 1985 did it before Kolyvagin's theorem by showing a Heegner point is torsion.)
+    Nothing known gives ord ≥ 4 for any curve.
     """
     if l1_zero is None and exact_ratio is not None:
         l1_zero = (exact_ratio == 0)
@@ -79,6 +88,15 @@ def certify_order(r_num: int, root_number: int, exact_ratio: Fraction | None = N
     elif l1_zero is True:
         lower = 2
         notes.append(f"L(E,1) = 0 exactly ({l1_source}); with root number +1, ord is even, so ord ≥ 2")
+    if points_rank >= 1:
+        gzk = min(points_rank, 2)
+        if gzk % 2 != parity:
+            gzk += 1
+        if gzk > lower:
+            lower = gzk
+            notes.append(f"{points_rank} independent rational point(s) ⇒ rank ≥ {min(points_rank, 2)} ⇒ ord ≥ {min(points_rank, 2)} "
+                         f"(Gross–Zagier–Kolyvagin: ord ≤ 1 forces rank = ord), and ord ≡ {parity} (mod 2) from the root number, "
+                         f"so ord ≥ {gzk}")
     if r_num == lower:
         prefix = ("; ".join(notes) + "; ") if notes else ""
         return lower, True, prefix + f"L^({r_num})(E,1) ≠ 0 numerically, so ord = {r_num} (numerical non-vanishing)."

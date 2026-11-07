@@ -104,3 +104,24 @@ def test_sage_bridge_prove_bsd():
     assert prove_bsd([0, -1, 1, -10, -20])["primes_unproven"] == []          # 11a1
     sat = provable_saturation([0, 0, 1, -7, 6], [["-3", "0"], ["-1", "3"], ["11", "35"]])   # 5077a1, index-3 sublattice
     assert sat["index"] == 3 and abs(sat["regulator"] - 0.417143558758384) < 1e-9
+
+
+def test_gzk_parity_lower_bounds():
+    # two independent points + root number -1 => ord >= 3 (Gross–Zagier–Kolyvagin + parity)
+    lower, exact, _ = certify_order(3, -1, Fraction(0), points_rank=3)
+    assert lower == 3 and exact
+    # one point + root number +1 => ord >= 2 even without modular symbols
+    lower, exact, _ = certify_order(2, +1, None, points_rank=2)
+    assert lower == 2 and exact
+    # rank 4 (root number +1): nothing gives ord >= 4
+    lower, exact, _ = certify_order(4, +1, Fraction(0), points_rank=4)
+    assert lower == 2 and not exact
+    # rank 5 (root number -1): ord >= 3 only
+    lower, exact, _ = certify_order(5, -1, None, points_rank=5)
+    assert lower == 3 and not exact
+
+
+def test_rank3_curve_verified_5077a1():
+    rec = verify_curve([0, 0, 1, -7, 6], label="5077a1")
+    assert rec.analytic["rigorous_order_lower"] == 3 and rec.analytic["rigorous_order_exact"]
+    assert rec.rank_status.startswith("VERIFIED FOR THIS CURVE")
