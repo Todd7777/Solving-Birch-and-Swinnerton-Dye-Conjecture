@@ -10,3 +10,9 @@ results/memlog.txt
 results/fasrc/*.jsonl
 !results/fasrc/*_anomalies.jsonl
 results/fasrc/logs/
+# Work in progress by the research agents: tracked again and committed in full at integration.
+research/
+bsd/gz_certificate.py
+bsd/rigorous_l.py
+tests/test_gz_certificate.py
+tests/test_rigorous_l.py
