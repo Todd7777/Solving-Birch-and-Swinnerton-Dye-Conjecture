@@ -1,0 +1,5 @@
+04:09:27 rank5 N 19047851 D -7 M1 65844 MD 268567 M3 44350
+04:09:27   sieve at p = 2
+04:09:28 a_n computed 1.2 s
+04:09:28   twist checkpoint n=268568
+04:09:28 L(E^D,1) = [9.5167769505636907641 +/- 2.57e-20] excludes 0: True

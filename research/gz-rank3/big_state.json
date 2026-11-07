@@ -1,0 +1,69 @@
+{
+ "rank5": {
+  "curve": {
+   "ainvs_input": [
+    0,
+    0,
+    1,
+    -79,
+    342
+   ],
+   "ainvs": [
+    0,
+    0,
+    1,
+    -79,
+    342
+   ],
+   "conductor": 19047851,
+   "factorization": [
+    [
+     19047851,
+     1
+    ]
+   ],
+   "root_number": -1,
+   "discriminant": -19047851,
+   "torsion_structure": [],
+   "isogeny_class_size": 1,
+   "isogeny_degrees_from_E": [
+    1
+   ],
+   "semistable": true
+  },
+  "twist_root_number": 1,
+  "twist_2descent": {
+   "rank_lower": 0,
+   "rank_upper": 0,
+   "note": "PARI ellrank on E^D (predictor only: rank 0 makes L(E^D,1) != 0 expected)"
+  },
+  "M_lprime": 65844,
+  "M_twist": 268567,
+  "M_third": 44350,
+  "an_seconds": 1.2,
+  "twist": {
+   "ball": {
+    "ball": "[9.5167769505636907641 +/- 2.57e-20]",
+    "mid": "9.516776950563690764105624",
+    "rad": "1.9988e-20",
+    "contains_zero": false
+   },
+   "M": 268567,
+   "prec_bits": 143,
+   "conductor_twist": 933344699,
+   "tail_bound_log10": -19.699240432299415,
+   "formula": "L(E^D,1) = 2 sum chi_D(n) a_n/n exp(-2 pi n/(|D| sqrt N))",
+   "seconds": 0.34,
+   "state": {
+    "mid": [
+     "3316112779465158316931066494338574241309073",
+     "-138"
+    ],
+    "rad": [
+     "395894223",
+     "-94"
+    ]
+   }
+  }
+ }
+}

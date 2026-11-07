@@ -1,0 +1,79 @@
+=== 5077a1 N=5077 Heegner D: [-7, -19, -47, -55, -59, -71, -79, -103, -107, -115, -127, -131]
+5077a1 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3; L'''(E,1)/3! lies in [1.731849900119300689791975 +/- 8.51e-26], so ord = 3 margin 10^58.5
+5077a1 second D -47 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3 margin 10^58.5
+=== 11197a1 N=11197 Heegner D: [-7, -19, -39, -43, -55, -59, -71, -83, -91, -107, -115, -123]
+11197a1 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3; L'''(E,1)/3! lies in [2.871585754190565016616006 +/- 1.40e-25], so ord = 3 margin 10^58.5
+11197a1 second D -19 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3 margin 10^58.5
+=== 11642a1 N=11642 Heegner D: [-7, -15, -23, -39, -95, -111, -159, -199, -215, -239, -247, -263]
+11642a1 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3; L'''(E,1)/3! lies in [3.165929870472220684418158 +/- 1.94e-25], so ord = 3 margin 10^58.2
+11642a1 second D -15 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3 margin 10^58.2
+=== 12279a1 N=12279 Heegner D: [-11, -35, -47, -59, -83, -95, -107, -167, -179, -215, -227, -239]
+Traceback (most recent call last):
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/research/gz-rank3/run_certificates.py", line 69, in main
+    cert = certify_rank3(c.ainvs, None, height_bound="sage", gens=gens, label=c.label)
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 547, in certify_rank3
+    M_ms, xm = minus_modular_symbol(E, timeout=modsym_timeout)
+               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 213, in minus_modular_symbol
+    M, xm = pari.msfromell(E, -1)
+            ~~~~~~~~~~~~~~^^^^^^^
+  File "cypari2/auto_instance.pxi", line 25839, in cypari2.pari_instance.Pari_auto.msfromell
+    a rational eigenvalue and :math:`P(x) = x-a_{p}` has degree :math:`1`, we also accept the
+  File "cypari2/handle_error.pyx", line 212, in cypari2.handle_error._pari_err_handle
+    raise PariError(errnum, pari_error_string, clone_gen_noclear(E))
+cypari2.handle_error.PariError: the PARI stack overflows (current size: 2147483648; maximum size: 2147483648)
+You can use pari.allocatemem() to change the stack size and try again
+=== 13766a1 N=13766 Heegner D: [-7, -23, -31, -47, -55, -79, -111, -119, -127, -143, -151, -159]
+13766a1 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3; L'''(E,1)/3! lies in [3.620272457612264809363322 +/- 1.83e-25], so ord = 3 margin 10^57.5
+13766a1 second D -23 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3 margin 10^57.5
+=== 16811a1 N=16811 Heegner D: [-7, -11, -31, -35, -39, -43, -47, -55, -107, -111, -119, -127]
+Traceback (most recent call last):
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/research/gz-rank3/run_certificates.py", line 69, in main
+    cert = certify_rank3(c.ainvs, None, height_bound="sage", gens=gens, label=c.label)
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 547, in certify_rank3
+    M_ms, xm = minus_modular_symbol(E, timeout=modsym_timeout)
+               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 213, in minus_modular_symbol
+    M, xm = pari.msfromell(E, -1)
+            ~~~~~~~~~~~~~~^^^^^^^
+  File "cypari2/auto_instance.pxi", line 25839, in cypari2.pari_instance.Pari_auto.msfromell
+    a rational eigenvalue and :math:`P(x) = x-a_{p}` has degree :math:`1`, we also accept the
+  File "cypari2/handle_error.pyx", line 212, in cypari2.handle_error._pari_err_handle
+    raise PariError(errnum, pari_error_string, clone_gen_noclear(E))
+cypari2.handle_error.PariError: the PARI stack overflows (current size: 2147483648; maximum size: 2147483648)
+You can use pari.allocatemem() to change the stack size and try again
+=== 18097b1 N=18097 Heegner D: [-7, -19, -39, -47, -51, -55, -83, -87, -91, -103, -107, -111]
+18097b1 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3; L'''(E,1)/3! lies in [4.106943857290598778081931 +/- 1.02e-25], so ord = 3 margin 10^58.4
+18097b1 second D -47 L'(E,1) = 0 exactly, hence ord_(s=1) L(E,s) >= 3 margin 10^58.4
+=== 18562c1 N=18562 Heegner D: [-23, -79, -95, -111, -167, -215, -223, -247, -271, -287, -303, -335]
+Traceback (most recent call last):
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/research/gz-rank3/run_certificates.py", line 69, in main
+    cert = certify_rank3(c.ainvs, None, height_bound="sage", gens=gens, label=c.label)
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 547, in certify_rank3
+    M_ms, xm = minus_modular_symbol(E, timeout=modsym_timeout)
+               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 213, in minus_modular_symbol
+    M, xm = pari.msfromell(E, -1)
+            ~~~~~~~~~~~~~~^^^^^^^
+  File "cypari2/auto_instance.pxi", line 25839, in cypari2.pari_instance.Pari_auto.msfromell
+    a rational eigenvalue and :math:`P(x) = x-a_{p}` has degree :math:`1`, we also accept the
+  File "cypari2/handle_error.pyx", line 212, in cypari2.handle_error._pari_err_handle
+    raise PariError(errnum, pari_error_string, clone_gen_noclear(E))
+cypari2.handle_error.PariError: the PARI stack overflows (current size: 2147483648; maximum size: 2147483648)
+You can use pari.allocatemem() to change the stack size and try again
+=== 18745a1 N=18745 Heegner D: [-11, -19, -79, -159, -191, -291, -339, -431, -451, -479, -559, -571]
+Traceback (most recent call last):
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/research/gz-rank3/run_certificates.py", line 69, in main
+    cert = certify_rank3(c.ainvs, None, height_bound="sage", gens=gens, label=c.label)
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 547, in certify_rank3
+    M_ms, xm = minus_modular_symbol(E, timeout=modsym_timeout)
+               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 213, in minus_modular_symbol
+    M, xm = pari.msfromell(E, -1)
+            ~~~~~~~~~~~~~~^^^^^^^
+  File "cypari2/auto_instance.pxi", line 25839, in cypari2.pari_instance.Pari_auto.msfromell
+    a rational eigenvalue and :math:`P(x) = x-a_{p}` has degree :math:`1`, we also accept the
+  File "cypari2/handle_error.pyx", line 212, in cypari2.handle_error._pari_err_handle
+    raise PariError(errnum, pari_error_string, clone_gen_noclear(E))
+cypari2.handle_error.PariError: the PARI stack overflows (current size: 2147483648; maximum size: 2147483648)
+You can use pari.allocatemem() to change the stack size and try again

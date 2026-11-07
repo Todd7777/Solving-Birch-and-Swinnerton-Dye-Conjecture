@@ -1,0 +1,159 @@
+03:51:49 === run_batch validation pid=2780 ===
+03:51:50 validation 11a1@128: all_contained=True max_rad=2.77e-40 t=0.015s
+03:51:50 validation 37a1@128: all_contained=True max_rad=1.84e-40 t=0.013s
+03:51:50 validation 389a1@128: all_contained=True max_rad=4.57e-41 t=0.101s
+03:51:51 validation 5077a1@128: all_contained=True max_rad=2.85e-41 t=0.117s
+03:51:51 validation 571a1@128: all_contained=True max_rad=4.69e-41 t=0.060s
+03:51:51 validation 11a1@256: all_contained=True max_rad=5.94e-79 t=0.038s
+03:51:51 validation 37a1@256: all_contained=True max_rad=2.42e-79 t=0.045s
+03:51:51 validation 389a1@256: all_contained=True max_rad=1.58e-79 t=0.176s
+03:51:52 validation 5077a1@256: all_contained=True max_rad=8.10e-80 t=0.399s
+03:51:52 validation 571a1@256: all_contained=True max_rad=1.18e-79 t=0.076s
+03:51:53 validation 15158c2@128: all_contained=True max_rad=2.15e-41 t=0.301s
+03:51:53 validation 17550bn1@128: all_contained=True max_rad=2.10e-41 t=0.077s
+03:51:53 validation 1638n2@128: all_contained=True max_rad=3.54e-41 t=0.048s
+03:51:54 validation 6237c1@128: all_contained=True max_rad=2.76e-41 t=0.087s
+03:51:54 validation 12540a1@128: all_contained=True max_rad=2.32e-41 t=0.090s
+03:51:54 validation 9888j1@128: all_contained=True max_rad=2.51e-41 t=0.077s
+03:51:55 validation 8850m1@128: all_contained=True max_rad=2.48e-41 t=0.080s
+03:51:55 validation 3146a1@128: all_contained=True max_rad=3.06e-41 t=0.045s
+03:51:55 validation 12492b2@128: all_contained=True max_rad=2.28e-41 t=0.043s
+03:51:55 validation 2856f3@128: all_contained=True max_rad=3.14e-41 t=0.026s
+03:51:56 validation 6258c1@128: all_contained=True max_rad=2.78e-41 t=0.131s
+03:51:56 validation 8676c1@128: all_contained=True max_rad=2.52e-41 t=0.045s
+03:51:56 validation 15950j2@128: all_contained=True max_rad=2.11e-41 t=0.127s
+03:51:56 validation 3276d2@128: all_contained=True max_rad=3.14e-41 t=0.015s
+03:51:57 validation 11400a3@128: all_contained=True max_rad=2.43e-41 t=0.041s
+03:51:57 validation 7644a1@128: all_contained=True max_rad=2.53e-41 t=0.029s
+03:51:57 validation 13266b1@128: all_contained=True max_rad=2.27e-41 t=0.075s
+03:51:57 validation 6864x2@128: all_contained=True max_rad=2.63e-41 t=0.053s
+03:51:58 validation 9576h2@128: all_contained=True max_rad=2.49e-41 t=0.053s
+03:51:58 validation 11601b1@128: all_contained=True max_rad=2.30e-41 t=0.107s
+03:51:58 === run_batch validation finished ===
+03:52:10 === run_batch timing pid=4005 ===
+03:52:10 timing 11a1@128: N=11 M=48 t=0.014s
+03:52:10 timing 11a1@256: N=11 M=95 t=0.039s
+03:52:10 timing 11a1@512: N=11 M=189 t=0.138s
+03:52:10 timing 37a1@128: N=37 M=85 t=0.011s
+03:52:10 timing 37a1@256: N=37 M=171 t=0.034s
+03:52:10 timing 37a1@512: N=37 M=342 t=0.141s
+03:52:10 timing 100a1@128: N=100 M=149 t=0.013s
+03:52:10 timing 100a1@256: N=100 M=290 t=0.038s
+03:52:11 timing 100a1@512: N=100 M=573 t=0.159s
+03:52:11 timing 389a1@128: N=389 M=299 t=0.049s
+03:52:11 timing 389a1@256: N=389 M=577 t=0.192s
+03:52:11 timing 389a1@512: N=389 M=1134 t=0.594s
+03:52:11 timing 1001a1@128: N=1001 M=461 t=0.027s
+03:52:11 timing 1001a1@256: N=1001 M=905 t=0.088s
+03:52:12 timing 1001a1@512: N=1001 M=1795 t=0.498s
+03:52:12 timing 2001a1@128: N=2001 M=689 t=0.121s
+03:52:12 timing 2001a1@256: N=2001 M=1321 t=0.298s
+03:52:14 timing 2001a1@512: N=2001 M=2584 t=1.178s
+03:52:14 timing 5077a1@128: N=5077 M=1057 t=0.071s
+03:52:14 timing 5077a1@256: N=5077 M=2056 t=0.245s
+03:52:15 timing 5077a1@512: N=5077 M=4060 t=1.200s
+03:52:15 timing 7501a1@128: N=7501 M=1353 t=0.163s
+03:52:16 timing 7501a1@256: N=7501 M=2576 t=0.508s
+03:52:18 timing 7501a1@512: N=7501 M=5022 t=2.374s
+03:52:18 timing 10001a1@128: N=10001 M=1494 t=0.070s
+03:52:18 timing 10001a1@256: N=10001 M=2896 t=0.237s
+03:52:20 timing 10001a1@512: N=10001 M=5709 t=1.218s
+03:52:20 timing 12502a1@128: N=12502 M=1674 t=0.086s
+03:52:20 timing 12502a1@256: N=12502 M=3242 t=0.306s
+03:52:21 timing 12502a1@512: N=12502 M=6387 t=1.405s
+03:52:22 timing 15002a1@128: N=15002 M=1838 t=0.130s
+03:52:22 timing 15002a1@256: N=15002 M=3554 t=0.432s
+03:52:24 timing 15002a1@512: N=15002 M=7000 t=2.112s
+03:52:24 timing 17502a1@128: N=17502 M=1988 t=0.166s
+03:52:25 timing 17502a1@256: N=17502 M=3842 t=0.488s
+03:52:27 timing 17502a1@512: N=17502 M=7564 t=2.525s
+03:52:27 === run_batch timing finished ===
+03:52:45 === run_batch timing pid=4044 ===
+03:52:45 timing 19990a1@128: N=19990 M=2230 t=0.267s
+03:52:46 timing 19990a1@256: N=19990 M=4227 t=0.814s
+03:52:50 timing 19990a1@512: N=19990 M=8220 t=4.095s
+03:52:50 === run_batch timing finished ===
+03:52:55 === run_batch certify pid=4052 ===
+03:52:55 certify: 2196 curves, 2196 to do
+03:52:55 certify [1/2196] 11a1 N=11 t=0.01s elapsed=0s
+03:52:56 certify [26/2196] 681b1 N=681 t=0.03s elapsed=0s
+03:53:00 certify [51/2196] 4368x1 N=4368 t=0.08s elapsed=5s
+03:53:02 certify [76/2196] 8729a2 N=8729 t=0.08s elapsed=7s
+03:53:03 certify [101/2196] 7675a1 N=7675 t=0.04s elapsed=8s
+03:53:05 certify [126/2196] 5040e1 N=5040 t=0.06s elapsed=9s
+03:53:06 certify [151/2196] 4830p2 N=4830 t=0.07s elapsed=11s
+03:53:07 certify [176/2196] 1026c1 N=1026 t=0.03s elapsed=12s
+03:53:09 certify [201/2196] 3408a1 N=3408 t=0.04s elapsed=14s
+03:53:11 certify [226/2196] 6486l2 N=6486 t=0.10s elapsed=15s
+03:53:13 certify [251/2196] 1073a1 N=1073 t=0.10s elapsed=18s
+03:53:16 certify [276/2196] 1531a1 N=1531 t=0.07s elapsed=21s
+03:53:20 certify [301/2196] 1732a1 N=1732 t=0.14s elapsed=25s
+03:53:25 certify [326/2196] 2007a1 N=2007 t=0.14s elapsed=30s
+03:53:31 certify [351/2196] 2224f1 N=2224 t=0.25s elapsed=35s
+03:53:40 certify [376/2196] 2429d1 N=2429 t=0.19s elapsed=45s
+03:53:49 certify [401/2196] 2544a1 N=2544 t=0.65s elapsed=54s
+03:54:01 certify [426/2196] 2710b1 N=2710 t=0.53s elapsed=65s
+03:54:11 certify [451/2196] 2837a1 N=2837 t=0.25s elapsed=75s
+03:54:22 certify [476/2196] 3050a1 N=3050 t=0.66s elapsed=87s
+03:54:39 certify [501/2196] 3324a1 N=3324 t=0.80s elapsed=104s
+03:54:54 certify [526/2196] 3455c1 N=3455 t=0.35s elapsed=119s
+03:55:09 certify [551/2196] 3573b1 N=3573 t=0.38s elapsed=133s
+03:55:28 certify [576/2196] 3718k1 N=3718 t=1.15s elapsed=152s
+03:55:47 certify [601/2196] 3842b1 N=3842 t=0.76s elapsed=171s
+03:56:10 certify [626/2196] 3966b1 N=3966 t=1.28s elapsed=195s
+03:56:31 certify [651/2196] 4077a1 N=4077 t=0.55s elapsed=216s
+03:56:46 === run_batch rank3 pid=6527 ===
+03:56:48 rank3 5077a1: candidates=[1, 3] |L'(E,1)| <= 3.9758563e-157 (512 bits)
+03:56:51 rank3 11197a1: candidates=[1, 3] |L'(E,1)| <= 2.6635826e-157 (512 bits)
+03:56:54 rank3 11642a1: candidates=[1, 3] |L'(E,1)| <= 2.7094016e-157 (512 bits)
+03:56:55 certify [676/2196] 4202a1 N=4202 t=1.12s elapsed=240s
+03:56:56 rank3 12279a1: candidates=[1, 3] |L'(E,1)| <= 2.5334602e-157 (512 bits)
+03:56:59 rank3 13766a1: candidates=[1, 3] |L'(E,1)| <= 2.4514587e-157 (512 bits)
+03:57:02 rank3 16811a1: candidates=[1, 3] |L'(E,1)| <= 2.1788158e-157 (512 bits)
+03:57:05 rank3 18097b1: candidates=[1, 3] |L'(E,1)| <= 2.0874669e-157 (512 bits)
+03:57:08 rank3 18562c1: candidates=[1, 3] |L'(E,1)| <= 2.1352307e-157 (512 bits)
+03:57:11 rank3 18745a1: candidates=[1, 3] |L'(E,1)| <= 2.0790950e-157 (512 bits)
+03:57:11 === run_batch rank3 finished ===
+03:57:24 certify [701/2196] 4400g1 N=4400 t=2.09s elapsed=269s
+03:57:57 certify [726/2196] 4518d1 N=4518 t=1.79s elapsed=301s
+03:58:30 certify [751/2196] 4617h1 N=4617 t=0.90s elapsed=334s
+03:59:00 certify [776/2196] 4758b1 N=4758 t=2.59s elapsed=365s
+03:59:42 certify [801/2196] 4935b1 N=4935 t=1.92s elapsed=407s
+04:00:20 certify [826/2196] 5056i1 N=5056 t=1.80s elapsed=445s
+04:01:07 certify [851/2196] 5170b1 N=5170 t=2.96s elapsed=491s
+04:02:23 certify [876/2196] 5310a1 N=5310 t=7.42s elapsed=568s
+04:02:58 === run_batch crosscheck pid=11358 ===
+04:02:59 crosscheck 11a1@128: all_overlap=True series 0.01s integral 0.01s
+04:02:59 crosscheck 37a1@128: all_overlap=True series 0.01s integral 0.03s
+04:02:59 crosscheck 389a1@128: all_overlap=True series 0.07s integral 0.18s
+04:03:00 crosscheck 5077a1@128: all_overlap=True series 0.14s integral 0.31s
+04:03:00 crosscheck 571a1@128: all_overlap=True series 0.03s integral 0.14s
+04:03:01 crosscheck 15158c2@128: all_overlap=True series 0.35s integral 1.05s
+04:03:02 crosscheck 17550bn1@128: all_overlap=True series 0.15s integral 0.73s
+04:03:03 crosscheck 1638n2@128: all_overlap=True series 0.10s integral 0.24s
+04:03:03 crosscheck 6237c1@128: all_overlap=True series 0.16s integral 0.59s
+04:03:04 crosscheck 12540a1@128: all_overlap=True series 0.12s integral 0.79s
+04:03:05 crosscheck 9888j1@128: all_overlap=True series 0.07s integral 0.55s
+04:03:05 crosscheck 8850m1@128: all_overlap=True series 0.11s integral 0.39s
+04:03:06 crosscheck 3146a1@128: all_overlap=True series 0.07s integral 0.18s
+04:03:06 crosscheck 12492b2@128: all_overlap=True series 0.06s integral 0.37s
+04:03:06 crosscheck 2856f3@128: all_overlap=True series 0.04s integral 0.22s
+04:03:07 crosscheck 6258c1@128: all_overlap=True series 0.18s integral 0.60s
+04:03:08 crosscheck 8676c1@128: all_overlap=True series 0.09s integral 0.69s
+04:03:09 crosscheck 15950j2@128: all_overlap=True series 0.25s integral 0.99s
+04:03:09 crosscheck 3276d2@128: all_overlap=True series 0.02s integral 0.25s
+04:03:10 crosscheck 11400a3@128: all_overlap=True series 0.05s integral 0.33s
+04:03:10 crosscheck 7644a1@128: all_overlap=True series 0.04s integral 0.20s
+04:03:11 crosscheck 13266b1@128: all_overlap=True series 0.17s integral 0.39s
+04:03:11 crosscheck 6864x2@128: all_overlap=True series 0.06s integral 0.38s
+04:03:12 crosscheck 9576h2@128: all_overlap=True series 0.11s integral 0.49s
+04:03:12 crosscheck 11601b1@128: all_overlap=True series 0.12s integral 0.68s
+04:03:13 === run_batch crosscheck finished ===
+04:03:33 certify [901/2196] 5427b1 N=5427 t=1.45s elapsed=638s
+04:04:40 certify [926/2196] 5576c1 N=5576 t=2.42s elapsed=704s
+04:05:46 certify [951/2196] 5676a1 N=5676 t=5.10s elapsed=771s
+04:06:12 === run_batch beyond pid=12697 ===
+04:06:13 beyond 234446a1: N=234446 candidates=[0, 2, 4] t=1.08s
+04:06:22 beyond 19047851a1: N=19047851 candidates=[1, 3, 5] t=8.81s
+04:06:51 certify [976/2196] 5734a1 N=5734 t=2.35s elapsed=836s
+04:08:23 certify [1001/2196] 5834b1 N=5834 t=2.19s elapsed=927s
