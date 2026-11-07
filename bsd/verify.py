@@ -59,7 +59,8 @@ def verify_curve(ainvs, label: str = "", known_gens=None, run_descent: bool = Tr
                  saturation_bound: int = 1000, want_exact: bool = True, descent_timeout: float | None = 120.0,
                  analytic_timeout: float | None = 1800.0, cremona=None, ledger: bool = True,
                  padic_bound: int = 0, padic_prec: int = 5, padic_timeout: float | None = 600.0,
-                 use_sage: bool = False, sage_timeout: float | None = 600.0) -> BSDRecord:
+                 use_sage: bool = False, sage_timeout: float | None = 600.0,
+                 l1_precomputed: dict | None = None) -> BSDRecord:
     pari = get_pari()
     t = {}
     errors: list[str] = []
@@ -73,7 +74,7 @@ def verify_curve(ainvs, label: str = "", known_gens=None, run_descent: bool = Tr
     t0 = time.time()
     try:
         with time_limit(analytic_timeout):
-            an = analytic_data(E, inv.root_number, want_exact=want_exact)
+            an = analytic_data(E, inv.root_number, want_exact=want_exact, precomputed=l1_precomputed)
     except Exception as exc:
         errors.append(f"analytic side failed: {type(exc).__name__}: {str(exc)[:100]}")
         an = AnalyticData(-1, float("nan"), float("nan"), None, float("nan"), 0, False, "failed")

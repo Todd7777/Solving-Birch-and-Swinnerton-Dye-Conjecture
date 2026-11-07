@@ -45,9 +45,15 @@ def curve_section(rec: dict) -> str:
         lines.append(f"Bad primes — {ld}.")
     lines.append(f"Rational isogeny degrees from E: {inv['isogeny_degrees']} (E[ℓ] reducible for ℓ in {inv['reducible_primes']}).")
     lines.append("")
+    if an.get("L1_over_omega_plus_exact") is not None:
+        l1_text = f"Exact L(E,1)/Ω⁺ = {an['L1_over_omega_plus_exact']} ({an.get('L1_source') or 'modular symbols'}). "
+    elif an.get("L1_status"):
+        l1_text = f"L(E,1) is exactly {an['L1_status']} ({an.get('L1_source')}). "
+    else:
+        l1_text = f"Exact status of L(E,1) unavailable ({an.get('L1_source') or 'not computed'}). "
     lines.append(f"**Analytic side.** ord_{{s=1}} L(E,s) = {an['analytic_rank']} numerically; "
                  f"L^({an['analytic_rank']})(E,1)/{an['analytic_rank']}! = {_fmt(an['leading_term'], 15)}. "
-                 f"Exact L(E,1)/Ω⁺ = {an['L1_over_omega_plus_exact']} (modular symbols). {an['certification']}")
+                 + l1_text + f"{an['certification']}")
     lines.append("")
     lines.append(f"**Algebraic side.** 2-descent: {des['rank_lower']} ≤ rank ≤ {des['rank_upper']}"
                  + (f" (Ш[2]/2Ш[4] has 2-rank {des['sha2_mod_4_rank']})" if des['sha2_mod_4_rank'] not in (None, -1) else "")

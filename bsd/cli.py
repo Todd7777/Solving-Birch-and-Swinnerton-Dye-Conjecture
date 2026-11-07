@@ -83,15 +83,33 @@ def cmd_curated(a):
     print(summary(recs))
 
 
-# ---- sweep over Cremona's database, in parallel ----
+# ---- sweep over Cremona's database, in parallel (one isogeny class per work item) ----
 _SWEEP_OPTS = {}
+PARI_MODSYM_MAX_INDEX = 9000   # PARI msfromell is used when [SL2(Z):Γ0(N)] ≤ this; eclib (Sage) otherwise
+
+
+def gamma0_index(N: int) -> int:
+    idx, n, q = N, N, 2
+    while q * q <= n:
+        if n % q == 0:
+            idx = idx // q * (q + 1)
+            while n % q == 0:
+                n //= q
+        q += 1
+    if n > 1:
+        idx = idx // n * (n + 1)
+    return idx
 
 
 def _sweep_init(opts):
     global _SWEEP_OPTS
     _SWEEP_OPTS = opts
     from .pari_session import get_pari
-    get_pari()
+    pari = get_pari()
+    try:
+        pari.allocatemem(opts.get("stack", 2 * 2**30), silent=True)
+    except TypeError:
+        pari.allocatemem(opts.get("stack", 2 * 2**30))
     if opts.get("use_sage"):
         try:
             import sage.all  # noqa: F401  (import once per worker)
@@ -99,22 +117,71 @@ def _sweep_init(opts):
             pass
 
 
-def _sweep_one(item):
+def class_L1_status(members) -> list:
+    """Exact status of L(E,1) for every curve of one isogeny class (list of (label, ainvs, ref)).
+
+    Root number −1: nothing to compute (functional equation).  Otherwise PARI modular symbols for the
+    whole class at once (msfromell on the vector of isogenous curves) when the level is moderate, and
+    Cremona's eclib modular symbols through Sage otherwise or if PARI fails.  Vanishing of L(E,1) is an
+    isogeny invariant (the L-function is), so eclib's answer for one curve serves the class.
+    """
+    from fractions import Fraction
+    from .pari_session import get_pari, time_limit
+    pari = get_pari()
+    Es = [pari.ellinit(list(a)) for _, a, _ in members]
+    if int(pari.ellrootno(Es[0])) == -1:
+        return [None] * len(members)
+    N = int(pari.ellglobalred(Es[0])[0])
+    failure = ""
+    if gamma0_index(N) <= PARI_MODSYM_MAX_INDEX:
+        try:
+            with time_limit(180):
+                res = pari.msfromell(Es if len(Es) > 1 else Es[0], 1)
+            M = res[0]
+            xs = list(res[1]) if len(Es) > 1 else [res[1]]
+            out = []
+            for x in xs:
+                v = abs(Fraction(str(pari.mseval(M, x, pari("[0,oo]")))))
+                out.append({"ratio": v, "zero": v == 0, "source": "modular symbols (PARI msfromell)"})
+            return out
+        except Exception as exc:
+            failure = f"PARI modular symbols failed ({type(exc).__name__}); "
+    try:
+        import sage.all as S
+        val = S.EllipticCurve(S.QQ, [int(t) for t in members[0][1]]).modular_symbol(
+            sign=1, implementation="eclib", normalize="none")(0)
+        zero = (val == 0)
+        src = failure + "modular symbols (eclib via Sage" + (", computed on an isogenous curve" if len(members) > 1 else "") + ")"
+        return [{"ratio": None, "zero": zero, "source": src} for _ in members]
+    except Exception as exc:
+        return [{"ratio": None, "zero": None, "source": failure + f"eclib failed ({type(exc).__name__})"} for _ in members]
+
+
+def _sweep_class(members):
     from .verify import verify_curve
-    label, ainvs, ref = item
     o = _SWEEP_OPTS
     t0 = time.time()
     try:
-        rec = verify_curve(ainvs, label=label, known_gens=(ref.gens if o["use_known_gens"] else None),
-                           run_descent=not o["no_descent"], effort=o["effort"], saturation_bound=o["sat_bound"],
-                           descent_timeout=o["timeout"], cremona=ref, ledger=o["ledger"], use_sage=o["use_sage"],
-                           sage_timeout=o["sage_timeout"], padic_bound=o["padic_bound"], padic_prec=o["padic_prec"]).to_dict()
-    except BaseException as exc:  # noqa: BLE001 - keep the sweep alive
-        rec = {"label": label, "errors": [f"fatal: {type(exc).__name__}: {str(exc)[:200]}"], "invariants": {"conductor": ref.conductor},
-               "analytic": {"analytic_rank": -1}, "descent": {}, "sha_an": None, "sha_an_int": None, "sha_is_square": None,
-               "sha_rel_err": None, "rank_status": "failed", "sha_status": "failed", "p_part": [], "cremona": None, "timings": {}}
-    rec["wall"] = time.time() - t0
-    return rec
+        statuses = class_L1_status(members)
+    except BaseException as exc:  # noqa: BLE001
+        statuses = [{"ratio": None, "zero": None, "source": f"class L(E,1) step failed: {type(exc).__name__}"}] * len(members)
+    t_class = time.time() - t0
+    recs = []
+    for (label, ainvs, ref), st in zip(members, statuses):
+        t1 = time.time()
+        try:
+            rec = verify_curve(ainvs, label=label, known_gens=(ref.gens if o["use_known_gens"] else None),
+                               run_descent=not o["no_descent"], effort=o["effort"], saturation_bound=o["sat_bound"],
+                               descent_timeout=o["timeout"], cremona=ref, ledger=o["ledger"], use_sage=o["use_sage"],
+                               sage_timeout=o["sage_timeout"], padic_bound=o["padic_bound"], padic_prec=o["padic_prec"],
+                               l1_precomputed=st).to_dict()
+        except BaseException as exc:  # noqa: BLE001 - keep the sweep alive
+            rec = {"label": label, "errors": [f"fatal: {type(exc).__name__}: {str(exc)[:200]}"], "invariants": {"conductor": ref.conductor},
+                   "analytic": {"analytic_rank": -1}, "descent": {}, "sha_an": None, "sha_an_int": None, "sha_is_square": None,
+                   "sha_rel_err": None, "rank_status": "failed", "sha_status": "failed", "p_part": [], "cremona": None, "timings": {}}
+        rec["wall"] = time.time() - t1 + t_class / len(members)
+        recs.append(rec)
+    return recs
 
 
 def cmd_sweep(a):
@@ -133,25 +200,32 @@ def cmd_sweep(a):
                     done.add(json.loads(line)["label"])
                 except Exception:
                     pass
-    items = [(c.label, c.ainvs, c) for c in curves if c.label not in done]
-    print(f"sweep: {len(curves)} curves in [{a.min},{a.max}], {len(items)} to do, {a.workers} workers", flush=True)
+    classes: dict = {}
+    for c in curves:
+        if c.label not in done:
+            classes.setdefault((c.conductor, c.iso), []).append((c.label, c.ainvs, c))
+    items = list(classes.values())
+    todo = sum(len(m) for m in items)
+    print(f"sweep: {len(curves)} curves in [{a.min},{a.max}], {todo} to do in {len(items)} isogeny classes, {a.workers} workers", flush=True)
     opts = dict(use_known_gens=a.use_known_gens, no_descent=a.no_descent, effort=a.effort, sat_bound=a.sat_bound,
                 timeout=a.timeout, ledger=not a.no_ledger, use_sage=a.sage, sage_timeout=a.sage_timeout,
                 padic_bound=a.padic, padic_prec=a.padic_prec)
     t0 = time.time()
     n = 0
+    last = 0
     with open(outpath, "a" if a.resume else "w") as f:
         ctx = mp.get_context("fork")
         with ctx.Pool(a.workers, initializer=_sweep_init, initargs=(opts,)) as pool:
-            for rec in pool.imap_unordered(_sweep_one, items, chunksize=4):
-                f.write(json.dumps(rec) + "\n")
-                f.flush()
-                n += 1
-                if n % 200 == 0 or rec.get("errors"):
-                    msg = f"[{time.time()-t0:8.0f}s] {n}/{len(items)} {rec['label']}"
+            for recs in pool.imap_unordered(_sweep_class, items, chunksize=1):
+                for rec in recs:
+                    f.write(json.dumps(rec) + "\n")
+                    n += 1
                     if rec.get("errors"):
-                        msg += "  " + " | ".join(rec["errors"])[:160]
-                    print(msg, flush=True)
+                        print(f"[{time.time()-t0:8.0f}s] {n}/{todo} {rec['label']}  " + " | ".join(rec["errors"])[:160], flush=True)
+                f.flush()
+                if n - last >= 200:
+                    last = n
+                    print(f"[{time.time()-t0:8.0f}s] {n}/{todo} {recs[-1]['label']}", flush=True)
     print(f"done in {time.time()-t0:.0f}s", flush=True)
 
 

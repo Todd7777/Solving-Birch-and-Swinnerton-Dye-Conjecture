@@ -7,7 +7,7 @@ name = "bsd-verification"
 version = "0.1.0"
 description = "Computational verification toolkit and theorem ledger for the Birch and Swinnerton-Dyer conjecture over Q"
 requires-python = ">=3.10"
-dependencies = ["cypari2>=2.2", "cysignals>=1.11"]
+dependencies = ["cypari2>=2.2", "cysignals>=1.11", "python-flint>=0.6"]
 
 [project.optional-dependencies]
 plot = ["matplotlib"]

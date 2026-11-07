@@ -34,6 +34,8 @@ class AnalyticData:
     rigorous_order_lower: int         # proven lower bound for ord_{s=1} L(E,s)
     rigorous_order_exact: bool        # True if ord is rigorously pinned (modulo the numerical non-vanishing caveat)
     certification: str
+    L1_status: str = ""               # "zero" / "nonzero" / "" (unknown exactly)
+    L1_source: str = ""               # how the exact status of L(E,1) was obtained (or why it was not)
 
 
 def analytic_rank(E, eps=None):
@@ -57,51 +59,76 @@ def exact_L1_ratio(E) -> Fraction:
     return abs(fr)
 
 
-def certify_order(r_num: int, root_number: int, exact_ratio: Fraction | None) -> tuple[int, bool, str]:
-    """Return (rigorous lower bound for ord, whether ord is rigorously exact, explanation)."""
+def certify_order(r_num: int, root_number: int, exact_ratio: Fraction | None = None,
+                  l1_zero: bool | None = None, l1_source: str = "modular symbols") -> tuple[int, bool, str]:
+    """Return (rigorous lower bound for ord, whether ord is pinned, explanation).
+
+    The exact knowledge about L(E,1) can be given either as `exact_ratio` (an exact rational
+    L(E,1)/Ω⁺) or as `l1_zero` (True/False: L(E,1) = 0 known exactly), with `l1_source` saying how.
+    """
+    if l1_zero is None and exact_ratio is not None:
+        l1_zero = (exact_ratio == 0)
     parity = 0 if root_number == 1 else 1
-    if exact_ratio is not None and exact_ratio != 0:
-        return 0, True, "L(E,1)/Ω⁺ is a non-zero rational (modular symbols): ord = 0 rigorously."
+    if l1_zero is False:
+        return 0, True, f"L(E,1) ≠ 0 certified exactly ({l1_source}): ord = 0 rigorously."
     lower = 0
     notes = []
     if root_number == -1:
         lower = 1
-        notes.append("root number -1 forces ord odd, so ord ≥ 1")
-    if exact_ratio == 0:
-        notes.append("L(E,1) = 0 exactly (modular symbols)")
-        if root_number == 1:
-            lower = 2
-            notes.append("with root number +1, ord is even, so ord ≥ 2")
+        notes.append("root number −1 forces ord odd, so ord ≥ 1")
+    elif l1_zero is True:
+        lower = 2
+        notes.append(f"L(E,1) = 0 exactly ({l1_source}); with root number +1, ord is even, so ord ≥ 2")
     if r_num == lower:
-        return lower, True, "; ".join(notes) + f"; L^{{({r_num})}}(E,1) ≠ 0 numerically, so ord = {r_num} (numerical non-vanishing)."
-    # r_num > lower: vanishing of higher derivatives cannot be certified numerically
-    return lower, False, ("; ".join(notes) + f"; numerically ord = {r_num}, but vanishing of derivatives of order "
-                          f"{lower}..{r_num-1} cannot be certified numerically — rigorous statement is only ord ≥ {lower} "
-                          f"with ord ≡ {parity} (mod 2).")
+        prefix = ("; ".join(notes) + "; ") if notes else ""
+        return lower, True, prefix + f"L^({r_num})(E,1) ≠ 0 numerically, so ord = {r_num} (numerical non-vanishing)."
+    # r_num > lower: vanishing of higher derivatives cannot be certified from numerics alone
+    return lower, False, (("; ".join(notes) + "; ") if notes else "") + (
+        f"numerically ord = {r_num}, but vanishing of the derivatives of order {lower}..{r_num-1} is not certified here — "
+        f"rigorous statement: ord ≥ {lower} with ord ≡ {parity} (mod 2).")
 
 
 MODSYM_MAX_CONDUCTOR = 300_000   # modular symbols of level N cost ~N memory/time
 
 
 def analytic_data(E, root_number: int, want_exact: bool = True,
-                  modsym_max_conductor: int = MODSYM_MAX_CONDUCTOR) -> AnalyticData:
+                  modsym_max_conductor: int = MODSYM_MAX_CONDUCTOR, precomputed: dict | None = None) -> AnalyticData:
+    """Analytic invariants at s = 1.
+
+    `precomputed` (optional) supplies exact knowledge of L(E,1) obtained elsewhere, e.g. once per
+    isogeny class by the sweep: {"ratio": Fraction | None, "zero": bool | None, "source": str}.
+    For root number −1 no modular-symbol computation is done: the functional equation forces L(E,1) = 0.
+    """
     pari = get_pari()
     N = int(pari.ellglobalred(E)[0])
-    if N > modsym_max_conductor:
-        want_exact = False
     r, raw = analytic_rank(E)
     lead = raw / factorial(r)
     om_plus = float(pari("(E)->E.omega[1]")(E))
     L1 = derivative(E, 0)
     exact = None
-    if want_exact:
+    zero = None
+    source = ""
+    if root_number == -1:
+        zero, source = True, "forced by the functional equation (root number −1)"
+    elif precomputed is not None:
+        exact, zero, source = precomputed.get("ratio"), precomputed.get("zero"), precomputed.get("source", "")
+    elif not want_exact:
+        source = "not computed"
+    elif N > modsym_max_conductor:
+        source = f"not computed: conductor {N} exceeds the modular-symbol limit {modsym_max_conductor}"
+    else:
         try:
             exact = exact_L1_ratio(E)
-        except Exception:  # pragma: no cover
-            exact = None
-    lower, is_exact, why = certify_order(r, root_number, exact)
-    if exact is None and want_exact is False and N > modsym_max_conductor:
-        why += f" [exact L(E,1)/Ω⁺ not computed: conductor {N} exceeds the modular-symbol limit {modsym_max_conductor}]"
+            zero, source = (exact == 0), "modular symbols (PARI msfromell)"
+        except Exception as exc:  # e.g. PARI stack overflow at highly composite levels
+            source = f"modular symbols failed ({type(exc).__name__}: {str(exc)[:60]})"
+    if exact is None and zero is None and source and not source.startswith("not computed"):
+        source += "; ord = 0 below rests on numerical non-vanishing only" if abs(L1) > 1e-10 else ""
+    lower, is_exact, why = certify_order(r, root_number, exact, l1_zero=zero, l1_source=source or "modular symbols")
+    if zero is None and source:
+        why += f" [exact status of L(E,1): {source}]"
+    status = "" if zero is None else ("zero" if zero else "nonzero")
     return AnalyticData(analytic_rank=r, leading_term=lead, raw_derivative=raw,
                         L1_over_omega_plus_exact=exact, L1_over_omega_plus_numeric=L1 / om_plus,
-                        rigorous_order_lower=lower, rigorous_order_exact=is_exact, certification=why)
+                        rigorous_order_lower=lower, rigorous_order_exact=is_exact, certification=why,
+                        L1_status=status, L1_source=source)
