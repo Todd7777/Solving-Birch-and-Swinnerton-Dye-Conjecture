@@ -141,3 +141,18 @@ def by_label(label: str, cache_dir: str = DEFAULT_CACHE) -> CremonaCurve:
 
 def labels(curves: Iterable[CremonaCurve]) -> list[str]:
     return [c.label for c in curves]
+
+
+def fetch_all(lo: int = 0, hi: int = 499999, cache_dir: str = DEFAULT_CACHE, kinds=("allcurves", "allbsd", "allgens")) -> list[str]:
+    """Download every ecdata block covering conductors lo..hi (Cremona's database currently reaches 499999).
+
+    Run this on a machine with internet access (e.g. a cluster login node) before running sweeps on
+    compute nodes that cannot reach GitHub.
+    """
+    paths = []
+    block = (lo // 10000) * 10000
+    while block <= hi:
+        for kind in kinds:
+            paths.append(fetch(kind, block, cache_dir))
+        block += 10000
+    return paths

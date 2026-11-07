@@ -7,3 +7,6 @@ results/sweep_*.jsonl
 results/*.log
 results/smoke.*
 results/memlog.txt
+results/fasrc/*.jsonl
+!results/fasrc/*_anomalies.jsonl
+results/fasrc/logs/

@@ -115,7 +115,8 @@ def verify_curve(ainvs, label: str = "", known_gens=None, run_descent: bool = Tr
     if r >= 0 and not (des.rank_lower <= r <= des.rank_upper):
         errors.append(f"analytic rank {r} outside 2-descent bounds [{des.rank_lower},{des.rank_upper}]")
     rank_status, sha_status = rank_and_sha_status(r, an.rigorous_order_lower, an.rigorous_order_exact,
-                                                  des.rank_lower, des.rank_upper, ngens)
+                                                  des.rank_lower, des.rank_upper, ngens,
+                                                  l1_exact_nonzero=(an.L1_status == "nonzero"))
     pp = p_part_ledger(inv, r, sha_int) if (ledger and r >= 0) else []
     # p-adic BSD data and, for rank ≥ 2, Kato-based finiteness of Ш[p^∞]
     padic = []

@@ -113,11 +113,20 @@ def p_part_ledger(inv: CurveInvariants, analytic_rank: int, sha_an_int: int | No
 
 
 def rank_and_sha_status(analytic_rank: int, rigorous_lower: int, rigorous_exact: bool,
-                        rank_lower: int, rank_upper: int, n_gens: int) -> tuple[str, str]:
-    """Human-readable status of (rank conjecture, finiteness of Ш) for this curve."""
+                        rank_lower: int, rank_upper: int, n_gens: int,
+                        l1_exact_nonzero: bool | None = None) -> tuple[str, str]:
+    """Human-readable status of (rank conjecture, finiteness of Ш) for this curve.
+
+    `l1_exact_nonzero` says whether L(E,1) ≠ 0 was certified exactly (modular symbols); otherwise the
+    rank-0 conclusion rests on the numerical non-vanishing of L(E,1) and is labelled accordingly.
+    """
     if analytic_rank == 0 and rigorous_exact:
-        rk = ("THEOREM: rank E(Q) = 0 and Ш(E/Q) is finite (L(E,1) ≠ 0 certified by modular symbols; "
-              "Kolyvagin 1988/Gross–Zagier 1986, independently Kato 2004).")
+        if l1_exact_nonzero:
+            rk = ("THEOREM: rank E(Q) = 0 and Ш(E/Q) is finite (L(E,1) ≠ 0 certified exactly by modular symbols; "
+                  "Kolyvagin 1988 with Gross–Zagier 1986, independently Kato 2004).")
+        else:
+            rk = ("THEOREM (modulo the numerical non-vanishing of L(E,1)): rank E(Q) = 0 and Ш(E/Q) is finite "
+                  "(Kolyvagin 1988 with Gross–Zagier 1986, independently Kato 2004).")
         if rank_upper == 0:
             rk += " 2-descent independently gives rank 0."
         return rk, "finite (theorem)"

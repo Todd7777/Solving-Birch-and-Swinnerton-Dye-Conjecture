@@ -162,7 +162,7 @@ def _sweep_class(members):
     o = _SWEEP_OPTS
     t0 = time.time()
     try:
-        statuses = class_L1_status(members)
+        statuses = [None] * len(members) if o.get("no_modsym") else class_L1_status(members)
     except BaseException as exc:  # noqa: BLE001
         statuses = [{"ratio": None, "zero": None, "source": f"class L(E,1) step failed: {type(exc).__name__}"}] * len(members)
     t_class = time.time() - t0
@@ -174,12 +174,15 @@ def _sweep_class(members):
                                run_descent=not o["no_descent"], effort=o["effort"], saturation_bound=o["sat_bound"],
                                descent_timeout=o["timeout"], cremona=ref, ledger=o["ledger"], use_sage=o["use_sage"],
                                sage_timeout=o["sage_timeout"], padic_bound=o["padic_bound"], padic_prec=o["padic_prec"],
-                               l1_precomputed=st).to_dict()
+                               l1_precomputed=st, want_exact=not o.get("no_modsym")).to_dict()
         except BaseException as exc:  # noqa: BLE001 - keep the sweep alive
             rec = {"label": label, "errors": [f"fatal: {type(exc).__name__}: {str(exc)[:200]}"], "invariants": {"conductor": ref.conductor},
                    "analytic": {"analytic_rank": -1}, "descent": {}, "sha_an": None, "sha_an_int": None, "sha_is_square": None,
                    "sha_rel_err": None, "rank_status": "failed", "sha_status": "failed", "p_part": [], "cremona": None, "timings": {}}
         rec["wall"] = time.time() - t1 + t_class / len(members)
+        if o.get("compact"):
+            from .report import compact_row
+            rec = compact_row(rec)
         recs.append(rec)
     return recs
 
@@ -209,7 +212,8 @@ def cmd_sweep(a):
     print(f"sweep: {len(curves)} curves in [{a.min},{a.max}], {todo} to do in {len(items)} isogeny classes, {a.workers} workers", flush=True)
     opts = dict(use_known_gens=a.use_known_gens, no_descent=a.no_descent, effort=a.effort, sat_bound=a.sat_bound,
                 timeout=a.timeout, ledger=not a.no_ledger, use_sage=a.sage, sage_timeout=a.sage_timeout,
-                padic_bound=a.padic, padic_prec=a.padic_prec)
+                padic_bound=a.padic, padic_prec=a.padic_prec, compact=a.compact, no_modsym=a.no_modsym,
+                stack=int(a.stack_gb * 2**30))
     t0 = time.time()
     n = 0
     last = 0
@@ -227,6 +231,12 @@ def cmd_sweep(a):
                     last = n
                     print(f"[{time.time()-t0:8.0f}s] {n}/{todo} {recs[-1]['label']}", flush=True)
     print(f"done in {time.time()-t0:.0f}s", flush=True)
+
+
+def cmd_fetch(a):
+    from . import ecdata
+    paths = ecdata.fetch_all(a.min, a.max)
+    print(f"{len(paths)} ecdata files present in {ecdata.DEFAULT_CACHE}")
 
 
 def cmd_report(a):
@@ -312,7 +322,14 @@ def main(argv=None):
     p.add_argument("--min", type=int, default=1); p.add_argument("--max", type=int, default=1000)
     p.add_argument("--workers", type=int, default=max(1, os.cpu_count() - 1)); p.add_argument("--rank", type=int, default=None)
     p.add_argument("--limit", type=int, default=0); p.add_argument("--resume", action="store_true"); p.add_argument("--no-ledger", action="store_true")
+    p.add_argument("--compact", action="store_true", help="write one compact row per curve (≈0.5 KB) instead of the full record")
+    p.add_argument("--no-modsym", action="store_true",
+                   help="skip modular symbols; the analytic certificate then uses parity + Gross–Zagier–Kolyvagin + rational points")
+    p.add_argument("--stack-gb", type=float, default=2.0, help="PARI stack per worker (GB)")
     p.set_defaults(fn=cmd_sweep)
+    p = sub.add_parser("fetch", help="download Cremona's ecdata blocks (run where there is internet access)")
+    p.add_argument("--min", type=int, default=0); p.add_argument("--max", type=int, default=499999)
+    p.set_defaults(fn=cmd_fetch)
     p = sub.add_parser("report"); p.add_argument("jsonl"); p.add_argument("--md", default=None)
     p.add_argument("--summary-only", action="store_true"); p.add_argument("--sections", action="store_true"); p.set_defaults(fn=cmd_report)
     p = sub.add_parser("heuristic"); p.add_argument("curves", nargs="+"); p.add_argument("--X", type=int, default=100000)

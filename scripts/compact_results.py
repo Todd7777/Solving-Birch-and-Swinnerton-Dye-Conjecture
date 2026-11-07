@@ -15,28 +15,13 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-COLS = ["label", "conductor", "analytic_rank", "rigorous_ord_lower", "rigorous_ord_exact", "rank_lower", "rank_upper",
-        "sha2_mod4_rank", "torsion", "tamagawa", "omega", "regulator", "leading_term", "L1_over_omega_plus_exact",
-        "sha_an", "sha_an_int", "sha_is_square", "cremona_match", "p_part_proven_primes", "p_part_not_covered",
-        "sage_prove_bsd_unproven", "sage_sat_index", "errors"]
+sys.path.insert(0, ROOT)
+from bsd.report import COMPACT_FIELDS as COLS, compact_row  # noqa: E402
 
 
 def row(r: dict) -> list:
-    inv, an, des = r.get("invariants", {}), r.get("analytic", {}), r.get("descent", {})
-    pp = r.get("p_part") or []
-    sg = r.get("sage") or {}
-    pb = sg.get("prove_bsd") or {}
-    st = sg.get("saturation") or {}
-    crem = r.get("cremona")
-    return [r.get("label"), inv.get("conductor"), an.get("analytic_rank"), an.get("rigorous_order_lower"),
-            an.get("rigorous_order_exact"), des.get("rank_lower"), des.get("rank_upper"), des.get("sha2_mod_4_rank"),
-            inv.get("torsion_order"), inv.get("tamagawa_product"), inv.get("omega"), des.get("regulator"),
-            an.get("leading_term"), an.get("L1_over_omega_plus_exact"), r.get("sha_an"), r.get("sha_an_int"),
-            r.get("sha_is_square"), (None if crem is None else not crem.get("mismatches")),
-            " ".join(str(p["p"]) for p in pp if p["status"] == "proven"),
-            " ".join(str(p["p"]) for p in pp if p["status"] == "not covered"),
-            ("" if pb.get("primes_unproven") is None else " ".join(map(str, pb["primes_unproven"])) or "none"),
-            st.get("index"), " | ".join(r.get("errors") or [])]
+    d = r if "rigorous_ord_lower" in r else compact_row(r)   # accept full or already-compact records
+    return [d.get(c) for c in COLS]
 
 
 def main(paths):

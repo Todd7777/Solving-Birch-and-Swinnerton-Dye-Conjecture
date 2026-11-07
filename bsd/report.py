@@ -133,3 +133,40 @@ def read_jsonl(path: str) -> list[dict]:
             if line:
                 out.append(json.loads(line))
     return out
+
+
+COMPACT_FIELDS = ["label", "conductor", "root_number", "analytic_rank", "rigorous_ord_lower", "rigorous_ord_exact",
+                  "rank_lower", "rank_upper", "sha2_mod4_rank", "torsion", "tamagawa", "omega", "regulator",
+                  "leading_term", "L1_status", "L1_source", "sha_an", "sha_an_int", "sha_is_square", "sha_rel_err",
+                  "cremona_match", "rank_status", "p_part_proven", "p_part_not_covered", "sage_prove_bsd_unproven",
+                  "sage_sat_index", "errors", "wall"]
+
+
+def compact_row(r: dict) -> dict:
+    """The essential fields of a full verification record (≈ 0.5 KB instead of ≈ 8 KB)."""
+    inv, an, des = r.get("invariants", {}), r.get("analytic", {}), r.get("descent", {})
+    pp = r.get("p_part") or []
+    sg = r.get("sage") or {}
+    pb = sg.get("prove_bsd") or {}
+    st = sg.get("saturation") or {}
+    crem = r.get("cremona")
+    status = r.get("rank_status", "")
+    return {
+        "label": r.get("label"), "conductor": inv.get("conductor"), "root_number": inv.get("root_number"),
+        "analytic_rank": an.get("analytic_rank"), "rigorous_ord_lower": an.get("rigorous_order_lower"),
+        "rigorous_ord_exact": an.get("rigorous_order_exact"), "rank_lower": des.get("rank_lower"),
+        "rank_upper": des.get("rank_upper"), "sha2_mod4_rank": des.get("sha2_mod_4_rank"),
+        "torsion": inv.get("torsion_order"), "tamagawa": inv.get("tamagawa_product"), "omega": inv.get("omega"),
+        "regulator": des.get("regulator"), "leading_term": an.get("leading_term"),
+        "L1_status": an.get("L1_status") or ("zero" if an.get("L1_over_omega_plus_exact") in ("0", 0) else
+                                               "nonzero" if an.get("L1_over_omega_plus_exact") not in (None, "", "0", 0) else ""),
+        "L1_source": an.get("L1_source", ""), "sha_an": r.get("sha_an"), "sha_an_int": r.get("sha_an_int"),
+        "sha_is_square": r.get("sha_is_square"), "sha_rel_err": r.get("sha_rel_err"),
+        "cremona_match": None if crem is None else not crem.get("mismatches"),
+        "rank_status": status.split(":")[0] if status else "",
+        "p_part_proven": " ".join(str(x["p"]) for x in pp if x.get("status") == "proven"),
+        "p_part_not_covered": " ".join(str(x["p"]) for x in pp if x.get("status") == "not covered"),
+        "sage_prove_bsd_unproven": ("" if pb.get("primes_unproven") is None else
+                                    " ".join(map(str, pb["primes_unproven"])) or "none"),
+        "sage_sat_index": st.get("index"), "errors": " | ".join(r.get("errors") or []), "wall": r.get("wall"),
+    }
