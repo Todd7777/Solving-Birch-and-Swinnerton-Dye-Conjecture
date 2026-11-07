@@ -6,3 +6,4 @@ data/ecdata/
 results/sweep_*.jsonl
 results/*.log
 results/smoke.*
+results/memlog.txt
