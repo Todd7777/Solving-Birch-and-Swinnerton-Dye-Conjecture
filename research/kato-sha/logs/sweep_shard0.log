@@ -47,3 +47,7 @@
 [04:09:44] 1918c1 N=1918 cert 23/23 good odd p<100 6.08s rss 281.7MB 
 [04:09:47] 1933a1 N=1933 cert 24/24 good odd p<100 3.41s rss 281.7MB 
 [04:09:51] 1957a1 N=1957 cert 23/23 good odd p<100 3.85s rss 281.7MB 
+[04:09:57] 1964a1 N=1964 cert 23/24 good odd p<100 5.78s rss 281.7MB 
+[04:10:01] 2007a1 N=2007 cert 23/23 good odd p<100 4.21s rss 281.7MB 
+[04:10:05] 2021a1 N=2021 cert 21/22 good odd p<100 3.45s rss 282.3MB 
+[04:10:08] 2027a1 N=2027 cert 24/24 good odd p<100 2.61s rss 282.3MB 

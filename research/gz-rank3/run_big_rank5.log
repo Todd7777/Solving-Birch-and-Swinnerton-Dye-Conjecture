@@ -3,3 +3,16 @@
 04:09:28 a_n computed 1.2 s
 04:09:28   twist checkpoint n=268568
 04:09:28 L(E^D,1) = [9.5167769505636907641 +/- 2.57e-20] excludes 0: True
+04:10:06   lprime checkpoint n=65845
+04:10:06 L'(E,1) = [+/- 2.00e-40]
+Traceback (most recent call last):
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/research/gz-rank3/run_big.py", line 159, in <module>
+    run(nm)
+    ~~~^^^^
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/research/gz-rank3/run_big.py", line 118, in run
+    res = gzc.third_derivative_ball(an, N, -30.0, M=M3)
+  File "/home/user/Solving-Birch-and-Swinnerton-Dye-Conjecture/bsd/gz_certificate.py", line 470, in third_derivative_ball
+    S += arb(a) * _G3(alpha * n, prec) / n
+         ~~~^^^
+  File "flint/types/arb.pyx", line 203, in flint.types.arb.arb.__init__
+TypeError: cannot create arb from type <class 'numpy.int32'>

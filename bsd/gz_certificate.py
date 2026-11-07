@@ -237,6 +237,48 @@ def an_list(E, M: int) -> list[int]:
     return [int(x) for x in v]
 
 
+def an_numpy(E, M: int, dtype: str = "int64", progress=None):
+    """a_1..a_M as a numpy array (index n-1), from a_p = PARI ellap(E, p) and multiplicativity.
+
+    Memory-light alternative to ellan for large M (int32 is safe for M <= 2*10^9 since
+    |a_n| <= d(n) sqrt(n) and every partial product is bounded the same way).
+    """
+    import numpy as np
+    pari = get_pari()
+    N = int(pari.ellglobalred(E)[0])
+    an = np.ones(M + 1, dtype=dtype)
+    an[0] = 0
+    sieve = np.ones(M + 1, dtype=bool)
+    sieve[:2] = False
+    for i in range(2, int(M ** 0.5) + 1):
+        if sieve[i]:
+            sieve[i * i::i] = False
+    primes = np.nonzero(sieve)[0]
+    del sieve
+    sq = int(M ** 0.5)
+    for idx, p in enumerate(primes.tolist()):
+        ap = int(pari.ellap(E, p))
+        if p > sq:                      # p^2 > M: every multiple n of p has v_p(n) = 1
+            if ap != 1:
+                an[p::p] *= ap
+        else:
+            bad = (N % p == 0)
+            # f[m-1] = a_{p^{1+v_p(m)}} for n = p*m <= M
+            f = np.full(M // p, ap, dtype=dtype)
+            a_prev2, a_prev = ap, (ap * ap if bad else ap * ap - p)      # a_p, a_{p^2}
+            pj = p
+            while p * pj <= M:
+                f[pj - 1::pj] = a_prev
+                a_next = ap * a_prev if bad else ap * a_prev - p * a_prev2
+                a_prev2, a_prev = a_prev, a_next
+                pj *= p
+            an[p::p] *= f
+            del f
+        if progress is not None and idx % 500000 == 0:
+            progress(p)
+    return an[1:]
+
+
 # ----------------------------------------------------------------------------------------
 # rigorous enclosures (Arb)
 # ----------------------------------------------------------------------------------------
@@ -267,14 +309,38 @@ def _choose_terms(alpha_float: float, log10_target: float, k: int) -> int:
     return max(1, int(math.ceil(x0 / a)) + 2)
 
 
+def _chunk(an, i: int, j: int) -> list:
+    """an[i:j] as a list of Python ints (works for lists and numpy arrays)."""
+    part = an[i:j]
+    return part.tolist() if hasattr(part, "tolist") else list(part)
+
+
+def arb_to_state(x) -> dict:
+    """Exact serialisation of an arb ball (mid and radius as mantissa/exponent pairs)."""
+    m, e = x.mid().man_exp()
+    rm, re_ = x.rad().man_exp()
+    return dict(mid=[str(m), str(e)], rad=[str(rm), str(re_)])
+
+
+def arb_from_state(st: dict):
+    """Inverse of arb_to_state (exact: mid +- rad with mid, rad dyadic)."""
+    m, e = int(st["mid"][0]), int(st["mid"][1])
+    rm, re_ = int(st["rad"][0]), int(st["rad"][1])
+    mid = arb(m) * arb(2) ** e
+    rad = arb(rm) * arb(2) ** re_
+    return mid + arb(0, 1) * rad
+
+
 def lprime_ball(an: Sequence[int], N: int, log10_target: float = -60.0, prec: int | None = None,
-                M: int | None = None, progress=None) -> dict:
+                M: int | None = None, start_n: int = 1, S0: dict | None = None, checkpoint=None,
+                checkpoint_every: int = 250000) -> dict:
     """Rigorous enclosure of L'(E,1), assuming root number -1.
 
         L'(E,1) = 2 sum_{n>=1} (a_n/n) E_1(2 pi n / sqrt N)          [w(E) = -1]
 
     The truncation error after M terms is at most 2 * tail_bound(alpha, M, 1) (|a_n/n| <= 2,
-    E_1(x) <= e^{-x}/x).  Returns the ball together with the bookkeeping.
+    E_1(x) <= e^{-x}/x).  `start_n`, `S0` (from arb_to_state) and `checkpoint(n, state)` make long
+    runs resumable.  Returns the ball together with the bookkeeping.
     """
     _need_flint()
     alpha_f = 2 * math.pi / math.sqrt(N)
@@ -289,13 +355,16 @@ def lprime_ball(an: Sequence[int], N: int, log10_target: float = -60.0, prec: in
     t0 = time.time()
     with _prec(prec):
         alpha = 2 * arb.pi() / arb(N).sqrt()
-        S = arb(0)
-        for n in range(1, M + 1):
-            a = an[n - 1]
-            if a:
-                S += arb(a) * (alpha * n).expint(1) / n
-            if progress is not None and n % 200000 == 0:
-                progress(n, S)
+        S = arb_from_state(S0) if S0 is not None else arb(0)
+        n = start_n
+        while n <= M:
+            stop = min(M, n + checkpoint_every - 1)
+            for k, a in enumerate(_chunk(an, n - 1, stop), start=n):
+                if a:
+                    S += arb(a) * (alpha * k).expint(1) / k
+            n = stop + 1
+            if checkpoint is not None:
+                checkpoint(n, arb_to_state(S))
         tail = _tail_bound(alpha, M, 1)
         value = 2 * (S + arb(0, 1) * tail.upper())
         out = dict(value=value, ball=ball_dict(value), M=M, prec_bits=prec,
@@ -305,7 +374,8 @@ def lprime_ball(an: Sequence[int], N: int, log10_target: float = -60.0, prec: in
 
 
 def twist_value_ball(an: Sequence[int], N: int, D: int, log10_target: float = -20.0, prec: int | None = None,
-                     M: int | None = None) -> dict:
+                     M: int | None = None, start_n: int = 1, S0: dict | None = None, checkpoint=None,
+                     checkpoint_every: int = 2000000) -> dict:
     """Rigorous enclosure of L(E^D,1) for D coprime to N with w(E^D) = +1.
 
         L(E^D,1) = 2 sum_{n>=1} chi_D(n) a_n / n * exp(-2 pi n / (|D| sqrt N))
@@ -327,13 +397,19 @@ def twist_value_ball(an: Sequence[int], N: int, D: int, log10_target: float = -2
     with _prec(prec):
         beta = 2 * arb.pi() / (arb(N).sqrt() * m)
         q = (-beta).exp()
-        qn = arb(1)
-        S = arb(0)
-        for n in range(1, M + 1):
-            qn *= q
-            c = chi[n % m] * an[n - 1]
-            if c:
-                S += qn * c / n
+        S = arb_from_state(S0) if S0 is not None else arb(0)
+        n = start_n
+        while n <= M:
+            stop = min(M, n + checkpoint_every - 1)
+            qn = (-beta * (n - 1)).exp()                 # q^(n-1), recomputed exactly at each block start
+            for k, a in enumerate(_chunk(an, n - 1, stop), start=n):
+                qn *= q
+                c = chi[k % m] * a
+                if c:
+                    S += qn * c / k
+            n = stop + 1
+            if checkpoint is not None:
+                checkpoint(n, arb_to_state(S))
         tail = _tail_bound(beta, M, 0)
         value = 2 * (S + arb(0, 1) * tail.upper())
         out = dict(value=value, ball=ball_dict(value), M=M, prec_bits=prec, conductor_twist=N * m * m,
@@ -502,6 +578,37 @@ def manin_constant_status(cd: dict, manin_bound: float | None = None) -> dict:
 
 
 # ----------------------------------------------------------------------------------------
+# the Gross-Zagier inequality
+# ----------------------------------------------------------------------------------------
+def gz_inequality(D: int, lprime_value, twist_value, volume_value, lam: float, c_max: float | None,
+                  safety: float = 1e6) -> dict:
+    """Decide whether hhat_K(y_K) < lam/2 is forced.
+
+    Gross-Zagier: hhat_K(y_K) = sqrt|D| c_E^2 u_K^2 L'(E,1) L(E^D,1) / (2 Vol(E)) with u_K = 1 (D < -4).
+    With rigorous balls for L'(E,1), L(E^D,1), Vol(E) this gives the upper bound
+        H = sqrt|D| c_max^2 |L'(E,1)|_up |L(E^D,1)|_up / (2 Vol_low)  >=  hhat_K(y_K),
+    while a non-torsion y_K would have hhat_K(y_K) >= lam/2.  If c_max is None (no bound for the Manin
+    constant), H is computed with c = 1 and the largest c compatible with the inequality is reported.
+    """
+    with _prec(256):
+        Lp_up = abs(lprime_value).upper()
+        LD_up = abs(twist_value).upper()
+        V_lo = volume_value.lower()
+        if not V_lo > 0:
+            raise RuntimeError("volume lower bound not positive")
+        c2 = arb(c_max) ** 2 if c_max is not None else arb(1)
+        H = arb(-int(D)).sqrt() * c2 * Lp_up * LD_up / (2 * V_lo)       # >= hhat_K(y_K)
+        thresh = arb(lam) / 2                                            # y_K non-torsion => hhat_K(y_K) >= lam/2
+        holds = bool(H * safety < thresh)
+        log10_margin = _log10_lower(thresh) - _log10_upper(H)
+        log10_cmax = 0.5 * (log10_margin - math.log10(safety)) if c_max is None else None
+        return dict(formula="hhat_K(y_K) = sqrt|D| c_E^2 u_K^2 |L'(E,1)| |L(E^D,1)| / (2 Vol(E))  (Gross-Zagier)",
+                    H_upper_log10=_log10_upper(H), threshold=lam / 2, log10_margin=log10_margin, safety=safety,
+                    inequality_holds=holds, uses_manin_bound=c_max,
+                    largest_admissible_manin_constant_log10=log10_cmax)
+
+
+# ----------------------------------------------------------------------------------------
 # modular-symbol fallback through Sage/eclib (cross-check only)
 # ----------------------------------------------------------------------------------------
 def twisted_minus_symbols_eclib(ainvs: Sequence[int], Ds: Sequence[int]) -> dict:
@@ -666,22 +773,8 @@ def certify_rank3(ainvs: Sequence[int], D: int | None = None, *, candidate_D: in
 
     # ---- Manin constant and the Gross-Zagier inequality
     mc = manin_constant_status(cd, manin_bound)
-    with _prec(256):
-        Lp_up = abs(lp["value"]).upper()
-        LD_up = abs(tw["value"]).upper()
-        V_lo = vol["value"].lower()
-        if not V_lo > 0:
-            raise RuntimeError("volume lower bound not positive")
-        c2 = arb(mc["c_max"]) ** 2 if mc["c_max"] is not None else arb(1)
-        H = arb(-D_used).sqrt() * c2 * Lp_up * LD_up / (2 * V_lo)       # >= hhat_K(y_K)
-        thresh = arb(lam) / 2                                            # y_K non-torsion => hhat_K(y_K) >= lam/2
-        holds = bool(H * safety < thresh)
-        log10_margin = _log10_lower(thresh) - _log10_upper(H)
-        log10_cmax = 0.5 * (log10_margin - math.log10(safety)) if mc["c_max"] is None else None
-    gz = dict(formula="hhat_K(y_K) = sqrt|D| c_E^2 u_K^2 |L'(E,1)| |L(E^D,1)| / (2 Vol(E))  (Gross-Zagier)",
-              H_upper_log10=_log10_upper(H), threshold=lam / 2, log10_margin=log10_margin, safety=safety,
-              inequality_holds=holds, uses_manin_bound=mc["c_max"],
-              largest_admissible_manin_constant_log10=log10_cmax)
+    gz = gz_inequality(D_used, lp["value"], tw["value"], vol["value"], lam, mc["c_max"], safety)
+    holds, log10_cmax = gz["inequality_holds"], gz["largest_admissible_manin_constant_log10"]
     cert.update(lprime=_strip(lp), twist=_strip(tw), twist_consistency=consistency, volume=_strip(vol),
                 height_lower_bound=hb, manin_constant=mc, gross_zagier=gz)
 
