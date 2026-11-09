@@ -482,6 +482,17 @@
   1049,
   2957
  ],
+ "supersingular_certified": [
+  107,
+  599,
+  1049,
+  2957
+ ],
+ "supersingular_with_Lplus_cross_check": [
+  107,
+  599
+ ],
+ "supersingular_inconsistent": [],
  "regulator_anomalous_at_level2": [],
  "anomalous_resolved": {},
  "mazur_anomalous": [
@@ -494,5 +505,5 @@
  ],
  "inconsistent": [],
  "heuristic_expected_anomalies": 1.5,
- "seconds": 4030.7
+ "seconds": 4789.4
 }

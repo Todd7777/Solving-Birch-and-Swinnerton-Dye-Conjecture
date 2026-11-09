@@ -139,9 +139,10 @@ Target T2 of file 04 asks for the finiteness of $Ш(E/\mathbb{Q})$ for one curve
 This section records how far a prime-by-prime computation gets for $E=$ 389a1 ($y^2+y=x^3+x^2-2x$, rank 2, the
 smallest conductor of rank 2). It does not reach "all primes", and no computation can.
 
-**Certified computation (2026-11-09).** *$Ш(389\mathrm{a}1)[p^\infty]$ is finite for every prime $p<3000$ except the
-supersingular primes $107, 599, 1049, 2957$.* That is 426 of the 430 primes, and $Ш[2^\infty]=0$. At every one of these
-odd primes, the cyclotomic $p$-adic height pairing on $E(\mathbb{Q})$ is moreover non-degenerate.
+**Certified computation (2026-11-09).** *$Ш(389\mathrm{a}1)[p^\infty]$ is finite for every prime $p<3000$*: all 430
+of them, with $Ш[2^\infty]=0$. At every odd $p<3000$ the $p$-adic regulator of $E(\mathbb{Q})$ is moreover non-zero:
+for $p\ne107,599,1049,2957$ it is the cyclotomic height pairing that is non-degenerate, and at those four supersingular
+primes the $D_p$-valued regulator is non-zero.
 
 | primes | how |
 |---|---|
@@ -149,7 +150,7 @@ odd primes, the cyclotomic $p$-adic height pairing on $E(\mathbb{Q})$ is moreove
 | good ordinary $5\le p<3000$ (423 primes) | exact level-2 Riemann sum: $c_2\not\equiv0\pmod p$, so $\operatorname{ord}_TL_p\le2$; Stein–Wuthrich Thm 7.3/7.4 (Kato) give $\operatorname{ord}_Tf_E\le2$; their Thm 6.1 (Schneider, Perrin-Riou) gives $\operatorname{ord}_Tf_E\ge2$, with equality iff $Ш[p^\infty]$ is finite and the $p$-adic height is non-degenerate |
 | $p=3$ (good ordinary, $a_3=-2$) | the same, with Thm 7.3, which needs $\rho_3$ surjective. That is proven in `research/t2-389a1/rho3_surjective.py`; see below |
 | $p=389$ (split multiplicative) | `kato_bound.multiplicative_bound`: $c_0=c_1=c_2=0$, $c_3\equiv321\pmod{389}$, so $\operatorname{ord}_TL_p\le3$. Thm 7.3 in the split case ($T$ divides $L_p/f_E$) gives $\operatorname{ord}_Tf_E\le2$. $\rho_{389}$ is surjective because $E$ has no 389-isogeny (Serre, as quoted in SW §7; SW Prop. 7.2) |
-| supersingular: 107, 599, 1049, 2957 | **not covered**: this needs Perrin-Riou's $D_p$-valued $L$-function (SW Thm 6.2) or Pollack's $L_p^\pm$, whose measures are unbounded, so the error bound (*) of `bsd/kato_bound.py` does not apply |
+| supersingular ($a_p=0$): 107, 599, 1049, 2957 | `kato_bound.supersingular_bound`: $[T^2]L^-\equiv-[T^2]\theta_1\not\equiv0\pmod p$ (residues $21, 56, 847, 2547$), so $\operatorname{ord}_TL_p\le2$ for the $D_p$-valued $L_p$; SW Thm 7.3/7.4 and Thm 6.2 (Perrin-Riou) as above. At 107 and 599, $L^+$ from $\theta_2$ gives a second, independent certificate. See below |
 
 **$\rho_3$ is surjective** for 389a1. The proof has three parts.
 1. $\bar\rho_3$ is surjective: $\psi_3$ is irreducible with Galois group $S_4$, and $SL_2(\mathbb{F}_3)$ has no subgroup of index 2.
@@ -163,6 +164,35 @@ odd primes, the cyclotomic $p$-adic height pairing on $E(\mathbb{Q})$ is moreove
 
 The one input taken on trust here is the moduli interpretation of $X_9=X(9)/G'$.
 
+**The supersingular primes.** At a supersingular $p$ with $a_p=0$ the measure $\mu_\alpha$ is unbounded,
+$v_p(\alpha)=\tfrac12$. Riemann sums for $L_\alpha$ itself would need about $p^5$ symbol values before they could
+resolve the $T^2$ coefficient. Stein–Wuthrich (Remark 12.5) say their algorithms apply here but their implementation
+was too slow, and they did not run it at scale. The way around is Pollack's splitting of $L_\alpha$ into two
+*bounded* functions. Pollack's paper could not be obtained in this session, so `bsd.kato_bound.SUPERSINGULAR_PROOF`
+proves what is used from scratch, in four steps.
+1. From the Hecke relation with $a_p=0$, the Mazur–Tate elements satisfy $\theta_n\equiv-\Phi_{p^{n-1}}(1+T)\,\theta_{n-2}$
+   modulo $(1+T)^{p^{n-1}}-1$. So $\theta_{2k+1}$ vanishes at every $\zeta-1$ with $\zeta$ of order $p^t$, $t$ even, $2\le t\le2k$.
+2. Hence $L^-:=G/\log^+$ is the limit of the *integral* polynomials $(-1)^{k+1}\theta_{2k+1}/\prod_{t\text{ even}\le2k}\Phi_{p^t}(1+T)$.
+   Here $L_\alpha=G+\alpha H$ is the decomposition SW §3.5 uses to define the $D_p$-valued $L_p$, and
+   $\log^+=\tfrac1p\prod_{t\text{ even}}\Phi_{p^t}(1+T)/p$ is Pollack's half-logarithm, with constant term $1/p$. So
+   $\operatorname{ord}_TL_p=\min(\operatorname{ord}_TL^-,\operatorname{ord}_TL^+)$ with $L^\pm\in\mathbb{Z}_p[[T]]$.
+3. Interpolation at roots of unity and Weierstrass division give $L^-\equiv-\theta_1$ modulo $((1+T)^p-1)\,\mathbb{Z}_p[[T]]$.
+   So $[T^j]L^-\equiv-[T^j]\theta_1\pmod p$ for $j<p$. That costs $p^2$ symbol values, the same as an ordinary prime.
+4. The algebraic side is SW Thm 7.3/7.4 (stated for every semistable $p$, so including good supersingular $p$, with
+   $L_p$ and $f_E$ $D_p$-valued) and Thm 6.2 (Perrin-Riou).
+
+For 389a1 the $T^0$ coefficient vanishes exactly and the $T^1$ coefficient vanishes mod $p$ at all four primes, as
+rank 2 forces, while the $T^2$ coefficient is a unit. The method was checked in five ways:
+- exactly on test cases: the predicted divisibilities of $\theta_2,\theta_3$ and the level-4 congruence hold for
+  37a1 at $p=17,19$ and 11a1 at $p=19,29$;
+- by controls: rank 0 (11a1) gives order 0 and rank 1 (37a1) gives order 1;
+- by the constant terms: $L^-(0)=(p-1)m'(0)$ and $L^+(0)=2m'(0)$, matching Pollack's interpolation formulas as quoted
+  in Skinner's 2018 Arizona Winter School notes;
+- against a published example: 1483a1 at $p=5$ (rank 2, SW §12.2). The order is 2 there, and all four $T^2$, $T^3$
+  coefficients they display are reproduced, reading their display as $(1-\varphi)^{-2}L_p$ in their period normalisation
+  (which is ours divided by 2, as found for their ordinary example 446d1);
+- by a second certificate from $L^+$ via $\theta_2$ at $p=107$ and $p=599$.
+
 **Regulator anomalies.** At level 2 the coefficient $c_2$ is known modulo $p$. It was a unit at all 424 good ordinary
 primes. If the normalised leading coefficient were a random $p$-adic integer, about $\sum1/p\approx1.5$ exceptions
 would be expected in $[5,3000)$. Zero is unremarkable (probability about $e^{-1.5}\approx0.22$), but it means no
@@ -175,13 +205,14 @@ vanish mod $p$ only once in $p$ tries.
 **Relation to known results, and what is left.** Stein–Wuthrich prove the stronger statement $Ш[p]=0$ for every
 non-CM curve of conductor $\le30000$ and rank $\ge2$, at good ordinary $5\le p<1000$ with $\bar\rho_p$ surjective. That
 covers 389a1 at those primes, so below 1000 the ordinary part here is a reproduction. The range $1000<p<3000$ goes
-beyond their published range, but only for finiteness. Whether $p=3$ and $p=389$ were treated before for this curve
-was not checked. The cost is about $p^2$ symbol evaluations per prime (67 CPU-minutes in total), so the method never
-reaches all $p$. T2 asks for exactly that, and it needs a mechanism linking the $p$-adic $L$-functions for different
+beyond their published range, but only for finiteness. Whether $p=3$, $p=389$ or the four supersingular primes were
+treated before for this curve was not checked. Perrin-Riou (2003) computed supersingular examples, and Stein–Wuthrich
+excluded supersingular primes from their tables. The cost is about $p^2$ symbol evaluations per prime (80 CPU-minutes
+in total, including the $L^+$ cross-checks), so the method never reaches all $p$. T2 asks for exactly that, and it needs a mechanism linking the $p$-adic $L$-functions for different
 $p$, which nobody has (file 03, §3.4).
 
-Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2-389a1/rho3_surjective.py`,
-`python research/t2-389a1/aggregate.py`. Per-prime records: `research/t2-389a1/data/`; summary: `report.md` and `summary.json` there.
+Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2-389a1/run_supersingular.py`,
+`python research/t2-389a1/rho3_surjective.py`, `python research/t2-389a1/aggregate.py`. Per-prime records: `research/t2-389a1/data/`; summary: `report.md` and `summary.json` there.
 
 ## 6.7 Reproduce
 

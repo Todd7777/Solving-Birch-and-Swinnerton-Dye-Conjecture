@@ -35,6 +35,11 @@ def main():
         for line in open(fn):
             r = json.loads(line)
             recs[r["p"]] = r
+    ss_file = os.path.join(HERE, "data", "t2_supersingular.jsonl")
+    if os.path.exists(ss_file):                       # supersingular certificates (run_supersingular.py)
+        for line in open(ss_file):
+            r = json.loads(line)
+            recs[r["p"]] = dict(recs.get(r["p"], {}), **r)
     pmax = max(recs)
     primes = [int(q) for q in pari.primes([3, pmax])]
     missing = [p for p in primes if p not in recs]
@@ -65,6 +70,9 @@ def main():
     unc_ord = sorted(r["p"] for r in ordinary if not r.get("certified"))
     anomalous = sorted(r["p"] for r in ordinary if r.get("regulator_anomalous_level2"))
     ss = sorted(r["p"] for r in recs.values() if r.get("kind") == "supersingular")
+    ss_cert = sorted(p_ for p_ in ss if recs[p_].get("certified"))
+    ss_plus = sorted(p_ for p_ in ss_cert if recs[p_].get("Lplus_mod_p") and any(recs[p_]["Lplus_mod_p"][:3]))
+    inconsistent_ss = sorted(p_ for p_ in ss if not (recs[p_].get("c0_exact_zero") and recs[p_].get("c1_zero_mod_p")))
     inconsistent = sorted(r["p"] for r in recs.values() if r.get("inconsistent"))
     mazur = sorted(r["p"] for r in ordinary if r.get("mazur_anomalous"))
     heur = sum(1.0 / p for p in cert_ord + unc_ord if p >= 5)
@@ -73,6 +81,8 @@ def main():
         p2=two, p3=dict(certified_ord_bound=3 in cert_ord, rhobar3_galois_group=gal3, rho3_surjective_certified=rho3,
                         note="SW Thm 7.3 needs rho_3 surjective; certified by rho3_surjective.py (Elkies 2006)"),
         p389=bad, ordinary_certified=cert_ord, ordinary_uncertified=unc_ord, supersingular=ss,
+        supersingular_certified=ss_cert, supersingular_with_Lplus_cross_check=ss_plus,
+        supersingular_inconsistent=inconsistent_ss,
         regulator_anomalous_at_level2=anomalous,
         anomalous_resolved={p: recs[p].get("level") for p in anomalous if recs[p].get("certified")},
         mazur_anomalous=mazur, inconsistent=inconsistent,
@@ -82,7 +92,7 @@ def main():
     with open(os.path.join(HERE, "summary.json"), "w") as fh:
         json.dump(summary, fh, indent=1)
     unconditional = sorted([2] + [p for p in cert_ord if p >= 5] + ([389] if bad["certified"] else [])
-                           + ([3] if (rho3 and 3 in cert_ord) else []))
+                           + ([3] if (rho3 and 3 in cert_ord) else []) + ss_cert)
     lines = [
         "# T2 for 389a1: finiteness of Sha[p^oo], prime by prime",
         "",
@@ -100,13 +110,21 @@ def main():
         "Kato (SW Thm 7.3/7.4) + exact Riemann sums |",
         f"| 389 (split multiplicative) | 1 | {'Sha[389^oo] finite' if bad['certified'] else 'not certified'} "
         f"(ord_T L_p <= {bad['ord_upper_bound']}, exceptional zero) | SW Thm 7.3 split case, no 389-isogeny |",
-        f"| supersingular | {len(ss)} | not treated | {', '.join(map(str, ss))} (needs the +- or Perrin-Riou theory) |",
+        (f"| supersingular ({', '.join(map(str, ss))}) | {len(ss_cert)} of {len(ss)} | Sha[p^oo] finite, D_p-valued "
+         f"regulator non-zero | L^- == -theta_1 mod omega_1 (`bsd.kato_bound.SUPERSINGULAR_PROOF`), SW Thm 6.2, 7.3/7.4; "
+         f"L^+ from theta_2 as a second certificate at {ss_plus} |" if ss_cert else
+         f"| supersingular | {len(ss)} | not treated | {', '.join(map(str, ss))} |"),
         "",
         f"**Certified (given the cited theorems and PARI/Arb): Sha(389a1)[p^oo] is finite for {len(unconditional)} primes,** "
-        f"namely p = 2 (where it is 0), p = 3, p = 389, and every good ordinary prime 5 <= p <= {pmax}"
-        + (f" except {unc_ord}" if [p for p in unc_ord if p >= 5] else "") + ".",
-        f"Not covered below {pmax}: the supersingular primes {ss}"
-        + ("" if (rho3 and 3 in cert_ord) else " and p = 3") + ".",
+        f"namely p = 2 (where it is 0), p = 3, p = 389, every good ordinary prime 5 <= p <= {pmax}"
+        + (f" except {unc_ord}" if [p for p in unc_ord if p >= 5] else "")
+        + (f", and the supersingular primes {ss_cert}" if ss_cert else "") + ".",
+        ("Not covered below " + str(pmax) + ": "
+         + ", ".join(([f"supersingular {sorted(set(ss) - set(ss_cert))}"] if set(ss) - set(ss_cert) else [])
+                     + ([] if (rho3 and 3 in cert_ord) else ["p = 3"])
+                     + ([f"ordinary {unc_ord}"] if unc_ord else [])) + "."
+         if (set(ss) - set(ss_cert)) or unc_ord or not (rho3 and 3 in cert_ord) else
+         f"**Every prime p <= {pmax} is covered.**"),
         "",
         "**Regulator anomalies.** At level 2 the T^2 coefficient is known modulo p. It was divisible by p for "
         f"{anomalous if anomalous else 'no'} prime(s)"
@@ -120,7 +138,8 @@ def main():
            "of the p-adic regulator, as the p-adic BSD formula predicts."),
         "",
         f"Consistency: c_0 = 0 exactly and c_1 = 0 mod p at every ordinary prime (forced by Kato and rank 2); "
-        f"violations: {inconsistent if inconsistent else 'none'}.",
+        f"violations: {inconsistent if inconsistent else 'none'}. The same for the T^0, T^1 coefficients of L^- at the "
+        f"supersingular primes: violations: {inconsistent_ss if inconsistent_ss else 'none'}.",
     ]
     with open(os.path.join(HERE, "report.md"), "w") as fh:
         fh.write("\n".join(lines) + "\n")

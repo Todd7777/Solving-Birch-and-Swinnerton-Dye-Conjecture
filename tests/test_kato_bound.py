@@ -92,3 +92,56 @@ def test_multiplicative_primes(ainvs, p, ord_Lp, ord_f):
     res = kb.multiplicative_bound(pari.ellinit(ainvs), p)
     assert res["ord_upper_bound"] == ord_Lp and res["char_series_ord_upper_bound"] == ord_f
     assert res["rho_p_surjective_by_isogeny_criterion"] == (p >= 5)
+
+
+# ---------------------------------------------------------------------------------------------
+# supersingular primes (a_p = 0): L^-, L^+ from Mazur-Tate elements
+# ---------------------------------------------------------------------------------------------
+@pytest.mark.parametrize("ainvs,p", [(C37, 17), (C11, 19)])
+def test_supersingular_structure(ainvs, p):
+    """Exact checks of the three-term relation and the divisibilities behind L^- == -theta_1 mod omega_1."""
+    checks = kb.supersingular_structure_check(kb.PlusSymbol(pari.ellinit(ainvs)), p, 3)
+    assert checks and all(checks.values()), checks
+
+
+@pytest.mark.parametrize("ainvs,p,r", [(C11, 19, 0), (C37, 17, 1), (C37, 19, 1), (C389, 107, 2)])
+def test_supersingular_bounds(ainvs, p, r):
+    res = kb.supersingular_bound(pari.ellinit(ainvs), p)
+    assert res["ord_upper_bound"] == r
+    assert all(v == 0 for v in res["Lminus_mod_p"][:r])        # Kato + rank r force these to vanish
+
+
+def test_supersingular_interpolation_constants():
+    """L^-(0) = (p-1) m'(0) and L^+(0) = 2 m'(0) (Pollack's interpolation, as quoted by Skinner) for 11a1, m'(0) = 2."""
+    res = kb.supersingular_bound(pari.ellinit(C11), 19, cross_check_plus=True)
+    assert res["Lminus_mod_p"][0] == (18 * 2) % 19 and res["Lplus_mod_p"][0] == 4
+
+
+def test_supersingular_389a1_two_certificates():
+    res = kb.supersingular_bound(pari.ellinit(C389), 107, cross_check_plus=True)
+    assert res["Lminus_mod_p"][:3] == [0, 0, 21] and res["Lplus_mod_p"][:3] == [0, 0, 76]
+
+
+def test_stein_wuthrich_1483a1_p5():
+    """Stein-Wuthrich, Math. Comp. 82 (2013), section 12.2: 1483a1 (rank 2) at the supersingular prime 5 has
+    ord_T L_p = 2, and the displayed series (1-phi)^{-2} L_p has T^2, T^3 coefficients 1 + O(5) (omega part)
+    and 4*5 + O(5^2) (phi(omega) part), with their period normalisation (= ours / 2, as for 446d1)."""
+    import math
+    from fractions import Fraction
+    E = pari.ellinit([0, 1, 1, 2, 2])
+    sym = kb.PlusSymbol(E)
+    assert kb.supersingular_bound(E, 5, sym=sym)["ord_upper_bound"] == 2
+    tc = lambda S: [sum(c * math.comb(k, j) for k, c in enumerate(S) if c and k >= j) for j in range(4)]
+    G = [Fraction(c, 625) for c in tc(kb.theta_X(sym, 5, 7))]          # G_8 = (-5)^-4 theta_7
+    H = [Fraction(c, 625) for c in tc(kb.theta_X(sym, 5, 6))]          # H_7 = (-5)^-4 theta_6
+    for j in (2, 3):
+        w = Fraction(5, 36) * (4 * G[j] + 10 * H[j]) / 2
+        f = Fraction(5, 36) * (10 * G[j] - 20 * H[j]) / 2
+        assert w.denominator % 5 and (w.numerator * pow(w.denominator, -1, 5)) % 5 == 1
+        f5 = f / 5
+        assert f.numerator % 5 == 0 and f5.denominator % 5 and (f5.numerator * pow(f5.denominator, -1, 5)) % 5 == 4
+
+
+def test_supersingular_rejects_ordinary_prime():
+    with pytest.raises(ValueError):
+        kb.supersingular_bound(pari.ellinit(C389), 5)               # a_5(389a1) = -3

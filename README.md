@@ -18,7 +18,7 @@ What this repository contains instead is the most useful thing that can honestly
    `docs/05-numerical-evidence.md`).
 7. **Certified results** (`docs/06-certified-results.md`): rank $=$ analytic rank **proved** for all 132,535 curves of
    conductor $<20000$ in Cremona's tables (interval arithmetic for $L^{(r)}(E,1)$, unconditional 2-descent), and $Ш(389\mathrm{a}1)[p^\infty]$ proved finite
-   at every prime $p<3000$ except the four supersingular ones (107, 599, 1049, 2957). These are certified computations about finitely many
+   at every prime $p<3000$, including the supersingular ones (107, 599, 1049, 2957). These are certified computations about finitely many
    curves, re-deriving and extending known results; they are not progress on the conjecture itself.
 
 The distinction between *theorem*, *certified computation*, and *numerical evidence* is maintained everywhere; the code prints

@@ -84,7 +84,9 @@ Every one of the following has appeared in attempted proofs. If an argument uses
 * **T2 for 389a1.** $Ш[p^\infty]$ is now proven finite at every good ordinary prime $5\le p<3000$, at $p=389$
   (split multiplicative, exceptional zero), at $p=2$ (where it is 0), and at $p=3$. For $p=3$ one first has to prove
   $\rho_3$ surjective, which uses Elkies' classification of curves whose 3-adic image is surjective mod 3 but not
-  mod 9. The supersingular primes $107, 599, 1049, 2957$ are not covered (section 6.6). This extends
+  mod 9. The four supersingular primes $107, 599, 1049, 2957$ are covered too, so the statement holds for
+  **every prime $p<3000$**. They use a self-contained proof of the congruence $L^-\equiv-\theta_1\bmod((1+T)^p-1)$
+  for Pollack's bounded $L^-$, which makes supersingular primes as cheap as ordinary ones (section 6.6). This extends
   Stein–Wuthrich (who prove the stronger $Ш[p]=0$ for $5\le p<1000$) to $p<3000$ for finiteness. The per-prime cost
   grows like $p^2$ at level 2, so a computation can never reach "all $p$". The obstruction of T2 is untouched: no
   mechanism links the $p$-adic $L$-functions for different $p$.

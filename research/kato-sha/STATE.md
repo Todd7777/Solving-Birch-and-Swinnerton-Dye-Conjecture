@@ -17,5 +17,6 @@
 - Requires Sage (eclib modular symbols). Pass-1 data in data/; scratch and logs dropped.
 - The ordinary- and multiplicative-prime parts are re-implemented without Sage in bsd/kato_bound.py
   (PARI msfromell/mseval, exact), with tests, and used in results/bsd1 and research/t2-389a1. The
-  supersingular code (Pollack L^+-) exists only here; its theorem chain (Kobayashi) was not checked
-  in the 2026-11-09 session.
+  supersingular case is now also in bsd/kato_bound.py (supersingular_bound), with a self-contained proof
+  of the congruences this directory's kato_lib.py used and the Stein-Wuthrich D_p-valued theorem chain in place of
+  Kobayashi's.

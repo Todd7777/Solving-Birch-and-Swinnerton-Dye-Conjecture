@@ -383,6 +383,273 @@ def multiplicative_bound(E, p: int, *, jmax: int = 4, n: int = 2, sym: PlusSymbo
                      "for p >= 5 that holds when E has no rational p-isogeny")
 
 
+# ------------------------------------------------------------------------------------------
+# supersingular primes with a_p = 0
+# ------------------------------------------------------------------------------------------
+SUPERSINGULAR_PROOF = r"""
+Supersingular p with a_p = 0 (p odd, p not dividing N). Notation: Gamma_n = (1+pZ_p)/(1+p^{n+1}Z_p), gamma = 1+p,
+for a unit b put l(b) in Z/p^n with <b> = gamma^{l(b)} mod p^{n+1}, omega_n(T) = (1+T)^{p^n} - 1, and let
+    theta_n(T) = sum_{b in (Z/p^{n+1})^x} m'(b/p^{n+1}) (1+T)^{l(b)}       (degree < p^n, integer coefficients)
+be the Mazur-Tate element of level p^{n+1}.
+
+(1) Three-term relation. Grouping b by c = b mod p^n and using the Hecke relation
+    sum_{j<p} m'((r+j)/p) + m'(pr) = a_p m'(r) = 0  at r = c/p^n
+gives, for n >= 2, theta_n == -Phi_{p^{n-1}}(1+T) theta_{n-2}  (mod omega_{n-1}), and theta_1 == -(p-1) m'(0)
+(mod omega_0 = T). (The p lifts of d mod p^{n-1} to c mod p^n have l(c) = l(d) + i p^{n-2}, i < p.)
+Evaluating at zeta - 1, zeta of order p^t: theta_n(zeta-1) = 0 if t = n-1, and theta_n(zeta-1) = -p theta_{n-2}(zeta-1)
+if t <= n-2. By induction theta_{2k+1}(zeta-1) = 0 for every even t with 2 <= t <= 2k. So theta_{2k+1} is
+divisible in Z[T] by the monic, separable polynomial omega^+_{2k} = prod_{even t in [2, 2k]} Phi_{p^t}(1+T).
+
+(2) The p-adic L-function. alpha = sqrt(-p) and beta = -alpha are the roots of X^2 + p. Stein-Wuthrich (Prop 3.1,
+section 3.5) define L_alpha = lim P_n coefficientwise, P_n = sum mu_alpha(omega(a)(1+p)^j + p^n)(1+T)^j. (Their
+convergence proof bounds the denominators c_k of P_k uniformly, Lemma 3.6; here c_k <= (k+1)/2 instead, and their
+Prop 3.5 still gives ord_p(a_{k+1,j} - a_{k,j}) >= k/2 - 2 - floor(log_p j) -> oo, so the limit exists.) The
+D_p-valued L_p = G omega_E - p H phi(omega_E) where L_alpha = G + alpha H, G, H in Q_p[[T]]. Since omega_E, phi(omega_E)
+is a basis, ord_T L_p = min(ord_T G, ord_T H). From mu_alpha one gets P_n = alpha^{-n} theta_{n-1}
+- alpha^{-n-1} Phi_{p^{n-1}}(1+T) theta_{n-2}, so for n = 2k+2 the Q_p-part is G_n = (-p)^{-(k+1)} theta_{2k+1}.
+Write log^+_{<=2k} = (1/p) prod_{even t in [2, 2k]} Phi_{p^t}(1+T)/p, which tends coefficientwise to Pollack's
+log^+ = (1/p) prod_{t even} Phi_{p^t}(1+T)/p (constant term 1/p). By (1),
+    G_{2k+2} = log^+_{<=2k} * L^-_k,    L^-_k := (-1)^{k+1} theta_{2k+1} / omega^+_{2k}  in Z[T]
+(because omega^+_{2k} = p^{k+1} log^+_{<=2k}). Hence L^- := G / log^+ = lim_k L^-_k exists in Z_p[[T]] (integral),
+and ord_T G = ord_T L^-. Likewise, for n = 2k+1 the alpha-part is H_n = (-p)^{-(k+1)} theta_{2k}, theta_{2k} is
+divisible by omega^-_{2k-1} = prod_{odd t <= 2k-1} Phi_{p^t}(1+T) = p^{k+1} log^-_{<=2k-1}, and
+L^+_k := (-1)^{k+1} theta_{2k} / omega^-_{2k-1} tends to L^+ := H / log^- in Z_p[[T]].
+
+(3) Congruence. G_n and G_{n'} agree at every root of omega_{n-1} (SW Cor 3.3, componentwise), and
+log^+_{<=2k}(zeta) = log^+_{<=2k'}(zeta) != 0 when zeta = 1 or zeta has odd order exponent t <= 2k+1. So
+L^-_{k'} - L^-_k vanishes at the roots of T omega^-_{2k+1}, omega^-_{2k+1} = prod_{odd t <= 2k+1} Phi_{p^t}(1+T). Letting
+k' -> oo and dividing (Weierstrass division in Z_p[[T]] by a distinguished separable polynomial):
+    L^- == L^-_k  (mod T omega^-_{2k+1} Z_p[[T]]).          For k = 0:  L^- == -theta_1  (mod omega_1 Z_p[[T]]).
+The same argument for H gives L^+ == L^+_k (mod T omega^+_{2k} Z_p[[T]]); for k = 1, L^+ == theta_2 / Phi_p(1+T).
+Each of the k+1 (resp. k) cyclotomic factors has all T^i coefficients, i < p-1, divisible by p, so for j <= p-1:
+    [T^j] L^- == [T^j] L^-_k  (mod p^{k+1}),        [T^j] L^+ == [T^j] L^+_k  (mod p^k).
+In particular [T^j] L^- == -[T^j] theta_1 (mod p). If a coefficient [T^j], j <= r, of L^- or L^+ is certified
+non-zero this way, then ord_T L_p = min(ord_T L^-, ord_T L^+) <= r.
+
+(4) Selmer bound. Stein-Wuthrich Thm 7.3/7.4 (Kato; for p >= 5 one applies, by Prop 7.2) hold for semistable p,
+including good supersingular p, with L_p and f_E D_p-valued (their section 6.2), so ord_T f_E <= ord_T L_p.
+Their Thm 6.2 (Perrin-Riou) gives ord_T f_E >= rank E(Q), with equality iff the D_p-valued regulator is nonzero
+and Sha(E/Q)[p^oo] is finite. So ord_T L_p <= rank E(Q) proves both.
+"""
+
+_GP_THETA1 = None
+
+
+def _gp_theta1():
+    global _GP_THETA1
+    if _GP_THETA1 is None:
+        _GP_THETA1 = get_pari()("""(M,xp,p,gnum,gden,J)->
+{
+  my(q=p^2, gk=Mod(1,q), tch=vector(p-1,t,lift(Mod(t,q)^p)), s, c=vector(J+1));
+  for(k=0,p-1,
+    s=0;
+    for(i=1,p-1, s += mseval(M,xp,[oo,lift(tch[i]*gk)/q]));
+    s = s*gden/gnum;
+    for(j=0,J, c[j+1] += s*binomial(k,j));
+    gk *= (1+p));
+  c
+}""")
+    return _GP_THETA1
+
+
+def theta1_coefficients(sym: PlusSymbol, p: int, jmax: int = 3) -> list[int]:
+    """Exact integer T^j coefficients (j <= jmax) of theta_1 (level p^2, degree < p), one GP loop."""
+    c = _gp_theta1()(sym.M, sym.xp, p, sym.g.numerator, sym.g.denominator, jmax)
+    return [int(x) for x in c]
+
+
+_GP_THETA_X = None
+
+
+def theta_X(sym: PlusSymbol, p: int, n: int) -> list[int]:
+    """theta_n in the variable X = 1+T: exact integer coefficients S_k of X^k, k < p^n (level p^{n+1}).
+
+    One GP loop over the p^n (p-1) units mod p^{n+1}; no table of all symbol values is stored."""
+    global _GP_THETA_X
+    if _GP_THETA_X is None:
+        _GP_THETA_X = get_pari()("""(M,xp,p,n,gnum,gden)->
+{
+  my(q=p^(n+1), gk=Mod(1,q), tch=vector(p-1,t,lift(Mod(t,q)^(p^n))), S=vector(p^n), s);
+  for(k=0,p^n-1,
+    s=0;
+    for(i=1,p-1, s += mseval(M,xp,[oo,lift(tch[i]*gk)/q]));
+    S[k+1] = s*gden/gnum;
+    gk *= (1+p));
+  S
+}""")
+    return [int(x) for x in _GP_THETA_X(sym.M, sym.xp, p, n, sym.g.numerator, sym.g.denominator)]
+
+
+def _divide_X(c: list[int], d: list[int]) -> tuple[list[int], list[int]]:
+    """Exact division of polynomials in X with integer coefficients by a monic d: (quotient, remainder)."""
+    c = list(c)
+    dd = len(d) - 1
+    if len(c) <= dd:
+        return [0], c
+    Q = [0] * (len(c) - dd)
+    for i in range(len(c) - 1, dd - 1, -1):
+        coef = c[i]
+        if coef:
+            Q[i - dd] = coef
+            for j in range(dd + 1):
+                c[i - dd + j] -= coef * d[j]
+    return Q, c[:dd]
+
+
+def _cyclotomic_X(p: int, m: int) -> list[int]:
+    """Phi_{p^m}(X) = sum_{i<p} X^{i p^{m-1}} as a coefficient list."""
+    out = [0] * ((p - 1) * p ** (m - 1) + 1)
+    for i in range(p):
+        out[i * p ** (m - 1)] = 1
+    return out
+
+
+def _X_to_T(c: list[int], jmax: int) -> list[int]:
+    return [sum(ck * math.comb(k, j) for k, ck in enumerate(c) if ck and k >= j) for j in range(jmax + 1)]
+
+
+def supersingular_structure_check(sym: PlusSymbol, p: int, levels: int = 3) -> dict:
+    """Exact checks of steps (1)-(3) of SUPERSINGULAR_PROOF at small p (cost p^{levels+1} symbol values):
+    theta_2 divisible by Phi_p(1+T) and theta_3 by Phi_{p^2}(1+T), and L^-_1 == L^-_0 (mod omega_1)."""
+    out = {}
+    th = {n: theta_X(sym, p, n) for n in range(1, levels + 1)}
+    if levels >= 2:
+        Q2, R2 = _divide_X(th[2], _cyclotomic_X(p, 1))
+        out["theta_2 divisible by Phi_p(1+T)"] = not any(R2)
+    if levels >= 3:
+        Q3, R3 = _divide_X(th[3], _cyclotomic_X(p, 2))
+        out["theta_3 divisible by Phi_{p^2}(1+T)"] = not any(R3)
+        # L^-_1 = (+1) theta_3 / omega^+_2 and L^-_0 = -theta_1 must agree modulo omega_1 = X^p - 1
+        red = [0] * p
+        for k, ck in enumerate(Q3):
+            red[k % p] += ck
+        for k, ck in enumerate(th[1]):
+            red[k % p] += ck
+        out["L^-_1 == L^-_0 (mod omega_1)"] = not any(red)
+    return out
+
+
+def _divide_cyclotomic_X(c: list[int], p: int, m: int) -> tuple[list[int], list[int]]:
+    """Exact division by Phi_{p^m}(X) in linear time: multiply by X^{p^{m-1}} - 1, divide by X^{p^m} - 1."""
+    s, P = p ** (m - 1), p ** m
+    F = [0] * (len(c) + s)
+    for k, ck in enumerate(c):
+        if ck:
+            F[k + s] += ck
+            F[k] -= ck
+    if len(F) <= P:
+        return [0], F
+    Q = [0] * (len(F) - P)
+    for k in range(len(F) - 1, P - 1, -1):
+        if F[k]:
+            Q[k - P] = F[k]
+            F[k - P] += F[k]
+            F[k] = 0
+    return Q, F[:P]
+
+
+def _divide_cyclotomics_X(c: list[int], p: int, ts) -> tuple[list[int], bool]:
+    """Divide successively by Phi_{p^t}(X), t in ts; returns (quotient, all remainders zero)."""
+    ok = True
+    for t in ts:
+        c, R = _divide_cyclotomic_X(c, p, t)
+        ok = ok and not any(R)
+    return c, ok
+
+
+def _cyclo_product_X(p: int, ts) -> list[int]:
+    out = [1]
+    for t in ts:
+        d = _cyclotomic_X(p, t)
+        new = [0] * (len(out) + len(d) - 1)
+        for i, a in enumerate(out):
+            if a:
+                for j, b in enumerate(d):
+                    if b:
+                        new[i + j] += a * b
+        out = new
+    return out
+
+
+def plus_minus_approximation(sym: PlusSymbol, p: int, sign: str, k: int, jmax: int = 3) -> dict:
+    """[T^j] L^sign for j <= jmax, modulo p^prec, from one Mazur-Tate element (SUPERSINGULAR_PROOF, (2)-(3)).
+
+    sign '-': L^-_k = (-1)^{k+1} theta_{2k+1} / omega^+_{2k}, precision p^{k+1}, cost p^{2k+2} symbol values.
+    sign '+': L^+_k = (-1)^{k+1} theta_{2k} / omega^-_{2k-1} (k >= 1), precision p^k, cost p^{2k+1}.
+    The exact divisions are checked to leave remainder 0 (step (1))."""
+    if sign == "-":
+        n, ts, prec = 2 * k + 1, [t for t in range(2, 2 * k + 1, 2)], k + 1
+    elif sign == "+" and k >= 1:
+        n, ts, prec = 2 * k, [t for t in range(1, 2 * k, 2)], k
+    else:
+        raise ValueError("sign must be '-' (k >= 0) or '+' (k >= 1)")
+    if jmax > p - 1:
+        raise ValueError("the congruence is proved for j <= p-1")
+    th = theta_X(sym, p, n) if n >= 2 else None
+    if n == 1:
+        c = theta1_coefficients(sym, p, jmax)          # theta_1 needs no division (omega^+_0 = 1)
+        coeffs = [(-1) ** (k + 1) * x for x in c]
+    else:
+        Q, ok = _divide_cyclotomics_X(th, p, ts)
+        if not ok:
+            raise ArithmeticError(f"theta_{n} is not divisible by prod Phi_(p^t), t in {ts}")
+        coeffs = [(-1) ** (k + 1) * x for x in _X_to_T(Q, jmax)]
+    mod = p ** prec
+    return dict(sign=sign, k=k, level=n + 1, precision=prec, coeffs_mod=[x % mod for x in coeffs],
+                valuations=[vp(x % mod, p) for x in coeffs], symbol_evaluations=(p - 1) * p ** n)
+
+
+def supersingular_bound(E, p: int, *, jmax: int = 3, sym: PlusSymbol | None = None, cross_check_plus: bool = False,
+                        target: int | None = None, max_evaluations: int = 2 * 10 ** 8) -> dict:
+    """Certified upper bound for ord_{T=0} L_p(E,T) (D_p-valued) at a supersingular prime p >= 5 with a_p = 0.
+
+    Uses [T^j] L^- == -[T^j] theta_1 (mod p), proved in SUPERSINGULAR_PROOF; cost p^2 symbol values. If no
+    coefficient up to `target` (default jmax) is certified, tries L^+ from theta_2 (mod p) and then L^- from
+    theta_3 (mod p^2), within max_evaluations. With cross_check_plus, the L^+ check is always run.
+    """
+    pari = get_pari()
+    N = int(pari.ellglobalred(E)[0])
+    if p < 5 or N % p == 0:
+        raise ValueError("needs a prime p >= 5 of good reduction")
+    ap = int(pari.ellap(E, p))
+    if ap != 0:
+        raise ValueError(f"a_p = {ap} != 0: not the supersingular case treated here")
+    t0 = time.time()
+    if sym is None:
+        sym = PlusSymbol(E, N)
+    if target is None:
+        target = jmax
+    c = theta1_coefficients(sym, p, jmax)
+    if c[0] != -(p - 1) * sym(0, 1):
+        raise ArithmeticError("theta_1(0) != -(p-1) m'(0): bug or wrong symbol")
+    Lminus = [(-x) % p for x in c]                     # [T^j] L^- mod p, j <= jmax < p
+    attempts = [dict(sign="-", k=0, level=2, precision=1, coeffs_mod=Lminus)]
+
+    def first_nonzero(a):
+        return next((j for j, v in enumerate(a["coeffs_mod"]) if v), None)
+
+    r = first_nonzero(attempts[0])
+    plan = [("+", 1), ("-", 1)]
+    for sign, k in plan:
+        if not (cross_check_plus and sign == "+") and r is not None and r <= target:
+            break
+        cost = (p - 1) * p ** (2 * k if sign == "+" else 2 * k + 1)
+        if cost > max_evaluations:
+            continue
+        a = plus_minus_approximation(sym, p, sign, k, jmax)
+        attempts.append(a)
+        ra = first_nonzero(a)
+        if ra is not None and (r is None or ra < r):
+            r = ra
+    out = dict(p=p, a_p=ap, reduction="good supersingular", theta1_coeffs=c, Lminus_mod_p=Lminus,
+               attempts=attempts, ord_upper_bound=r, seconds=round(time.time() - t0, 2),
+               method="[T^j] of L^-, L^+ from Mazur-Tate elements (SUPERSINGULAR_PROOF)")
+    plus = [a for a in attempts if a["sign"] == "+"]
+    if plus:
+        out["Lplus_mod_p"] = plus[0]["coeffs_mod"]
+    return out
+
+
 def _read_certificate(rc: dict) -> dict:
     """From Riemann-sum coefficients, the certified facts about L(T)."""
     p = rc["p"]
@@ -452,10 +719,27 @@ def ordinary_bound(E, p: int, *, jmax: int = 3, n_max: int | None = None, max_ev
 
 
 def selmer_bound(ainvs: Sequence[int], p: int, **kw) -> dict:
-    """corank Sel_{p^oo}(E/Q) <= r with the theorem chain spelled out (good ordinary odd p)."""
+    """corank Sel_{p^oo}(E/Q) <= r with the theorem chain spelled out (good ordinary odd p, or supersingular
+    p >= 5 with a_p = 0, which is dispatched to supersingular_bound)."""
     pari = get_pari()
     E = pari.ellinit([int(a) for a in ainvs])
     E = pari.ellinit(pari.ellminimalmodel(E)[:5])
+    N = int(pari.ellglobalred(E)[0])
+    if p >= 5 and N % p and int(pari.ellap(E, p)) == 0:
+        res = supersingular_bound(E, p, **{k: v for k, v in kw.items() if k in ("jmax", "sym", "target")})
+        r = res["ord_upper_bound"]
+        res["theorems"] = [
+            "Stein-Wuthrich 2013 Thm 7.3/7.4 (Kato) for semistable p, D_p-valued in the supersingular case: "
+            "ord_T f_E <= ord_T L_p (p >= 5, E without CM)",
+            "Perrin-Riou (SW Thm 6.2): ord_T f_E >= rank E(Q), equality iff D_p-regulator != 0 and Sha[p^oo] finite",
+            "ord_T L_p = min(ord_T L^-, ord_T L^+) and [T^j] L^- == -[T^j] theta_1 mod p (SUPERSINGULAR_PROOF)",
+        ]
+        cm = int(pari.elliscm(E)) != 0
+        res["hypotheses_unverified"] = ["E has CM: outside Stein-Wuthrich's running hypothesis"] if cm else []
+        res["selmer_corank_upper_bound"] = r
+        res["statement"] = (f"corank_Zp Sel_{{p^oo}}(E/Q) <= ord_T L_p(E,T) <= {r} (p = {p}, supersingular)"
+                            if r is not None else f"no bound certified at p = {p}")
+        return res
     res = ordinary_bound(E, p, **kw)
     r = res["ord_upper_bound"]
     res["theorems"] = [

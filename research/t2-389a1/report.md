@@ -8,11 +8,11 @@
 | 3 | 1 | Sha[3^oo] finite | level-2 Riemann sum; rho_3 surjective (`rho3_surjective.py`: Galois group of psi_3 is S4, j not in Elkies' family) |
 | good ordinary 5 <= p <= 2999 | 423 of 423 | Sha[p^oo] finite, p-adic height pairing non-degenerate | Kato (SW Thm 7.3/7.4) + exact Riemann sums |
 | 389 (split multiplicative) | 1 | Sha[389^oo] finite (ord_T L_p <= 3, exceptional zero) | SW Thm 7.3 split case, no 389-isogeny |
-| supersingular | 4 | not treated | 107, 599, 1049, 2957 (needs the +- or Perrin-Riou theory) |
+| supersingular (107, 599, 1049, 2957) | 4 of 4 | Sha[p^oo] finite, D_p-valued regulator non-zero | L^- == -theta_1 mod omega_1 (`bsd.kato_bound.SUPERSINGULAR_PROOF`), SW Thm 6.2, 7.3/7.4; L^+ from theta_2 as a second certificate at [107, 599] |
 
-**Certified (given the cited theorems and PARI/Arb): Sha(389a1)[p^oo] is finite for 426 primes,** namely p = 2 (where it is 0), p = 3, p = 389, and every good ordinary prime 5 <= p <= 2999.
-Not covered below 2999: the supersingular primes [107, 599, 1049, 2957].
+**Certified (given the cited theorems and PARI/Arb): Sha(389a1)[p^oo] is finite for 430 primes,** namely p = 2 (where it is 0), p = 3, p = 389, every good ordinary prime 5 <= p <= 2999, and the supersingular primes [107, 599, 1049, 2957].
+**Every prime p <= 2999 is covered.**
 
 **Regulator anomalies.** At level 2 the T^2 coefficient is known modulo p. It was divisible by p for no prime(s). If the normalised leading coefficient were a random p-adic integer, the expected number of such primes in [5, 2999] would be sum 1/p = 1.50. Mazur-anomalous primes (a_p = 1 mod p, so that (1 - 1/alpha)^2 is divisible by p^2): [3, 859, 1213, 1493, 1951, 2521]; at none of them did c_2 vanish mod p: the factor p^2 in (1 - 1/alpha)^2 is cancelled by the denominator of the p-adic regulator, as the p-adic BSD formula predicts.
 
-Consistency: c_0 = 0 exactly and c_1 = 0 mod p at every ordinary prime (forced by Kato and rank 2); violations: none.
+Consistency: c_0 = 0 exactly and c_1 = 0 mod p at every ordinary prime (forced by Kato and rank 2); violations: none. The same for the T^0, T^1 coefficients of L^- at the supersingular primes: violations: none.
