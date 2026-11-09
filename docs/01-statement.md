@@ -126,8 +126,12 @@ say about $Ш[p]$. This is what `python -m bsd verify` does; it is evidence, not
    Hence: $r_{\mathrm{an}} = 0$ can be certified; $r_{\mathrm{an}} = 1$ can be certified (root number $-1$ gives
    $\operatorname{ord}\ge1$, and $L'(E,1)\neq0$ is a verifiable numerical inequality); $r_{\mathrm{an}}=2$ can be
    certified ($L(E,1) = 0$ exactly, root number $+1$ gives $\operatorname{ord}\ge 2$, $L''(E,1)\ne 0$ numerically);
-   **$r_{\mathrm{an}}\ge 3$ can never be certified** by present methods, because vanishing of $L'(E,1)$ or
-   $L''(E,1)$ cannot be established numerically. The code records exactly this distinction for every curve.
+   $r_{\mathrm{an}}=3$ can be certified only with an extra input: with root number $-1$ one needs $L'(E,1)=0$, which
+   follows from Gross–Zagier, either because the Heegner point is torsion (Buhler–Gross–Zagier 1985, 5077a1) or because
+   two independent rational points rule out $\operatorname{ord}=1$ by Gross–Zagier–Kolyvagin (file 06 does this for
+   every rank-3 class with $N<20000$). **$r_{\mathrm{an}}\ge 4$ can never be certified** by present methods: it needs $L''(E,1)=0$ (root number $+1$)
+   or $L'''(E,1)=0$ (root number $-1$), which no numerical computation can establish and no theorem forces.
+   The code records exactly this distinction for every curve.
 
 ## 1.5 Variants and refinements
 

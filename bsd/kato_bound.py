@@ -47,15 +47,22 @@ Mathematics
    and the constant terms agree exactly. CERTIFICATE: if v_p(coeff_r(L^{(n)})) < n-1-floor(log_p r),
    then coeff_r(L) != 0, hence ord_{T=0} L <= r.
 
-Theorems turning this into a Selmer bound (p odd, good ordinary)
----------------------------------------------------------------
-* Kato (Asterisque 295 (2004), Thm 17.4): X_oo = Sel_{p^oo}(E/Q_oo)^dual is a finitely generated
-  torsion Lambda-module and char_Lambda(X_oo) divides L_p(E,T) in Lambda tensor Q_p. Hence
-  ord_T char(X_oo) <= ord_T L_p.
-* Mazur's control theorem (Invent. Math. 18 (1972)): Sel_{p^oo}(E/Q) -> Sel_{p^oo}(E/Q_oo)^Gamma has
-  finite kernel and cokernel, so corank Sel_{p^oo}(E/Q) = rank_{Z_p} X_oo/T X_oo <= ord_T char(X_oo)
-  (structure theorem for finitely generated torsion Lambda-modules).
-Together: rank E(Q) <= corank Sel_{p^oo}(E/Q) <= ord_T L_p(E,T).
+Theorems turning this into a Selmer bound (p odd, good ordinary, E without CM)
+----------------------------------------------------------------------------
+Stated as in Stein-Wuthrich (Math. Comp. 82 (2013), sections 6-7), whose running hypotheses are
+p != 2 and E without complex multiplication; read there, not in Kato's paper itself:
+* Kato [Kat04, Thm 17.4], as SW Thm 7.3: if p is semistable for E and rho_p is surjective, then
+  f_E(T) divides L_p(E,T) in Lambda, where f_E is a characteristic series of X_oo = Sel_{p^oo}(E/Q_oo)^dual
+  (a torsion Lambda-module, Kato). As SW Thm 7.4: if rhobar_p is not surjective, f_E divides
+  p^m L_p(E,T) for some m >= 0. For p >= 5, rhobar_p is surjective iff rho_p is (SW Prop 7.2,
+  Serre), so for p >= 5 one of the two always applies. For p = 3 the case "rhobar_3 surjective,
+  rho_3 not surjective" is covered by neither statement, so results at p = 3 carry that hypothesis.
+* Schneider, Perrin-Riou (SW Thm 6.1): ord_{T=0} f_E >= rank E(Q), with equality iff the cyclotomic
+  p-adic height pairing on E(Q) is non-degenerate AND Sha(E/Q)[p^oo] is finite. (The inequality
+  corank Sel_{p^oo}(E/Q) <= ord_T f_E is Mazur's control theorem, Invent. Math. 18 (1972).)
+Together: if ord_T L_p <= r = rank E(Q), then ord_T f_E = r, so Sha(E/Q)[p^oo] is finite and the
+p-adic height pairing is non-degenerate (Schneider's conjecture for E at p); and in general
+rank E(Q) <= corank Sel_{p^oo}(E/Q) <= ord_T L_p(E,T).
 
 Trusted software: PARI/GP (msfromell, mseval, ellap, ellglobalred). All p-adic arithmetic is
 exact integer arithmetic modulo p^P in Python.
@@ -402,11 +409,14 @@ def selmer_bound(ainvs: Sequence[int], p: int, **kw) -> dict:
     res = ordinary_bound(E, p, **kw)
     r = res["ord_upper_bound"]
     res["theorems"] = [
-        "Kato 2004, Thm 17.4: X_oo is Lambda-torsion and char(X_oo) | L_p(E,T) in Lambda (x) Q_p "
-        "(p odd, good ordinary)",
-        "Mazur 1972 control theorem: corank Sel_{p^oo}(E/Q) = rank X_oo/T X_oo <= ord_T char(X_oo)",
+        "Kato 2004 Thm 17.4 as stated in Stein-Wuthrich 2013 Thm 7.3/7.4: f_E | p^m L_p(E,T) "
+        "(p odd good ordinary, E without CM; for p = 3 needs rho_3 surjective or rhobar_3 not surjective)",
+        "Mazur 1972 control theorem; Schneider/Perrin-Riou (SW Thm 6.1): rank <= corank Sel <= ord_T f_E",
         "exact Riemann sums of the integral plus symbol with the error bound (*) of bsd/kato_bound.py",
     ]
+    cm = int(pari.elliscm(E)) != 0
+    res["hypotheses_unverified"] = ([f"p = 3: rho_3 surjective or rhobar_3 not surjective"] if p == 3 else []) + \
+                                   (["E has CM: outside Stein-Wuthrich's running hypothesis"] if cm else [])
     res["selmer_corank_upper_bound"] = r
     res["statement"] = (f"corank_Zp Sel_{{p^oo}}(E/Q) <= ord_T L_p(E,T) <= {r} (p = {p})" if r is not None
                         else f"no bound certified at p = {p} within the budget")

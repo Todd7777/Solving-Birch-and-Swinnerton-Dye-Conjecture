@@ -1,0 +1,43 @@
+{
+ "classes": 81217,
+ "conductor_range": [
+  11,
+  19998
+ ],
+ "by_rank": {
+  "0": {
+   "classes": 33551,
+   "certified": 33551,
+   "seconds": 328.3249999999598,
+   "prec_64": 33551
+  },
+  "1": {
+   "classes": 42198,
+   "certified": 42198,
+   "seconds": 416.22199999993023,
+   "prec_64": 42198
+  },
+  "2": {
+   "classes": 5459,
+   "certified": 5459,
+   "descent_unconditional": 5459,
+   "descent_needs_cassels": 0,
+   "cubic_fields_certified": 4604,
+   "sha2_zero": 5459,
+   "seconds": 222.76599999999982,
+   "prec_64": 5459,
+   "kato_bound": 243
+  },
+  "3": {
+   "classes": 9,
+   "certified": 9,
+   "descent_unconditional": 9,
+   "descent_needs_cassels": 0,
+   "cubic_fields_certified": 9,
+   "sha2_zero": 9,
+   "seconds": 0.407,
+   "prec_64": 9
+  }
+ },
+ "failures": []
+}

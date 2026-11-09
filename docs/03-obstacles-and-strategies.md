@@ -30,7 +30,7 @@ elliptic curve: its bottom class would be an element of $\bigwedge^r H^1(\mathbb
 Perrin-Riou's conjectures (Astérisque 229). Constructing it is essentially equivalent to the problem.
 
 **(W2) Lower bound on vanishing from points:** $\ r\ge k \implies L^{(j)}(E,1)=0$ for $j<k$.
-Known for $k\le2$ (contrapositive of Kolyvagin and Gross–Zagier–Kolyvagin). For $k=3$ one would need: *three independent points force $L''(E,1)=0$.* No construction turns rational points into vanishing of $L$ beyond the first derivative.
+Known for $k\le2$ (contrapositive of Kolyvagin and Gross–Zagier–Kolyvagin). For $k=3$ one would need: *three independent points force $L''(E,1)=0$.* No construction turns rational points into vanishing of $L$ beyond the first derivative. (Parity stretches $k\le2$ by one step: if the root number is $-1$, then $r\ge2$ already forces $\operatorname{ord}\ge3$. This is the Buhler–Gross–Zagier situation, and file 06 uses it for every rank-3 curve of conductor $<20000$. The first case parity cannot reach is root number $+1$ with $r\ge4$, where $\operatorname{ord}\ge4$ needs $L''(E,1)=0$.)
 
 **(W3) Finiteness of $Ш$.** All known proofs of finiteness go through (W1): they bound $s_p$ from above by an $L$-value or $L$-derivative, and compare with explicit points. There is no "intrinsic" finiteness proof, not even for one curve of rank 2.
 

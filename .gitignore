@@ -15,3 +15,8 @@ research/rigorous-l/results.json
 research/kato-sha/results.json
 research/kato-sha/results.csv
 research/kato-sha/class_table.md
+
+# Raw per-class records of bsd/bsd1.py (large; compact exports are tracked instead).
+results/bsd1/*.jsonl
+results/bsd1/*.log
+research/t2-389a1/*.log

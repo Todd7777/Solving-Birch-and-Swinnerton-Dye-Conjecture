@@ -27,7 +27,8 @@ it for every curve.
 | analytic rank 0 | **theorem** (Kolyvagin + Gross–Zagier; Kato) | **theorem** | $p$-part proven for most $p$ (Skinner–Urban + Kato; Rubin for CM); all $p$ only curve-by-curve |
 | analytic rank 1 | **theorem** (Gross–Zagier + Kolyvagin) | **theorem** | $p$-part proven for $p\ge5$ good, semistable curves (Jetchev–Skinner–Wan); all $p$ only curve-by-curve |
 | analytic rank 2 | verifiable curve by curve (e.g. 389a1), **no general theorem** | open for every curve (finite at individual primes only) | open |
-| analytic rank $\ge3$ | not even verifiable for a single curve (vanishing of $L'$, $L''$ cannot be certified) | open | open |
+| analytic rank 3 | verifiable curve by curve (Buhler–Gross–Zagier 1985 for 5077a1; all 9 classes with $N<20000$ here, `docs/06`), **no general theorem** | open (finite at individual primes only) | open |
+| analytic rank $\ge4$ | not verifiable for a single curve ($L''(E,1)=0$ or $L'''(E,1)=0$ cannot be certified) | open | open |
 | "most" curves | $\ge 66.48\%$ of all $E/\mathbb{Q}$ (Bhargava–Skinner–Zhang); 100 % of twists in suitable families (Smith) | same | — |
 | function fields | **equivalent to finiteness of $Ш$** (Tate–Milne); many families proven | — | — |
 

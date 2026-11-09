@@ -168,8 +168,10 @@ integral form of Kato's divisibility one gets an explicit upper bound for $\#Ш[
 1. **No elliptic curve over $\mathbb{Q}$ of rank $\ge2$ is known to have finite $Ш$.** For individual odd primes $p$ one can prove $Ш[p^\infty]$ finite (F4),
    but no argument handles all $p$ at once, so finiteness of the full group is open for every such curve (389a1 included).
 2. **No general theorem gives $r = r_{\mathrm{an}}$ when $r_{\mathrm{an}}\ge2$.** For a *specific* curve with $r_{\mathrm{an}}=2$ one can certify both sides
-   (file 01, remark 4): 389a1 has $r=2$ by 2-descent and $r_{\mathrm{an}}=2$ by an exact vanishing plus a numerically non-zero $L''$. But for $r_{\mathrm{an}}\ge3$
-   not even individual verification is possible: 5077a1 has $r=3$, and all we can *prove* about $L$ is $\operatorname{ord}\ge1$, odd.
+   (file 01, remark 4): 389a1 has $r=2$ by 2-descent and $r_{\mathrm{an}}=2$ by an exact vanishing plus a certified non-zero $L''$. For $r_{\mathrm{an}}=3$
+   individual verification needs Gross–Zagier once more: 5077a1 has $r=3$ and $r_{\mathrm{an}}=3$ (Buhler–Gross–Zagier 1985), and file 06
+   certifies $r=r_{\mathrm{an}}$ for every curve of conductor $<20000$, ranks 0–3. **For $r_{\mathrm{an}}\ge4$ not even individual verification is
+   possible**: for the rank-4 curve 234446a1 all one can prove about $L$ is $\operatorname{ord}\in\{2,4\}$.
 3. **No inequality $r\le r_{\mathrm{an}}$ or $r_{\mathrm{an}}\le r$ is known in general**; the only known relation is $r_{\mathrm{an}}\ge\min(r,2)$ (from B2–B4).
 4. **Formula (II) is not a theorem for any curve of rank $\ge2$**, and for rank $\le1$ it is a theorem only curve-by-curve (B10) or prime-by-prime (B5, B7, B8); there is no infinite family for which (II) is known at every prime.
 5. **Boundedness of ranks is open.** Elkies (2006) found a curve of rank $\ge28$; Elkies–Klagsbrun (2024) one of rank $\ge29$. The heuristic of
