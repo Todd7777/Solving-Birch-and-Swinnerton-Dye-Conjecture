@@ -70,8 +70,32 @@ Every one of the following has appeared in attempted proofs. If an argument uses
 * prove anything for a curve of rank $\ge2$ beyond prime-by-prime finiteness of $Ш[p^\infty]$;
 * prove formula (II) at any prime for rank $\ge2$;
 * substitute for a provable saturation bound unless Sage is available (`--sage` uses Sage's provable height lower bound and index bound; without it the bases are saturated at all primes $<1000$ and cross-checked against Cremona's independently saturated bases);
-* use interval arithmetic: "non-zero" for $L^{(k)}(E,1)$ means "larger than $10^{15}$ times the working error", not a certified enclosure.
+* *(superseded 2026-11-09)* ~~use interval arithmetic~~: `bsd/rigorous_l.py` now gives Arb enclosures of $L^{(k)}(E,1)/k!$ with proven tail
+  bounds, and `bsd/bsd1.py` uses them to certify rank $=$ analytic rank for every curve of conductor $<20000$ (file 06).
+  The PARI-based sweeps of file 05 still use floating-point non-vanishing.
 
-## 4.5 If I had to bet
+## 4.5 Progress log
+
+**2026-11-09.** Nothing here moves the conjecture itself. The computational frontier moved as follows (details in file 06):
+
+* **BSD (I) is certified for every curve of conductor $<20000$** (ranks 0–3, 81,217 isogeny classes), with interval
+  arithmetic for the analytic side and an unconditional 2-descent for the rank. This re-derives Cremona's ranks
+  independently; it is not a new rank.
+* **T2 for 389a1.** $Ш[p^\infty]$ is now proven finite at every good ordinary prime $5\le p<3000$, at $p=389$
+  (split multiplicative, exceptional zero), at $p=2$ (where it is 0), and at $p=3$. For $p=3$ one first has to prove
+  $\rho_3$ surjective, which uses Elkies' classification of curves whose 3-adic image is surjective mod 3 but not
+  mod 9. The supersingular primes $107, 599, 1049, 2957$ are not covered (section 6.6). This extends
+  Stein–Wuthrich (who prove the stronger $Ш[p]=0$ for $5\le p<1000$) to $p<3000$ for finiteness. The per-prime cost
+  grows like $p^2$ at level 2, so a computation can never reach "all $p$". The obstruction of T2 is untouched: no
+  mechanism links the $p$-adic $L$-functions for different $p$.
+* **T1-type statements as a by-product.** By Schneider/Perrin-Riou (Stein–Wuthrich Thm 6.1),
+  $\operatorname{ord}_TL_p=r$ also proves that the cyclotomic $p$-adic height pairing on $E(\mathbb{Q})$ is
+  non-degenerate. So the computations above prove Schneider's conjecture for the rank-2 curve 389a1 at each of
+  those primes, and for 243 rank-2 curves at one prime each. They are instances, not the general statement T1 asks for.
+* **Corrected claim.** Earlier versions of files 01, 02 and the README said that analytic rank 3 cannot be certified
+  for any curve. That was wrong: Buhler–Gross–Zagier certified it for 5077a1 in 1985. The true frontier is analytic
+  rank $\ge4$, where $L''(E,1)=0$ (root number $+1$) or $L'''(E,1)=0$ (root number $-1$) would be needed.
+
+## 4.6 If I had to bet
 
 The conjecture will not be settled by a trick. Among the targets above, **T2** (full finiteness of $Ш$ for one rank-2 curve) and **T1** (Schneider for rank 1) look like decade-scale problems that existing technology could conceivably reach with a new non-vanishing idea for derivatives of $p$-adic $L$-functions. **T3–T5** need a new object. The function-field theory (Yun–Zhang) says such objects *can* exist in principle; the question of whether anything like "two legs" can live over $\operatorname{Spec}\mathbb{Z}$ is, in my judgement, the real content of the Birch and Swinnerton-Dyer conjecture beyond rank one.

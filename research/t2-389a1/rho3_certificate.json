@@ -1,0 +1,24 @@
+{
+ "curve": "389a1",
+ "rho3_surjective": true,
+ "checks": {
+  "SL2(F3) has no index-2 subgroup": true,
+  "[GL2(F3),GL2(F3)] = SL2(F3)": true,
+  "[GL2(Z/9),GL2(Z/9)] = SL2(Z/9)": true,
+  "V = sl2(F3) irreducible (no proper non-trivial invariant subgroup)": true,
+  "number of lift pairs (S~, T~) (Elkies: 27)": 27,
+  "Elkies' S~ = [[0,2],[4,0]] is one of the lifts of S": true,
+  "every lift of SL2(Z/3) into SL2(Z/9) is conjugate to G (Elkies: all 27 conjugate)": true,
+  "number of distinct lifted subgroups": 27,
+  "N(G) n SL2 = G and det(N(G)) = (Z/9)^x, so N(G) is the extension G' of Elkies": true,
+  "Elkies' two forms of f agree": true,
+  "Elkies' table of values reproduced": true,
+  "j(389a1) = 1404928/389 has no rational preimage under f (and f(oo) = 4374 != j)": true,
+  "psi_3 irreducible with Galois group S4": true
+ },
+ "trusted": [
+  "moduli interpretation of X_9 = X(9)/G' (Elkies 2006)",
+  "Elkies' rational function f (transcribed, checked against his two forms and table)",
+  "PARI polgalois, factor"
+ ]
+}

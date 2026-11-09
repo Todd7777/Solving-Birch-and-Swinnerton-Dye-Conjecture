@@ -333,6 +333,56 @@ def riemann_coefficients(sym: PlusSymbol, p: int, ap: int, n: int, jmax: int, P:
     return dict(p=p, n=n, P=P, coeffs=coeffs, precision=prec, alpha_mod=alpha, symbol_evaluations=pn + pn1)
 
 
+def multiplicative_bound(E, p: int, *, jmax: int = 4, n: int = 2, sym: PlusSymbol | None = None) -> dict:
+    """Certified upper bound for ord_{T=0} L_p(E,T) at an odd prime p of multiplicative reduction (p || N).
+
+    Here f is already a U_p-eigenform with eigenvalue a_p = +1 (split) or -1 (non-split), and
+    mu(a + p^k Z_p) = a_p^{-k} m'(a/p^k) is a Z_p-valued measure: finite additivity is
+    U_p m = sum_{j<p} m((r+j)/p) = a_p m. The Riemann sums and the error bound (*) are as in the
+    ordinary case, and the constant term is (1 - 1/a_p) m'(0) exactly. That constant vanishes in the
+    split case, which is the exceptional zero of Mazur-Tate-Teitelbaum.
+
+    Stein-Wuthrich Thm 7.3 (p semistable, rho_p surjective): L_p = f_E d(T), and T | d(T) when the
+    reduction is split. Hence ord_T f_E <= ord_T L_p - 1 (split) or <= ord_T L_p (non-split). When E has
+    multiplicative reduction at p >= 5, rhobar_p can fail to be surjective only if E has a rational
+    p-isogeny (Serre, as quoted in SW section 7), and then rho_p is surjective by SW Prop 7.2.
+    """
+    pari = get_pari()
+    N = int(pari.ellglobalred(E)[0])
+    if p < 3 or N % p or (N // p) % p == 0:
+        raise ValueError("needs an odd prime p with p || N")
+    ap = int(pari.ellap(E, p))
+    if ap not in (1, -1):
+        raise ValueError("a_p must be +-1 at a multiplicative prime")
+    if sym is None:
+        sym = PlusSymbol(E, N)
+    P = n + 1
+    pP, q, q1 = p ** P, p ** n, p ** (n - 1)
+    V = sym.values_mod(q)
+    apinv_n = pow(ap, -n, pP)
+    teich = [pow(t, q1, q) for t in range(1, p)]
+    S, gk = [0] * q1, 1
+    for k in range(q1):
+        S[k] = sum(apinv_n * V[w * gk % q] for w in teich) % pP
+        gk = gk * (1 + p) % q
+    coeffs = [sum(S[k] * math.comb(k, j) for k in range(j, q1)) % pP for j in range(jmax + 1)]
+    if coeffs[0] != (1 - pow(ap, -1, pP)) * sym(0, 1) % pP:
+        raise ArithmeticError("constant term disagrees with (1 - 1/a_p) m'(0)")
+    rc = dict(p=p, n=n, P=P, coeffs=coeffs, precision=[coefficient_precision(p, n, j) for j in range(jmax + 1)])
+    cert = _read_certificate(rc)
+    split = ap == 1
+    r = cert["ord_upper_bound"]
+    fE = None if r is None else (r - 1 if split else r)
+    degrees = {int(d) for row in pari.Vec(pari.ellisomat(E)[1]) for d in row}
+    no_p_isogeny = all(d % p for d in degrees)
+    return dict(p=p, a_p=ap, reduction="split multiplicative" if split else "nonsplit multiplicative",
+                level=n, modulus=f"{p}^{P}", coeffs=coeffs, facts=cert["facts"], ord_upper_bound=r,
+                char_series_ord_upper_bound=fE, isogeny_degrees=sorted(degrees),
+                rho_p_surjective_by_isogeny_criterion=bool(p >= 5 and no_p_isogeny and int(pari.elliscm(E)) == 0),
+                note="ord_T f_E <= ord_T L_p - 1 (split, SW Thm 7.3) needs rho_p surjective; "
+                     "for p >= 5 that holds when E has no rational p-isogeny")
+
+
 def _read_certificate(rc: dict) -> dict:
     """From Riemann-sum coefficients, the certified facts about L(T)."""
     p = rc["p"]

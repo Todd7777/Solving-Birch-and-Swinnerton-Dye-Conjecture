@@ -30,6 +30,7 @@ results.json, report.md, tests/test_rigorous_l.py.
 
 ## Integration (2026-11-09)
 - Integrated into the tracked tree. The certify run stopped at 1001/2196 labels when the earlier session
-  ended; its records are archived as `certify.jsonl.gz` (aggregate.py reads it). A complete run over every
-  isogeny class with N < 20000 is the next step (it would supersede this partial run).
+  ended; its records are archived as `certify.jsonl.gz` (aggregate.py reads it). It is superseded by the
+  complete run of bsd/bsd1.py over every isogeny class with N < 20000 (results/bsd1/, docs/06), which uses
+  this module for every analytic certificate.
 - `results.json` is derived: regenerate with `python3 research/rigorous-l/aggregate.py`.

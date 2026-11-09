@@ -12,7 +12,8 @@ named. Section 6.4 says how they relate to what was already known.
 $$\operatorname{rank}E(\mathbb{Q}) \;=\; \operatorname{ord}_{s=1}L(E,s)\;\in\;\{0,1,2,3\}.$$
 
 The run covers all 81,217 isogeny classes in Cremona's tables with $N<20000$ (132,535 curves). Rank and
-$L(E,s)$ are isogeny invariants, so one curve per class (Cremona's curve 1) suffices.
+$L(E,s)$ are isogeny invariants, so one curve per class (Cremona's curve 1) suffices. "Every curve" relies on the
+completeness of those tables (see 6.3). Strictly, the proven statement is about the 132,535 curves listed there.
 
 | rank $r$ | classes | certified | how $\operatorname{ord}\ge r$ is proven | how $\operatorname{rank}\le r$ is proven |
 |---|---|---|---|---|
@@ -95,6 +96,9 @@ $r=0$). For $r\ge2$, (d) and (e) give $\operatorname{rank}=r$, and (b) and (c) g
 
 ## 6.3 Inputs and assumptions
 
+* **Completeness of the tables.** It is not re-derived here that Cremona's tables contain every isogeny class of
+  conductor $<20000$. By modularity, isogeny classes correspond to rational weight-2 newforms, and Cremona enumerated
+  those with modular symbols. This is the only input the statement "every curve of conductor $<20000$" takes on trust.
 * **Data.** Curves and generators come from Cremona's tables (`data/ecdata/`, fetched by `bsd/ecdata.py`). They are
   used only as *candidates*. Every generator is re-checked on the curve and certified independent, and Cremona's rank
   is the value being certified, not an input to any proof step.
@@ -103,7 +107,7 @@ $r=0$). For $r\ge2$, (d) and (e) give $\operatorname{rank}=r$, and (b) and (c) g
   Stein–Wuthrich statements were read in the paper for this file; the others are as in file 02.
 * **Software.** PARI/GP 2.17.2: `ellrootno`, `ellan`, `ellrank`, `bnfcertify`, `msfromell`/`mseval`, and point
   arithmetic over $\mathbb{F}_q$. FLINT/Arb: ball arithmetic.
-* **Not assumed.** GRH (see 6.2(e)); BSD; finiteness of $Ш$; Cremona's ranks.
+* **Not assumed.** GRH (see 6.2(e)); BSD; finiteness of $Ш$; Cremona's ranks, generators or $L$-values.
 
 ## 6.4 Relation to what was known
 
@@ -118,16 +122,66 @@ of floating-point non-vanishing. The pipeline also scales: the whole range took 
 
 * **Rank $\ge4$.** For a curve of rank 4 ($w=+1$), $\operatorname{ord}\ge4$ needs $L''(E,1)=0$ exactly. Neither
   modular symbols (which see only $L(E,1)$) nor Gross–Zagier–Kolyvagin (which see only $\operatorname{ord}\le1$) can
-  give that. For rank 5 one needs $L'''(E,1)=0$. So **no elliptic curve is known to have analytic rank $\ge4$**. For
-  234446a1 (rank 4) and 19047851a1 (rank 5) the repository proves only $\operatorname{ord}\in\{2,4\}$ and
-  $\operatorname{ord}\in\{3,5\}$, with rigorous bounds $|L''(E,1)|\le\varepsilon$ and $|L'''(E,1)|\le\varepsilon$
-  (`research/rigorous-l/beyond.jsonl`).
+  give that. For rank 5 one needs $L'''(E,1)=0$. This is why, as is usually stated in the literature (not
+  re-checked against a source here), no elliptic curve is known to have analytic rank $\ge4$. The two record curves
+  show exactly where things stop (`research/rigorous-l/beyond_certified.json`, same chain as 6.2):
+  * 234446a1 (rank 4): $\operatorname{rank}E(\mathbb{Q})=4$ is proven (4 independent points;
+    certified 2-descent gives $\le4$), and $\operatorname{ord}\in\{2,4\}$ with $|L''(E,1)|\le5.5\cdot10^{-22}$ and
+    $L^{(4)}(E,1)/4!\in[8.94384739590088904\pm2\cdot10^{-20}]$. **BSD (I) for 234446a1 is equivalent to $L''(E,1)=0$.**
+  * 19047851a1 (rank 5): $\operatorname{rank}=5$ is proven, and $\operatorname{ord}\in\{3,5\}$ with
+    $|L'''(E,1)|\le5.0\cdot10^{-22}$. **BSD (I) for 19047851a1 is equivalent to $L'''(E,1)=0$.**
 * **Finiteness of $Ш$ for rank $\ge2$** is reachable only one prime at a time (6.1, 6.6). That is the subject of
   target T2 in file 04.
 
 ## 6.6 Target T2 for 389a1: $Ш[p^\infty]$ prime by prime
 
-*Pending: filled in from `research/t2-389a1/` when the sweep over $p<3000$ completes.*
+Target T2 of file 04 asks for the finiteness of $Ш(E/\mathbb{Q})$ for one curve of rank 2 at *all* primes at once.
+This section records how far a prime-by-prime computation gets for $E=$ 389a1 ($y^2+y=x^3+x^2-2x$, rank 2, the
+smallest conductor of rank 2). It does not reach "all primes", and no computation can.
+
+**Certified computation (2026-11-09).** *$Ш(389\mathrm{a}1)[p^\infty]$ is finite for every prime $p<3000$ except the
+supersingular primes $107, 599, 1049, 2957$.* That is 426 of the 430 primes, and $Ш[2^\infty]=0$. At every one of these
+odd primes, the cyclotomic $p$-adic height pairing on $E(\mathbb{Q})$ is moreover non-degenerate.
+
+| primes | how |
+|---|---|
+| $p=2$ | $\dim\operatorname{Sel}_2=2$, $E(\mathbb{Q})[2]=0$, so $Ш[2]=0$ (certified 2-descent, 6.2(e)) |
+| good ordinary $5\le p<3000$ (423 primes) | exact level-2 Riemann sum: $c_2\not\equiv0\pmod p$, so $\operatorname{ord}_TL_p\le2$; Stein–Wuthrich Thm 7.3/7.4 (Kato) give $\operatorname{ord}_Tf_E\le2$; their Thm 6.1 (Schneider, Perrin-Riou) gives $\operatorname{ord}_Tf_E\ge2$, with equality iff $Ш[p^\infty]$ is finite and the $p$-adic height is non-degenerate |
+| $p=3$ (good ordinary, $a_3=-2$) | the same, with Thm 7.3, which needs $\rho_3$ surjective. That is proven in `research/t2-389a1/rho3_surjective.py`; see below |
+| $p=389$ (split multiplicative) | `kato_bound.multiplicative_bound`: $c_0=c_1=c_2=0$, $c_3\equiv321\pmod{389}$, so $\operatorname{ord}_TL_p\le3$. Thm 7.3 in the split case ($T$ divides $L_p/f_E$) gives $\operatorname{ord}_Tf_E\le2$. $\rho_{389}$ is surjective because $E$ has no 389-isogeny (Serre, as quoted in SW §7; SW Prop. 7.2) |
+| supersingular: 107, 599, 1049, 2957 | **not covered**: this needs Perrin-Riou's $D_p$-valued $L$-function (SW Thm 6.2) or Pollack's $L_p^\pm$, whose measures are unbounded, so the error bound (*) of `bsd/kato_bound.py` does not apply |
+
+**$\rho_3$ is surjective** for 389a1. The proof has three parts.
+1. $\bar\rho_3$ is surjective: $\psi_3$ is irreducible with Galois group $S_4$, and $SL_2(\mathbb{F}_3)$ has no subgroup of index 2.
+2. Surjectivity mod 9. Elkies (arXiv:math/0612734) shows that the curves with $\rho_3$ surjective mod 3 but not mod 9
+   are those with $j=f(x)$ for an explicit $f\in\mathbb{Q}(x)$ of degree 27. Brute force over $GL_2(\mathbb{Z}/9)$
+   confirms the group theory behind this: all 27 lifts of $SL_2(\mathbb{Z}/3)$ are conjugate, $\mathfrak{sl}_2(\mathbb{F}_3)$
+   is irreducible, and the normaliser of the lift is Elkies' $G'$. $j(389\mathrm{a}1)=1404928/389$ is not a value of $f$
+   on $\mathbb{P}^1(\mathbb{Q})$; this is checked by exact factorisation. The transcription of $f$ was checked against
+   both of Elkies' forms and his table of values.
+3. The standard mod-9 lifting lemma, whose proof is in the script's docstring, then gives surjectivity onto $GL_2(\mathbb{Z}_3)$.
+
+The one input taken on trust here is the moduli interpretation of $X_9=X(9)/G'$.
+
+**Regulator anomalies.** At level 2 the coefficient $c_2$ is known modulo $p$. It was a unit at all 424 good ordinary
+primes. If the normalised leading coefficient were a random $p$-adic integer, about $\sum1/p\approx1.5$ exceptions
+would be expected in $[5,3000)$. Zero is unremarkable (probability about $e^{-1.5}\approx0.22$), but it means no
+prime needed a higher level. At the Mazur-anomalous primes $3, 859, 1213, 1493, 1951, 2521$ ($a_p\equiv1$), the factor
+$(1-1/\alpha)^2$ is divisible by $p^2$, yet $c_2$ is still a unit. This is consistent with (not a proof of) the $p$-adic
+BSD formula, in which the $p$-adic regulator then carries a compensating $p^{-2}$. As an internal check,
+$c_0=0$ exactly and $c_1\equiv0\pmod p$ at all 424 primes, as Kato's theorem and rank 2 force. A random value would
+vanish mod $p$ only once in $p$ tries.
+
+**Relation to known results, and what is left.** Stein–Wuthrich prove the stronger statement $Ш[p]=0$ for every
+non-CM curve of conductor $\le30000$ and rank $\ge2$, at good ordinary $5\le p<1000$ with $\bar\rho_p$ surjective. That
+covers 389a1 at those primes, so below 1000 the ordinary part here is a reproduction. The range $1000<p<3000$ goes
+beyond their published range, but only for finiteness. Whether $p=3$ and $p=389$ were treated before for this curve
+was not checked. The cost is about $p^2$ symbol evaluations per prime (67 CPU-minutes in total), so the method never
+reaches all $p$. T2 asks for exactly that, and it needs a mechanism linking the $p$-adic $L$-functions for different
+$p$, which nobody has (file 03, §3.4).
+
+Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2-389a1/rho3_surjective.py`,
+`python research/t2-389a1/aggregate.py`. Per-prime records: `research/t2-389a1/data/`; summary: `report.md` and `summary.json` there.
 
 ## 6.7 Reproduce
 

@@ -83,3 +83,12 @@ def test_independence_certificate_controls():
     assert not kb.independence_certificate(E, [(-1, 1), (0, 0), (1, 0)], 1, max_columns=20)["ok"]  # P3 = P1+P2
     assert kb.independence_certificate(pari.ellinit(C5077), [(2, 0), (-1, 3), (4, 6)], 1)["ok"]
     assert not kb.independence_certificate(pari.ellinit(C11), [(5, 5)], 5, max_columns=20)["ok"]  # torsion
+
+
+@pytest.mark.parametrize("ainvs,p,ord_Lp,ord_f", [(C389, 389, 3, 2),     # split: exceptional zero
+                                                   (C11, 11, 1, 0),       # split, rank 0 (Greenberg-Stevens)
+                                                   (C37, 37, 1, 1)])      # non-split, rank 1
+def test_multiplicative_primes(ainvs, p, ord_Lp, ord_f):
+    res = kb.multiplicative_bound(pari.ellinit(ainvs), p)
+    assert res["ord_upper_bound"] == ord_Lp and res["char_series_ord_upper_bound"] == ord_f
+    assert res["rho_p_surjective_by_isogeny_criterion"] == (p >= 5)

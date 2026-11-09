@@ -16,6 +16,10 @@ What this repository contains instead is the most useful thing that can honestly
    mechanically checks the hypotheses of the Skinner–Urban and Jetchev–Skinner–Wan theorems prime by prime.
 6. **Results** of running the toolkit on Cremona's database and on the record-rank curves (`results/`, summarised in
    `docs/05-numerical-evidence.md`).
+7. **Certified results** (`docs/06-certified-results.md`): rank $=$ analytic rank **proved** for all 132,535 curves of
+   conductor $<20000$ in Cremona's tables (interval arithmetic for $L^{(r)}(E,1)$, unconditional 2-descent), and $Ш(389\mathrm{a}1)[p^\infty]$ proved finite
+   at every prime $p<3000$ except the four supersingular ones (107, 599, 1049, 2957). These are certified computations about finitely many
+   curves, re-deriving and extending known results; they are not progress on the conjecture itself.
 
 The distinction between *theorem*, *certified computation*, and *numerical evidence* is maintained everywhere; the code prints
 it for every curve.
@@ -37,7 +41,7 @@ it for every curve.
 ```bash
 pip install -r requirements.txt          # cypari2 (bundles PARI/GP 2.17), cysignals, matplotlib, pytest
 pip install passagemath-standard         # optional: Sage, for --sage (prove_BSD and provable saturation); large download
-python -m pytest -q                      # 19 regression tests against known values
+python -m pytest -q                      # regression tests against known values (about 10 s)
 python -m bsd verify 11a1 37a1 389a1 5077a1 571a1 --padic 13
 python -m bsd curated --out results/curated --padic 97
 python -m bsd sweep --min 1 --max 1000 --workers 4 --out results/sweep_0001_1000
@@ -45,6 +49,9 @@ python -m bsd report results/sweep_0001_1000.jsonl --md results/sweep_0001_1000.
 python -m bsd heuristic 11a1 37a1 389a1 5077a1 --X 300000 --plot results/heuristic.png
 python -m bsd padic 389a1 --primes 3,5,7,11
 python -m bsd verify 11a1 571a1 --sage     # Sage: prove the full formula (rank ≤ 1) and provably saturate bases
+python -m bsd.rigorous_l 389a1             # Arb enclosures of L^(k)(E,1)/k!, certified order of vanishing
+python -m bsd.bsd1 --min 1 --max 19999 --out results/bsd1/bsd1_raw.jsonl --workers 3   # certify rank = analytic rank
+python research/t2-389a1/run_t2.py --pmax 3000 && python research/t2-389a1/aggregate.py  # Sha(389a1)[p^oo], p < 3000
 ```
 
 Curves of conductor $< 20000$ can be given by Cremona label (the coefficients are fetched from
@@ -68,8 +75,12 @@ a-invariants, e.g. `python -m bsd verify 0,0,1,-79,342` (the rank-5 curve of con
 ## Layout
 
 ```
-bsd/            the package (pari_session, ecdata, invariants, analytic, descent, theorems, padic, heuristic, verify, report, cli)
-docs/           01 statement · 02 what is proven · 03 obstacles · 04 research program · 05 numerical evidence · references
+bsd/            the package (pari_session, ecdata, invariants, analytic, descent, theorems, padic, heuristic, verify, report, cli;
+                rigorous_l: Arb enclosures of L-derivatives; gz_certificate: Buhler-Gross-Zagier rank-3 certificate;
+                kato_bound: exact p-adic L-functions and Selmer bounds; bsd1: certified rank = analytic rank)
+docs/           01 statement · 02 what is proven · 03 obstacles · 04 research program · 05 numerical evidence ·
+                06 certified results · references
+research/       rigorous-l, gz-rank3, kato-sha (needs Sage), t2-389a1: research runs with their data and reports
 results/        JSONL + Markdown output of the runs reported in docs/05, the heuristic plot
 scripts/        batch runners
 tests/          pytest regression suite
@@ -77,7 +88,8 @@ tests/          pytest regression suite
 
 ## Caveats, stated plainly
 
-* Numerical non-vanishing ($L^{(k)}(E,1)\ne0$) is asserted when the value exceeds the working precision by many orders of magnitude; PARI does not do interval arithmetic.
+* In the PARI-based sweeps and `verify`, numerical non-vanishing ($L^{(k)}(E,1)\ne0$) is asserted when the value exceeds the working precision by many orders of magnitude, because PARI does not do interval arithmetic. `bsd/rigorous_l.py` and `bsd/bsd1.py` use certified Arb enclosures instead.
+* `ellrank`'s 2-Selmer computation depends on GRH through `bnfinit` of the cubic 2-division field; `bsd/bsd1.py` certifies that field with `bnfcertify` first. Other uses of `ellrank` in the toolkit do not.
 * Without `--sage`, saturation of Mordell–Weil bases is verified at all primes below 1000 and cross-checked against Cremona's independently saturated bases; with `--sage` it is provable (Cremona–Siksek height bounds).
 * The theorem ledger mechanises the hypotheses of three theorems (Skinner–Urban 2014, Jetchev–Skinner–Wan 2017, Castella 2018) and Kato's rational divisibility. "Not covered" means not covered *by those*, not unknown in the literature.
 * Bibliographic details in `docs/references.md` were compiled from memory and spot-checked; the mathematical statements were checked against the papers' stated hypotheses.

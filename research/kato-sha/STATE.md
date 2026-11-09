@@ -15,5 +15,7 @@
 
 ## Integration (2026-11-09)
 - Requires Sage (eclib modular symbols). Pass-1 data in data/; scratch and logs dropped.
-- Next: re-implement the ordinary-prime part without Sage (PARI msfromell/mseval are exact and fast,
-  about 7 microseconds per symbol at N = 389); supersingular primes (Pollack L^+-) would remain here.
+- The ordinary- and multiplicative-prime parts are re-implemented without Sage in bsd/kato_bound.py
+  (PARI msfromell/mseval, exact), with tests, and used in results/bsd1 and research/t2-389a1. The
+  supersingular code (Pollack L^+-) exists only here; its theorem chain (Kobayashi) was not checked
+  in the 2026-11-09 session.
