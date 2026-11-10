@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""T2 for 389a1 at the supersingular primes p < 3000 (107, 599, 1049, 2957; all have a_p = 0).
+"""T2 for 389a1 at the supersingular primes p < 3000 (107, 599, 1049, 2957; all have a_p = 0). There are no
+others below 5000; the ordinary run classifies every prime and would list them.
 
 For each p, bsd.kato_bound.supersingular_bound certifies ord_T L_p <= 2 for the D_p-valued p-adic L-function from
 [T^j] L^- == -[T^j] theta_1 (mod p) (proof: bsd.kato_bound.SUPERSINGULAR_PROOF; cost p^2 symbol values). With

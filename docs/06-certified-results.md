@@ -139,15 +139,15 @@ Target T2 of file 04 asks for the finiteness of $Ш(E/\mathbb{Q})$ for one curve
 This section records how far a prime-by-prime computation gets for $E=$ 389a1 ($y^2+y=x^3+x^2-2x$, rank 2, the
 smallest conductor of rank 2). It does not reach "all primes", and no computation can.
 
-**Certified computation (2026-11-09).** *$Ш(389\mathrm{a}1)[p^\infty]$ is finite for every prime $p<3000$*: all 430
-of them, with $Ш[2^\infty]=0$. At every odd $p<3000$ the $p$-adic regulator of $E(\mathbb{Q})$ is moreover non-zero:
+**Certified computation (2026-11-09; extended 2026-11-10).** *$Ш(389\mathrm{a}1)[p^\infty]$ is finite for every prime $p<5000$*: all 669
+of them, with $Ш[2^\infty]=0$. At every odd $p<5000$ the $p$-adic regulator of $E(\mathbb{Q})$ is moreover non-zero:
 for $p\ne107,599,1049,2957$ it is the cyclotomic height pairing that is non-degenerate, and at those four supersingular
 primes the $D_p$-valued regulator is non-zero.
 
 | primes | how |
 |---|---|
 | $p=2$ | $\dim\operatorname{Sel}_2=2$, $E(\mathbb{Q})[2]=0$, so $Ш[2]=0$ (certified 2-descent, 6.2(e)) |
-| good ordinary $5\le p<3000$ (423 primes) | exact level-2 Riemann sum: $c_2\not\equiv0\pmod p$, so $\operatorname{ord}_TL_p\le2$; Stein–Wuthrich Thm 7.3/7.4 (Kato) give $\operatorname{ord}_Tf_E\le2$; their Thm 6.1 (Schneider, Perrin-Riou) gives $\operatorname{ord}_Tf_E\ge2$, with equality iff $Ш[p^\infty]$ is finite and the $p$-adic height is non-degenerate |
+| good ordinary $5\le p<5000$ (662 primes) | exact level-2 Riemann sum: $c_2\not\equiv0\pmod p$, so $\operatorname{ord}_TL_p\le2$; Stein–Wuthrich Thm 7.3/7.4 (Kato) give $\operatorname{ord}_Tf_E\le2$; their Thm 6.1 (Schneider, Perrin-Riou) gives $\operatorname{ord}_Tf_E\ge2$, with equality iff $Ш[p^\infty]$ is finite and the $p$-adic height is non-degenerate |
 | $p=3$ (good ordinary, $a_3=-2$) | the same, with Thm 7.3, which needs $\rho_3$ surjective. That is proven in `research/t2-389a1/rho3_surjective.py`; see below |
 | $p=389$ (split multiplicative) | `kato_bound.multiplicative_bound`: $c_0=c_1=c_2=0$, $c_3\equiv321\pmod{389}$, so $\operatorname{ord}_TL_p\le3$. Thm 7.3 in the split case ($T$ divides $L_p/f_E$) gives $\operatorname{ord}_Tf_E\le2$. $\rho_{389}$ is surjective because $E$ has no 389-isogeny (Serre, as quoted in SW §7; SW Prop. 7.2) |
 | supersingular ($a_p=0$): 107, 599, 1049, 2957 | `kato_bound.supersingular_bound`: $[T^2]L^-\equiv-[T^2]\theta_1\not\equiv0\pmod p$ (residues $21, 56, 847, 2547$), so $\operatorname{ord}_TL_p\le2$ for the $D_p$-valued $L_p$; SW Thm 7.3/7.4 and Thm 6.2 (Perrin-Riou) as above. At 107 and 599, $L^+$ from $\theta_2$ gives a second, independent certificate. See below |
@@ -193,25 +193,27 @@ rank 2 forces, while the $T^2$ coefficient is a unit. The method was checked in 
   (which is ours divided by 2, as found for their ordinary example 446d1);
 - by a second certificate from $L^+$ via $\theta_2$ at $p=107$ and $p=599$.
 
-**Regulator anomalies.** At level 2 the coefficient $c_2$ is known modulo $p$. It was a unit at all 424 good ordinary
-primes. If the normalised leading coefficient were a random $p$-adic integer, about $\sum1/p\approx1.5$ exceptions
-would be expected in $[5,3000)$. Zero is unremarkable (probability about $e^{-1.5}\approx0.22$), but it means no
+**Regulator anomalies.** At level 2 the coefficient $c_2$ is known modulo $p$. It was a unit at all 663 good ordinary
+primes. If the normalised leading coefficient were a random $p$-adic integer, about $\sum1/p\approx1.56$ exceptions
+would be expected in $[5,5000)$. Zero is unremarkable (probability about $e^{-1.56}\approx0.21$), but it means no
 prime needed a higher level. At the Mazur-anomalous primes $3, 859, 1213, 1493, 1951, 2521$ ($a_p\equiv1$), the factor
 $(1-1/\alpha)^2$ is divisible by $p^2$, yet $c_2$ is still a unit. This is consistent with (not a proof of) the $p$-adic
 BSD formula, in which the $p$-adic regulator then carries a compensating $p^{-2}$. As an internal check,
-$c_0=0$ exactly and $c_1\equiv0\pmod p$ at all 424 primes, as Kato's theorem and rank 2 force. A random value would
-vanish mod $p$ only once in $p$ tries.
+$c_0=0$ exactly and $c_1\equiv0\pmod p$ at all 663 primes, as Kato's theorem and rank 2 force. A random value would
+vanish mod $p$ only once in $p$ tries. The GP loop that computes these coefficients agrees exactly (modulo $p^3$) with the
+independent Python implementation `kato_bound.riemann_coefficients`, checked at $p\le211$ and at both ends of
+the extension, $p=3001$ and $p=4999$.
 
 **Relation to known results, and what is left.** Stein–Wuthrich prove the stronger statement $Ш[p]=0$ for every
 non-CM curve of conductor $\le30000$ and rank $\ge2$, at good ordinary $5\le p<1000$ with $\bar\rho_p$ surjective. That
-covers 389a1 at those primes, so below 1000 the ordinary part here is a reproduction. The range $1000<p<3000$ goes
+covers 389a1 at those primes, so below 1000 the ordinary part here is a reproduction. The range $1000<p<5000$ goes
 beyond their published range, but only for finiteness. Whether $p=3$, $p=389$ or the four supersingular primes were
 treated before for this curve was not checked. Perrin-Riou (2003) computed supersingular examples, and Stein–Wuthrich
-excluded supersingular primes from their tables. The cost is about $p^2$ symbol evaluations per prime (80 CPU-minutes
-in total, including the $L^+$ cross-checks), so the method never reaches all $p$. T2 asks for exactly that, and it needs a mechanism linking the $p$-adic $L$-functions for different
+excluded supersingular primes from their tables. The cost is about $p^2$ symbol evaluations per prime (318 CPU-minutes
+in total, including the $L^+$ cross-checks; the extension from 3000 to 5000 alone took about four CPU-hours), so the method never reaches all $p$. T2 asks for exactly that, and it needs a mechanism linking the $p$-adic $L$-functions for different
 $p$, which nobody has (file 03, §3.4).
 
-Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2-389a1/run_supersingular.py`,
+Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2-389a1/run_t2.py --pmin 3001 --pmax 4999 --tag ext5000` (shard with `--shard i --nshards k`), `python research/t2-389a1/run_supersingular.py`,
 `python research/t2-389a1/rho3_surjective.py`, `python research/t2-389a1/aggregate.py`. Per-prime records: `research/t2-389a1/data/`; summary: `report.md` and `summary.json` there.
 
 ## 6.7 Reproduce

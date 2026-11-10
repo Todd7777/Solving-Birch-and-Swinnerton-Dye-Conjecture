@@ -81,13 +81,13 @@ Every one of the following has appeared in attempted proofs. If an argument uses
 * **BSD (I) is certified for every curve of conductor $<20000$** (ranks 0–3, 81,217 isogeny classes), with interval
   arithmetic for the analytic side and an unconditional 2-descent for the rank. This re-derives Cremona's ranks
   independently; it is not a new rank.
-* **T2 for 389a1.** $Ш[p^\infty]$ is now proven finite at every good ordinary prime $5\le p<3000$, at $p=389$
+* **T2 for 389a1.** $Ш[p^\infty]$ is now proven finite at every good ordinary prime $5\le p<5000$, at $p=389$
   (split multiplicative, exceptional zero), at $p=2$ (where it is 0), and at $p=3$. For $p=3$ one first has to prove
   $\rho_3$ surjective, which uses Elkies' classification of curves whose 3-adic image is surjective mod 3 but not
   mod 9. The four supersingular primes $107, 599, 1049, 2957$ are covered too, so the statement holds for
-  **every prime $p<3000$**. They use a self-contained proof of the congruence $L^-\equiv-\theta_1\bmod((1+T)^p-1)$
+  **every prime $p<5000$** (669 primes; extended from 3000 on 2026-11-10). They use a self-contained proof of the congruence $L^-\equiv-\theta_1\bmod((1+T)^p-1)$
   for Pollack's bounded $L^-$, which makes supersingular primes as cheap as ordinary ones (section 6.6). This extends
-  Stein–Wuthrich (who prove the stronger $Ш[p]=0$ for $5\le p<1000$) to $p<3000$ for finiteness. The per-prime cost
+  Stein–Wuthrich (who prove the stronger $Ш[p]=0$ for $5\le p<1000$) to $p<5000$ for finiteness. The per-prime cost
   grows like $p^2$ at level 2, so a computation can never reach "all $p$". The obstruction of T2 is untouched: no
   mechanism links the $p$-adic $L$-functions for different $p$.
 * **T1-type statements as a by-product.** By Schneider/Perrin-Riou (Stein–Wuthrich Thm 6.1),

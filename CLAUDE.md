@@ -38,7 +38,7 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
   multiplicative and supersingular (a_p = 0) p. Its theorem statements follow Stein-Wuthrich 2013, sections 3 and
   6-7, which were read; Kato's own paper and Pollack's Duke paper were not. The supersingular congruence
   L^- == -theta_1 mod omega_1 is proved in `SUPERSINGULAR_PROOF` there and checked exactly in the tests.
-- `research/t2-389a1/` holds the finiteness of Sha(389a1)[p^oo] for every prime p < 3000; see `report.md` there.
+- `research/t2-389a1/` holds the finiteness of Sha(389a1)[p^oo] for every prime p < 5000; see `report.md` there.
 - PARI's `ellrank` uses GRH via `bnfinit` of the cubic 2-division field (read in PARI's `ellrank.c`). Certify
   that field with `bnfcertify` before calling an `ellrank` bound unconditional, as `bsd1.descent_bound` does.
 
@@ -46,7 +46,7 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
 
 `docs/04-research-program.md` (section 4.5 is the progress log) and `docs/03-obstacles-and-strategies.md`.
 Concrete open items left by the 2026-11-09 session:
-- extending T2 for 389a1 beyond p = 3000. Each prime costs about p^2 symbol values; supersingular primes cost the
+- extending T2 for 389a1 beyond p = 5000. Each prime costs about p^2 symbol values; supersingular primes cost the
   same, and a coefficient divisible by p needs the next level (p^3 or p^4);
 - Sha[p] = 0, rather than finiteness, needs the integral form (SW Thm 7.3) and the p-adic regulator's valuation;
 - running `bsd1` on N < 500000 with the FASRC kit in `scripts/fasrc/`.
