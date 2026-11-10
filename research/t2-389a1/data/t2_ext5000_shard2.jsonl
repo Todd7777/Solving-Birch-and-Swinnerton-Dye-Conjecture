@@ -1,0 +1,1 @@
+{"p": 4999, "a_p": 60, "kind": "ordinary", "mazur_anomalous": false, "level2_coeffs_mod_p3": [0, 51508626214, 47705707485], "c0_exact_zero": true, "c1_zero_mod_p": true, "c2_mod_p": 535, "ord_upper_bound": 2, "level": 2, "certified": true, "seconds": 99.81}
