@@ -100,8 +100,9 @@ Every one of the following has appeared in attempted proofs. If an argument uses
   transvection in inertia at 389 plus one Frobenius. Lemma B uses integrality of $p$-adic heights, which makes the
   regulator and the Mordell–Weil basis unnecessary at ordinary $p$. A saturation certificate by reduction maps covers
   the primes where PARI's regulator is used. Consequences: the cyclotomic main conjecture for $(389\mathrm{a}1,p)$ at
-  every odd $p<5000$ (at ordinary $p$ also Skinner–Urban). The six supersingular primes between 5000 and 16231 are certified the same
-  way, so with Theorem 12.3, **$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<16231$**. Checked against
+  every odd $p<5000$ (at ordinary $p$ also Skinner–Urban). All 13 supersingular primes between 5000 and 48859 are certified the same
+  way, so with Theorem 12.3, **$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$ except 16231**, the one ordinary
+  prime that theorem leaves open (it needs $[T^2]L_p$ modulo $p^2$). Checked against
   all four of SW's worked examples. Two of PARI's regulators first disagreed with SW because `ellrank`'s points for
   446d1 have index 3, which the saturation certificate detects.
 * **T1-type statements as a by-product.** By Schneider/Perrin-Riou (Stein–Wuthrich Thm 6.1),

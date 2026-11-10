@@ -19,8 +19,8 @@ What this repository contains instead is the most useful thing that can honestly
 7. **Certified results** (`docs/06-certified-results.md`): rank $=$ analytic rank **proved** for all 132,535 curves of
    conductor $<20000$ in Cremona's tables (interval arithmetic for $L^{(r)}(E,1)$, unconditional 2-descent), and $Ш(389\mathrm{a}1)[p]=0$
    proved at every prime $p<5000$ (Stein–Wuthrich's Algorithm 11.1 with short proofs replacing three of its steps), and
-   with their Theorem 12.3 at every prime $p<16231$. At the
-   supersingular primes (107, 599, 1049, 2957 and six between 5000 and 16231) and at 389 it goes beyond Stein–Wuthrich's Theorem 12.3, which excludes them
+   with their Theorem 12.3 at every prime $p<48859$ except 16231. At the 17 supersingular primes below 48859 and at 389
+   it goes beyond Stein–Wuthrich's Theorem 12.3, which excludes them
    (other literature was not checked); at the ordinary primes it reproduces that theorem. These are certified computations about finitely many curves and primes, re-deriving and extending known
    results; they are not progress on the conjecture itself.
 

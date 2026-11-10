@@ -223,12 +223,14 @@ Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2
 ## 6.7 $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$
 
 **Certified computation (2026-11-10).** *$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$*: all 669 primes, with
-$b_p=0$ at every odd one. The same certificate holds at the six supersingular primes between 5000 and 16231. With
-Stein–Wuthrich's Theorem 12.3 (cited, see 6.6) for the ordinary primes in between, this gives
-*$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<16231$*.
+$b_p=0$ at every odd one. The same certificate holds at all 13 supersingular primes between 5000 and 48859. With
+Stein–Wuthrich's Theorem 12.3 (cited, see 6.6) for the good ordinary primes in between, this gives
+*$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$ except $p=16231$*, the one ordinary prime their theorem leaves
+open. That exception stays open here.
 
 *What is new.* Relative to the literature checked (Stein–Wuthrich 2013, which lists what it excludes), the new primes
-are 389 and the supersingular primes $107, 599, 1049, 2957, 6661, 8263, 9397, 9551, 14633, 15101$. At $p=2$ and
+are 389 and the 17 supersingular primes below 48859: $107, 599, 1049, 2957, 6661, 8263, 9397, 9551, 14633, 15101$,
+$28591, 30671, 30869, 31799, 34781, 36263, 45161$. At $p=2$ and
 at the 663 good ordinary odd primes, the result reproduces their Theorem 12.3 with an independent implementation and
 partly different proofs. Proving $Ш[p]=0$ rather than finiteness also proves the cyclotomic Iwasawa main conjecture
 for $(389\mathrm{a}1,p)$ at each odd $p<5000$ (corollary below). It is still a statement about one curve and finitely
@@ -316,23 +318,36 @@ main conjecture holds for $(389\mathrm{a}1,p)$ at every odd $p<5000$. At good or
 Skinner–Urban (SW Thm 7.5, with $q=389$). The supersingular and multiplicative literature (Wan, Sprung, Skinner) was
 not checked.
 
-**Beyond 5000: every prime $p<16231$.** The supersingular primes between 5000 and 16231 are 6661, 8263, 9397,
-9551, 14633 and 15101. At each, `run_supersingular.py` certifies $\operatorname{ord}_TL_p\le2$ at level 2. The residues
-$[T^2]L^-\bmod p$ are 3666, 3529, 6604, 2258, 8473 and 4442, which took 155 to 838 s per prime. `run_sha_zero.py`
-then gives $b_p=0$: $\operatorname{ord}_p\mathrm{Reg}_p=2$, equal lattices, saturated generators, $\bar\rho_p$ surjective
-by Lemma A. So the main conjecture holds there too. Every other prime $p<16231$ is either $<5000$ or good ordinary, and
-SW Thm 12.3 covers the good ordinary ones. Hence $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<16231$.
+**Beyond 5000: every prime $p<48859$ except 16231.** There are 13 supersingular primes between 5000 and SW's bound
+48859. At each, `run_supersingular.py` certifies $\operatorname{ord}_TL_p\le2$ at level 2: $[T^2]L^-\bmod p$ is a unit
+and the $T^0$, $T^1$ coefficients vanish as rank 2 forces. `run_sha_zero.py` then gives $b_p=0$:
+$\operatorname{ord}_p\mathrm{Reg}_p=2$, equal lattices, saturated generators (auxiliary primes $\ell$ up to $3.6\cdot10^6$),
+and $\bar\rho_p$ surjective by Lemma A. So the main conjecture holds at these primes too.
 
-16231 is the ordinary prime SW could not finish: there $\operatorname{ord}_p\mathrm{Reg}_p=3$ (their Remark 12.4), so
-$[T^2]L_p$ is needed modulo $p^2$. That means level-3 Riemann sums at a cost of $p^3\approx4\cdot10^{12}$, or
-overconvergent symbols. The supersingular primes left below SW's bound 48859 are 28591, 30671, 30869, 31799, 34781,
-36263 and 45161, about 7 CPU-hours at level 2. With those and 16231 the statement would reach every $p<48859$.
+| $p$ | 6661 | 8263 | 9397 | 9551 | 14633 | 15101 | 28591 | 30671 | 30869 | 31799 | 34781 | 36263 | 45161 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| $[T^2]L^-\bmod p$ | 3666 | 3529 | 6604 | 2258 | 8473 | 4442 | 16772 | 3070 | 9104 | 28874 | 26940 | 15333 | 2914 |
+| seconds | 155 | 249 | 323 | 330 | 796 | 838 | 1499 | 1728 | 1796 | 1905 | 2277 | 2483 | 3875 |
+
+The last seven were run with the inner sum of $\theta_1$ halved: the plus symbol is even and
+$\omega(p-i)\equiv-\omega(i)\bmod p^2$. The halved loop reproduces the stored exact $\theta_1$ coefficients at
+107, 599, 1049, 2957, 6661 and 8263, and recomputes the full sum once per prime as a guard. Every other prime
+$p<48859$ is below 5000, where it is certified here, or good ordinary, where SW Thm 12.3 covers it unless $p=16231$.
+Hence $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$ other than 16231.
+
+16231 is the ordinary prime SW could not finish: there $\operatorname{ord}_p\mathrm{Reg}_p=3$ (their Remark 12.4).
+Confirmed here: PARI's regulator has valuation 3, the generators are 16231-saturated, and $p$ is not anomalous
+($a_p=128$). So $\operatorname{ord}_p\mathrm{Reg}_\gamma=1$, and Thm 6.1 with Kato's divisibility forces
+$\operatorname{ord}_p[T^2]L_p\ge1+\operatorname{ord}_p\#Ш(p)\ge1$. Proving $Ш(16231)=0$ therefore needs $[T^2]L_p$
+modulo $p^2$. With Riemann sums that is level 3, at a cost of $p^3/2\approx2\cdot10^{12}$ symbol values, which is out of
+reach here. Overconvergent modular
+symbols would be much cheaper, but would make PARI's precision control of that algorithm part of the trusted base.
 
 *Trusted:* PARI/GP 2.17.2 (`ellpadicregulator`, `ellpadicheightmatrix`, `ellpadics2`, `ellpadicfrobenius`, Tate
 parametrisation, `ellap`, `elllog`, `ellisdivisible`, `bnfcertify`), and the inputs of 6.6. *Cited:* SW Thms 6.1, 6.2,
 7.3, Prop. 7.2 and 12.3; the integrality of $\sigma_p$ (Mazur–Tate, as stated by SW); Cassels; Tate's uniformisation.
-Reproduce: `python research/t2-389a1/run_supersingular.py --pmin 5001 --pmax 16230 --tag ext16231` (here split into four
-ranges, tags `ext16231a`–`d`, about 40 CPU-minutes), then `python research/t2-389a1/run_sha_zero.py --shard i --nshards 4` for
+Reproduce: `python research/t2-389a1/run_supersingular.py --pmin 5001 --pmax 48858 --tag ext` (here run as one range per
+prime or pair of primes, tags `ext16231a`–`d` and `ext48859a`–`g`, about 4.9 CPU-hours with the halved loop), then `python research/t2-389a1/run_sha_zero.py --shard i --nshards 4` for
 $i=0,\dots,3$ (12 CPU-minutes), then `--aggregate`. Per-prime records: `data/sha_zero_shard*.jsonl`; report: `sha_zero_report.md`, `sha_zero_summary.json`.
 
 ## 6.8 Reproduce

@@ -39,7 +39,7 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
   6-7, which were read; Kato's own paper and Pollack's Duke paper were not. The supersingular congruence
   L^- == -theta_1 mod omega_1 is proved in `SUPERSINGULAR_PROOF` there and checked exactly in the tests.
 - `research/t2-389a1/` holds the finiteness of Sha(389a1)[p^oo] for every prime p < 5000 (`report.md`) and, stronger,
-  Sha(389a1)[p] = 0 for every prime p < 5000, and with SW Thm 12.3 every p < 16231 (`sha_zero_report.md`;
+  Sha(389a1)[p] = 0 for every prime p < 5000, and with SW Thm 12.3 every p < 48859 except 16231 (`sha_zero_report.md`;
   `bsd/sha_zero.py` implements Stein-Wuthrich Algorithm 11.1 with the proofs of Lemma A, Lemma B and saturation
   in its docstring). Stein-Wuthrich Thm 12.3
   already proves Sha(389a1)[p] = 0 at p = 2 and every good ordinary p < 48859 except 16231; the primes new here are
@@ -53,7 +53,8 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
 Concrete open items left by the 2026-11-10 session:
 - beyond p = 48859, T2 and Sha[p] = 0 for 389a1 are open prime by prime. Each prime costs about p^2 symbol values
   (supersingular primes the same), and a coefficient divisible by p needs the next level (p^3 or p^4);
-- Sha(389a1)[p] = 0 for every p < 48859 (with SW Thm 12.3): the supersingular primes 28591, 30671, 30869, 31799, 34781,
-  36263, 45161 (`run_supersingular.py --pmin --tag`, then `run_sha_zero.py`; about 7 CPU-hours) and SW's exception
-  16231, where ord_p Reg_p = 3 makes [T^2]L_p divisible by p (level 3 costs p^3; overconvergent symbols may not);
+- Sha(389a1)[p] = 0 at p = 16231, SW's exception and the last gap below 48859. There ord_p Reg_p = 3, so [T^2]L_p
+  is divisible by p and is needed mod p^2. Level-3 Riemann sums cost p^3/2 ~ 2e12 symbol values; PARI's
+  overconvergent symbols (mspadicinit/mspadicmoments) would be far cheaper but add their precision control to the
+  trusted base. Every supersingular prime below 48859 is done (`data/t2_supersingular_ext*.jsonl`);
 - running `bsd1` on N < 500000 with the FASRC kit in `scripts/fasrc/`.
