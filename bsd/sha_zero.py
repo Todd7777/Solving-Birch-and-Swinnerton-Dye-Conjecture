@@ -2,9 +2,12 @@
 
 This follows Stein-Wuthrich, Math. Comp. 82 (2013), Algorithm 11.1 (read for this module), whose output is an
 upper bound #Sha(E/Q)(p) <= p^{b_p}. Since #Sha(E/Q)(p) is a square (Cassels), b_p <= 1 proves Sha(E/Q)(p) = 0,
-equivalently Sha(E/Q)[p] = 0. Two steps of their algorithm are replaced by short proofs, given below, so that
-no p-saturation of the Mordell-Weil basis and no Dickson classification is needed. The p-adic L-function inputs
-come from bsd/kato_bound.py.
+equivalently Sha(E/Q)[p] = 0. Two steps of their algorithm are replaced by short proofs, given below: Lemma A
+proves surjectivity of rhobar_p without Dickson's classification, and Lemma B bounds the regulator at good
+ordinary p for any basis, so that there neither the regulator nor a p-saturated Mordell-Weil basis is needed.
+Where PARI's regulator is still used (supersingular and split multiplicative p), the p-saturation of the
+generators is proved by reduction maps (saturation_certificate). The p-adic L-function inputs come from
+bsd/kato_bound.py.
 
 Theorem chain (Stein-Wuthrich; p odd, E without CM, not additive at p)
 ------------------------------------------------------------------------

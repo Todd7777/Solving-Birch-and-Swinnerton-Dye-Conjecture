@@ -39,8 +39,9 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
   6-7, which were read; Kato's own paper and Pollack's Duke paper were not. The supersingular congruence
   L^- == -theta_1 mod omega_1 is proved in `SUPERSINGULAR_PROOF` there and checked exactly in the tests.
 - `research/t2-389a1/` holds the finiteness of Sha(389a1)[p^oo] for every prime p < 5000 (`report.md`) and, stronger,
-  Sha(389a1)[p] = 0 for every prime p < 5000 (`sha_zero_report.md`; `bsd/sha_zero.py` implements Stein-Wuthrich
-  Algorithm 11.1 with the proofs of Lemma A, Lemma B and saturation in its docstring). Stein-Wuthrich Thm 12.3
+  Sha(389a1)[p] = 0 for every prime p < 5000, and with SW Thm 12.3 every p < 16231 (`sha_zero_report.md`;
+  `bsd/sha_zero.py` implements Stein-Wuthrich Algorithm 11.1 with the proofs of Lemma A, Lemma B and saturation
+  in its docstring). Stein-Wuthrich Thm 12.3
   already proves Sha(389a1)[p] = 0 at p = 2 and every good ordinary p < 48859 except 16231; the primes new here are
   389 and the supersingular ones. Read both their Thm 1.1 and Thm 12.3 before claiming a range is new.
 - PARI's `ellrank` uses GRH via `bnfinit` of the cubic 2-division field (read in PARI's `ellrank.c`). Certify

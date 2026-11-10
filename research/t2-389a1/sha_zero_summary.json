@@ -59,7 +59,14 @@
  ],
  "seconds": 664.8,
  "beyond_5000": {
-  "certified": [],
+  "certified": [
+   6661,
+   8263,
+   9397,
+   9551,
+   14633,
+   15101
+  ],
   "not_certified": [],
   "supersingular_below_16231": [
    6661,
@@ -69,14 +76,7 @@
    14633,
    15101
   ],
-  "supersingular_below_16231_missing": [
-   6661,
-   8263,
-   9397,
-   9551,
-   14633,
-   15101
-  ],
-  "every_prime_below_16231_with_SW_12_3": false
+  "supersingular_below_16231_missing": [],
+  "every_prime_below_16231_with_SW_12_3": true
  }
 }

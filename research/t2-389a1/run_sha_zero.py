@@ -8,6 +8,8 @@ certified 2-descent (bsd.bsd1.descent_bound). Supersingular records beyond 5000 
 are certified the same way and reported separately.
 
 Usage: python3 research/t2-389a1/run_sha_zero.py --shard i --nshards k      (writes data/sha_zero_shard<i>.jsonl)
+       (beyond 5000 first: run_supersingular.py --pmin 5001 --pmax 16230 --tag ext16231, here split into four
+       ranges, tags ext16231a-d, run in parallel)
        python3 research/t2-389a1/run_sha_zero.py --aggregate                  (writes sha_zero_report.md, .json)
 """
 from __future__ import annotations
@@ -228,8 +230,10 @@ def aggregate():
         "",
         "SW Thm 12.3 (cited, not re-derived) proves Sha(389a1)[p] = 0 for p = 2 and every good ordinary p < 48859 "
         "except 16231; it excludes 389 and the supersingular primes. Below 5000 the ordinary part of this table is "
-        "therefore an independent reproduction, and the new primes are 107, 389, 599, 1049, 2957. Beyond 5000 this "
-        f"directory certifies the supersingular primes {summ['beyond_5000']['certified'] or 'none yet'}"
+        "therefore an independent reproduction, and the primes beyond SW Thm 12.3 are 107, 389, 599, 1049, 2957. "
+        + (f"Beyond 5000 this directory certifies, by the same method and with b_p = 0 (so the main conjecture holds "
+           f"there too), the supersingular primes {summ['beyond_5000']['certified']}"
+           if summ['beyond_5000']['certified'] else "Beyond 5000 no prime is certified yet")
         + (f" (not certified: {summ['beyond_5000']['not_certified']})" if summ['beyond_5000']['not_certified'] else "")
         + ". "
         + ("Together with SW Thm 12.3 this gives **Sha(389a1)[p] = 0 for every prime p < 16231**; 16231 is the "
