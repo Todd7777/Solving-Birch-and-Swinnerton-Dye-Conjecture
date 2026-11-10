@@ -68,15 +68,31 @@
    15101
   ],
   "not_certified": [],
-  "supersingular_below_16231": [
+  "supersingular_between_5000_and_SW_bound": [
    6661,
    8263,
    9397,
    9551,
    14633,
-   15101
+   15101,
+   28591,
+   30671,
+   30869,
+   31799,
+   34781,
+   36263,
+   45161
   ],
-  "supersingular_below_16231_missing": [],
-  "every_prime_below_16231_with_SW_12_3": true
+  "supersingular_missing": [
+   28591,
+   30671,
+   30869,
+   31799,
+   34781,
+   36263,
+   45161
+  ],
+  "with_SW_12_3_every_prime_below": 28591,
+  "except_prime": 16231
  }
 }

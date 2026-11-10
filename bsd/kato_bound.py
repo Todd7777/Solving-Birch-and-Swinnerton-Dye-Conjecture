@@ -436,14 +436,20 @@ _GP_THETA1 = None
 
 
 def _gp_theta1():
+    """GP loop for theta_1. The p-1 units with a given l(b) are omega(i) gamma^k, i < p, and omega(p-i) = -omega(i)
+    mod p^2; the plus symbol is even and 1-periodic, m'(1 - a/p^2) = m'(-a/p^2) = m'(a/p^2). So the inner sum is
+    twice the sum over i <= (p-1)/2. The full sum is recomputed at k = 0 and must agree (error otherwise)."""
     global _GP_THETA1
     if _GP_THETA1 is None:
         _GP_THETA1 = get_pari()("""(M,xp,p,gnum,gden,J)->
 {
-  my(q=p^2, gk=Mod(1,q), tch=vector(p-1,t,lift(Mod(t,q)^p)), s, c=vector(J+1));
+  my(q=p^2, gk=Mod(1,q), tch=vector(p-1,t,lift(Mod(t,q)^p)), s, c=vector(J+1), h=(p-1)/2, full);
+  full = sum(i=1,p-1, mseval(M,xp,[oo,tch[i]/q]));
   for(k=0,p-1,
     s=0;
-    for(i=1,p-1, s += mseval(M,xp,[oo,lift(tch[i]*gk)/q]));
+    for(i=1,h, s += mseval(M,xp,[oo,lift(tch[i]*gk)/q]));
+    s = 2*s;
+    if(k==0 && s!=full, error("theta_1: plus symbol not even at level p^2"));
     s = s*gden/gnum;
     for(j=0,J, c[j+1] += s*binomial(k,j));
     gk *= (1+p));

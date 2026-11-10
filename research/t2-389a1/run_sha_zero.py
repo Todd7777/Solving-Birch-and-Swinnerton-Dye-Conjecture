@@ -8,8 +8,8 @@ certified 2-descent (bsd.bsd1.descent_bound). Supersingular records beyond 5000 
 are certified the same way and reported separately.
 
 Usage: python3 research/t2-389a1/run_sha_zero.py --shard i --nshards k      (writes data/sha_zero_shard<i>.jsonl)
-       (beyond 5000 first: run_supersingular.py --pmin 5001 --pmax 16230 --tag ext16231, here split into four
-       ranges, tags ext16231a-d, run in parallel)
+       (beyond 5000 first: run_supersingular.py --pmin 5001 --pmax 48858 --tag <tag>; here run as one range per
+       prime or pair of primes, tags ext16231a-d and ext48859a-g, in parallel)
        python3 research/t2-389a1/run_sha_zero.py --aggregate                  (writes sha_zero_report.md, .json)
 """
 from __future__ import annotations
@@ -31,6 +31,7 @@ from bsd import sha_zero as sz  # noqa: E402
 from bsd.pari_session import get_pari  # noqa: E402
 
 AINVS = [0, 1, 1, -2, 0]
+SW_BOUND, SW_EXCEPTION = 48859, 16231   # Stein-Wuthrich Thm 12.3: Sha[p] = 0 for good ordinary p < 48859, p != 16231
 GENS = [[-1, 1], [0, 0]]          # Cremona's generators; Lemma B does not need them to be a basis
 RANK = 2
 
@@ -137,15 +138,17 @@ def aggregate():
             r = json.loads(line)
             recs[r["p"]] = r
     recs[2] = two_descent(E)
-    # supersingular primes beyond 5000 (data/t2_supersingular_ext*.jsonl): reported separately; with SW Thm 12.3
-    # (Sha[p] = 0 for p = 2 and every good ordinary p < 48859 except 16231; cited) they close the range below 16231
+    # supersingular primes beyond 5000 (data/t2_supersingular_ext*.jsonl): reported separately. SW Thm 12.3 (cited)
+    # gives Sha[p] = 0 for p = 2 and every good ordinary p < SW_BOUND except SW_EXCEPTION; 389 is the only bad prime.
+    # So every prime below the first uncertified supersingular prime > 5000 is covered, except SW_EXCEPTION.
     ext = {p: r for p, r in recs.items() if p > 5000}
     recs = {p: r for p, r in recs.items() if p < 5000}
-    ss_to_16231 = [int(q) for q in pari.primes([5001, 16230]) if int(pari.ellap(E, int(q))) % int(q) == 0]
-    ext_missing = [p for p in ss_to_16231 if not ext.get(p, {}).get("ok")]
+    ss_beyond = [int(q) for q in pari.primes([5001, SW_BOUND - 1]) if int(pari.ellap(E, int(q))) % int(q) == 0]
+    ext_missing = [p for p in ss_beyond if not ext.get(p, {}).get("ok")]
     primes = [int(q) for q in pari.primes([2, 4999])]
     missing = [p for p in primes if p not in recs]
     bad = sorted(p for p, r in recs.items() if not r.get("ok"))
+    reach = min(ext_missing + [SW_BOUND]) if not bad and not missing else None
     odd = [r for r in recs.values() if r["p"] > 2]
     ords = [r for r in odd if r.get("kind") == "ordinary"]
     ss = sorted(r["p"] for r in odd if r.get("kind") == "supersingular")
@@ -176,8 +179,9 @@ def aggregate():
                 seconds=round(sum(r.get("seconds", 0) for r in recs.values()), 1),
                 beyond_5000=dict(certified=sorted(p for p, r in ext.items() if r.get("ok")),
                                  not_certified=sorted(p for p, r in ext.items() if not r.get("ok")),
-                                 supersingular_below_16231=ss_to_16231, supersingular_below_16231_missing=ext_missing,
-                                 every_prime_below_16231_with_SW_12_3=not bad and not missing and not ext_missing))
+                                 supersingular_between_5000_and_SW_bound=ss_beyond, supersingular_missing=ext_missing,
+                                 with_SW_12_3_every_prime_below=reach,
+                                 except_prime=SW_EXCEPTION if reach and reach > SW_EXCEPTION else None))
     with open(os.path.join(HERE, "sha_zero_summary.json"), "w") as fh:
         json.dump(summ, fh, indent=1)
     n_non = len([r for r in ords if r["bound"]["vp_N_p"] == 0])
@@ -236,10 +240,14 @@ def aggregate():
            if summ['beyond_5000']['certified'] else "Beyond 5000 no prime is certified yet")
         + (f" (not certified: {summ['beyond_5000']['not_certified']})" if summ['beyond_5000']['not_certified'] else "")
         + ". "
-        + ("Together with SW Thm 12.3 this gives **Sha(389a1)[p] = 0 for every prime p < 16231**; 16231 is the "
-           "ordinary prime SW could not finish (their Remark 12.4: ord_p Reg_p = 3)."
-           if summ["beyond_5000"]["every_prime_below_16231_with_SW_12_3"] else
-           f"Supersingular primes below 16231 still missing: {ext_missing}."),
+        + ("" if reach is None else
+           (f"Together with SW Thm 12.3 this gives **Sha(389a1)[p] = 0 for every prime p < {reach} other than "
+            f"p = {SW_EXCEPTION}**, the ordinary prime SW could not finish (their Remark 12.4: ord_p Reg_p = 3), which "
+            "stays open here; in particular for every prime p < 16231."
+            if reach > SW_EXCEPTION else
+            f"Together with SW Thm 12.3 this gives **Sha(389a1)[p] = 0 for every prime p < {reach}**.")
+           + (f" Supersingular primes below {SW_BOUND} still missing: {ext_missing}." if ext_missing else
+              f" Every supersingular prime below SW's bound {SW_BOUND} is certified.")),
     ]
     with open(os.path.join(HERE, "sha_zero_report.md"), "w") as fh:
         fh.write("\n".join(lines) + "\n")
