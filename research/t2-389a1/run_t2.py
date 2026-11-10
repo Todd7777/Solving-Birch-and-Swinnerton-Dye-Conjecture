@@ -7,8 +7,9 @@ giving c_0, c_1, c_2 modulo p^3 with c_j(L) = c_j(L^(2)) mod p for j = 1, 2 and 
 c_2 != 0 mod p certifies ord_T L_p <= 2. When c_2 = 0 mod p ("regulator-anomalous" p), the
 Python implementation at level 3 (or 4) is tried within a budget.
 
-Usage:  python3 research/t2-389a1/run_t2.py --pmin 3 --pmax 3000 --shard 0 --nshards 1
-Output: research/t2-389a1/data/t2_shard<i>.jsonl (resumable).
+Usage:  python3 research/t2-389a1/run_t2.py --pmin 3 --pmax 3000 --shard 0 --nshards 1 [--tag NAME]
+Output: research/t2-389a1/data/t2_shard<i>.jsonl, or t2_<NAME>_shard<i>.jsonl with --tag (resumable).
+The p < 3000 run used no tag; the extension 3000 < p < 5000 used --tag ext5000 with 4 shards.
 """
 from __future__ import annotations
 
@@ -61,13 +62,14 @@ def main():
     ap_.add_argument("--shard", type=int, default=0)
     ap_.add_argument("--nshards", type=int, default=1)
     ap_.add_argument("--level3-max-p", type=int, default=250)
+    ap_.add_argument("--tag", default="", help="name for a separate set of output files")
     args = ap_.parse_args()
     pari = get_pari(stack=2 ** 31)
     E = pari.ellinit(AINVS)
     N = int(pari.ellglobalred(E)[0])
     sym = kb.PlusSymbol(E, N)
     os.makedirs(os.path.join(HERE, "data"), exist_ok=True)
-    out = os.path.join(HERE, "data", f"t2_shard{args.shard}.jsonl")
+    out = os.path.join(HERE, "data", f"t2_{args.tag + '_' if args.tag else ''}shard{args.shard}.jsonl")
     done = set()
     if os.path.exists(out):
         for line in open(out):
