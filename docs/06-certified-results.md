@@ -339,9 +339,22 @@ Hence $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$ other than 16231.
 Confirmed here: PARI's regulator has valuation 3, the generators are 16231-saturated, and $p$ is not anomalous
 ($a_p=128$). So $\operatorname{ord}_p\mathrm{Reg}_\gamma=1$, and Thm 6.1 with Kato's divisibility forces
 $\operatorname{ord}_p[T^2]L_p\ge1+\operatorname{ord}_p\#Ш(p)\ge1$. Proving $Ш(16231)=0$ therefore needs $[T^2]L_p$
-modulo $p^2$. With Riemann sums that is level 3, at a cost of $p^3/2\approx2\cdot10^{12}$ symbol values, which is out of
-reach here. Overconvergent modular
-symbols would be much cheaper, but would make PARI's precision control of that algorithm part of the trusted base.
+modulo $p^2$. Both routes to that were tried on 2026-11-10 (`research/t2-389a1/p16231.py`, output `data/p16231.json`),
+and neither is within reach.
+- *Riemann sums* need level 3: $p^3/2\approx2\cdot10^{12}$ symbol values, about 40 CPU-days at the present
+  $1.7\,\mu$s per value.
+- *Overconvergent modular symbols* through PARI (`mspadicinit`, `mspadicmoments`) need memory growing like $p^2$
+  at this level, even with only 3 digits: 0.07 GB at $p=5$, 0.94 GB at $p=23$, and $p=101$ overflows a 12 GB
+  stack. Extrapolated to $p=16231$ that is about $5\cdot10^5$ GB. A Pollack–Stevens computation done otherwise
+  would need modular symbols for $\Gamma_0(389\cdot16231)$, a group of index $6.3\cdot10^6$. *Correction:* an earlier
+  version of this paragraph said overconvergent symbols "would be much cheaper"; for this level that was wrong.
+
+The cheap level-2 data do not even decide finiteness. At $p=16231$ the level-2 sum gives $c_0=0$ and
+$c_1\equiv c_2\equiv c_3\equiv0$, with $c_4\equiv9677\pmod p$. Here $c_2\equiv0$ is the analytic counterpart of
+$\operatorname{ord}_p\mathrm{Reg}_\gamma=1$. For $c_3$ the relation $c_3\equiv-(1+\tfrac12\log_\gamma\langle389\rangle)\,c_2\pmod p$
+holds at every prime where it was tested (5 to 307 and 2969). *Numerical:* it is consistent with the functional
+equation of $L_p$, whose exact form was not read. So $\operatorname{ord}_TL_p\le4$, which bounds the Selmer corank by 4
+but does not force it down to the rank 2. Even finiteness of $Ш(389\mathrm{a}1)[16231^\infty]$ is therefore open here.
 
 *Trusted:* PARI/GP 2.17.2 (`ellpadicregulator`, `ellpadicheightmatrix`, `ellpadics2`, `ellpadicfrobenius`, Tate
 parametrisation, `ellap`, `elllog`, `ellisdivisible`, `bnfcertify`), and the inputs of 6.6. *Cited:* SW Thms 6.1, 6.2,

@@ -53,8 +53,10 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
 Concrete open items left by the 2026-11-10 session:
 - beyond p = 48859, T2 and Sha[p] = 0 for 389a1 are open prime by prime. Each prime costs about p^2 symbol values
   (supersingular primes the same), and a coefficient divisible by p needs the next level (p^3 or p^4);
-- Sha(389a1)[p] = 0 at p = 16231, SW's exception and the last gap below 48859. There ord_p Reg_p = 3, so [T^2]L_p
-  is divisible by p and is needed mod p^2. Level-3 Riemann sums cost p^3/2 ~ 2e12 symbol values; PARI's
-  overconvergent symbols (mspadicinit/mspadicmoments) would be far cheaper but add their precision control to the
-  trusted base. Every supersingular prime below 48859 is done (`data/t2_supersingular_ext*.jsonl`);
+- Sha(389a1)[p] = 0 at p = 16231, SW's exception and the last gap below 48859; even finiteness is open there. There
+  ord_p Reg_p = 3, so [T^2]L_p is divisible by p and is needed mod p^2. Level 2 gives c_2 = c_3 = 0, c_4 = 9677 mod p,
+  so only ord_T L_p <= 4 (`research/t2-389a1/p16231.py`). Level-3 Riemann sums cost p^3/2 ~ 2e12 symbol values. PARI's
+  overconvergent symbols are not an option at level 389: their memory grows like p^2 (0.94 GB at p = 23 with 3 digits,
+  p = 101 overflows 12 GB). What would work: a Pollack-Stevens implementation at level 389*16231 (index 6.3e6),
+  or a compiled level-3 sum. Every supersingular prime below 48859 is done (`data/t2_supersingular_ext*.jsonl`);
 - running `bsd1` on N < 500000 with the FASRC kit in `scripts/fasrc/`.

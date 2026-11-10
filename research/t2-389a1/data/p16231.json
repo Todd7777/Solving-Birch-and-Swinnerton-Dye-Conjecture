@@ -1,0 +1,99 @@
+{
+ "p": 16231,
+ "algebraic": {
+  "a_p": 128,
+  "N_p": 16104,
+  "anomalous": false,
+  "pari_regulator": "1930*16231^3 + 2051*16231^4 + 6298*16231^5 + 11467*16231^6 + 13688*16231^7 + O(16231^8)",
+  "vp_Reg_p": 3,
+  "saturated": true,
+  "rhobar_surjective": true
+ },
+ "c3_c2_relation_checks": [
+  {
+   "p": 101,
+   "c_mod_p": [
+    0,
+    0,
+    26,
+    31,
+    31
+   ],
+   "c3_over_c2": 75,
+   "fe_constant": 75
+  },
+  {
+   "p": 307,
+   "c_mod_p": [
+    0,
+    0,
+    230,
+    233,
+    3
+   ],
+   "c3_over_c2": 296,
+   "fe_constant": 296
+  },
+  {
+   "p": 2969,
+   "c_mod_p": [
+    0,
+    0,
+    656,
+    2422,
+    1562
+   ],
+   "c3_over_c2": 1280,
+   "fe_constant": 1280
+  }
+ ],
+ "analytic_level2": {
+  "c_mod_p": [
+   0,
+   0,
+   0,
+   0,
+   9677
+  ],
+  "fe_constant": 10379,
+  "seconds": 481.2
+ },
+ "pari_overconvergent_memory": [
+  {
+   "p": 5,
+   "n": 3,
+   "peak_rss_GB": 0.07,
+   "seconds": 0.2
+  },
+  {
+   "p": 7,
+   "n": 3,
+   "peak_rss_GB": 0.11,
+   "seconds": 0.3
+  },
+  {
+   "p": 11,
+   "n": 3,
+   "peak_rss_GB": 0.22,
+   "seconds": 0.6
+  },
+  {
+   "p": 13,
+   "n": 3,
+   "peak_rss_GB": 0.3,
+   "seconds": 0.9
+  },
+  {
+   "p": 17,
+   "n": 3,
+   "peak_rss_GB": 0.51,
+   "seconds": 1.5
+  },
+  {
+   "p": 23,
+   "n": 3,
+   "peak_rss_GB": 0.94,
+   "seconds": 3.1
+  }
+ ]
+}
