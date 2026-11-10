@@ -1,0 +1,1 @@
+{"p": 45161, "kind": "supersingular", "a_p": 0, "ord_upper_bound": 2, "certified": true, "theta1_coeffs": [0, 467055062, 11262453401586, 183309145963326394], "Lminus_mod_p": [0, 0, 2914, 17755], "Lplus_mod_p": null, "c0_exact_zero": true, "c1_zero_mod_p": true, "attempts": [{"sign": "-", "k": 0, "level": 2, "precision": 1, "coeffs_mod": [0, 0, 2914, 17755]}], "seconds": 3875.1}

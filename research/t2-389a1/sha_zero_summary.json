@@ -65,7 +65,14 @@
    9397,
    9551,
    14633,
-   15101
+   15101,
+   28591,
+   30671,
+   30869,
+   31799,
+   34781,
+   36263,
+   45161
   ],
   "not_certified": [],
   "supersingular_between_5000_and_SW_bound": [
@@ -83,16 +90,8 @@
    36263,
    45161
   ],
-  "supersingular_missing": [
-   28591,
-   30671,
-   30869,
-   31799,
-   34781,
-   36263,
-   45161
-  ],
-  "with_SW_12_3_every_prime_below": 28591,
+  "supersingular_missing": [],
+  "with_SW_12_3_every_prime_below": 48859,
   "except_prime": 16231
  }
 }
