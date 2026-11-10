@@ -1,0 +1,82 @@
+{
+ "curve": "389a1",
+ "primes_below": 5000,
+ "n_primes": 669,
+ "missing": [],
+ "not_certified": [],
+ "certified": 669,
+ "counts": {
+  "ordinary": 663,
+  "supersingular": 4,
+  "bad": 1,
+  "2-descent": 1
+ },
+ "anomalous": [
+  3,
+  859,
+  1213,
+  1493,
+  1951,
+  2521
+ ],
+ "supersingular": [
+  107,
+  599,
+  1049,
+  2957
+ ],
+ "regulator_valuation_prediction_failures": [],
+ "saturation_failures": [],
+ "ordinary_regulator_route_certified": 663,
+ "direction_checks": {
+  "107": {
+   "reg_ratio_mod_p": 81,
+   "L_ratio_mod_p": 81,
+   "agree": true
+  },
+  "599": {
+   "reg_ratio_mod_p": 413,
+   "L_ratio_mod_p": 413,
+   "agree": true
+  }
+ },
+ "transvection_primes": [
+  {
+   "q": 389,
+   "q_equals_ell": false
+  },
+  {
+   "q": 389,
+   "q_equals_ell": true
+  }
+ ],
+ "saturation_aux_primes": {
+  "count": 1338,
+  "max": 510031
+ },
+ "b_p_values": [
+  0
+ ],
+ "seconds": 664.8,
+ "beyond_5000": {
+  "certified": [],
+  "not_certified": [],
+  "supersingular_below_16231": [
+   6661,
+   8263,
+   9397,
+   9551,
+   14633,
+   15101
+  ],
+  "supersingular_below_16231_missing": [
+   6661,
+   8263,
+   9397,
+   9551,
+   14633,
+   15101
+  ],
+  "every_prime_below_16231_with_SW_12_3": false
+ }
+}

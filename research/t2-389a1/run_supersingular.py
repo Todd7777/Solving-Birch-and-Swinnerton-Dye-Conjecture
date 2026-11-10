@@ -8,7 +8,9 @@ For each p, bsd.kato_bound.supersingular_bound certifies ord_T L_p <= 2 for the 
 which costs p^3 symbol values.
 
 Usage: python3 research/t2-389a1/run_supersingular.py [--plus-max-p 600]
-Output: research/t2-389a1/data/t2_supersingular.jsonl (one record per prime; reruns replace the file).
+       python3 research/t2-389a1/run_supersingular.py --pmin 5000 --pmax 16231 --tag ext16231
+Output: research/t2-389a1/data/t2_supersingular.jsonl, or t2_supersingular_<tag>.jsonl with --tag (one record per
+prime; reruns replace the file).
 """
 from __future__ import annotations
 
@@ -29,20 +31,22 @@ AINVS = [0, 1, 1, -2, 0]
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--pmin", type=int, default=5)
     ap.add_argument("--pmax", type=int, default=3000)
+    ap.add_argument("--tag", default="")
     ap.add_argument("--plus-max-p", type=int, default=600)
     args = ap.parse_args()
     pari = get_pari(stack=2 ** 31)
     E = pari.ellinit(AINVS)
     sym = kb.PlusSymbol(E)
     N = sym.N
-    primes = [int(q) for q in pari.primes([5, args.pmax]) if N % int(q) and int(pari.ellap(E, int(q))) == 0]
-    out = os.path.join(HERE, "data", "t2_supersingular.jsonl")
+    primes = [int(q) for q in pari.primes([max(5, args.pmin), args.pmax]) if N % int(q) and int(pari.ellap(E, int(q))) == 0]
+    out = os.path.join(HERE, "data", f"t2_supersingular{'_' + args.tag if args.tag else ''}.jsonl")
     recs = []
     for p in primes:
         t0 = time.time()
         res = kb.supersingular_bound(E, p, sym=sym, target=2, cross_check_plus=p <= args.plus_max_p,
-                                     max_evaluations=3 * 10 ** 8)
+                                     max_evaluations=max(3 * 10 ** 8, 2 * p * p))
         rec = dict(p=p, kind="supersingular", a_p=res["a_p"], ord_upper_bound=res["ord_upper_bound"],
                    certified=res["ord_upper_bound"] is not None and res["ord_upper_bound"] <= 2,
                    theta1_coeffs=res["theta1_coeffs"], Lminus_mod_p=res["Lminus_mod_p"],

@@ -86,10 +86,24 @@ Every one of the following has appeared in attempted proofs. If an argument uses
   $\rho_3$ surjective, which uses Elkies' classification of curves whose 3-adic image is surjective mod 3 but not
   mod 9. The four supersingular primes $107, 599, 1049, 2957$ are covered too, so the statement holds for
   **every prime $p<5000$** (669 primes; extended from 3000 on 2026-11-10). They use a self-contained proof of the congruence $L^-\equiv-\theta_1\bmod((1+T)^p-1)$
-  for Pollack's bounded $L^-$, which makes supersingular primes as cheap as ordinary ones (section 6.6). This extends
-  Stein–Wuthrich (who prove the stronger $Ш[p]=0$ for $5\le p<1000$) to $p<5000$ for finiteness. The per-prime cost
+  for Pollack's bounded $L^-$, which makes supersingular primes as cheap as ordinary ones (section 6.6). At the good
+  ordinary primes this is weaker than a published theorem: Stein–Wuthrich's Theorem 12.3 gives $Ш(389\mathrm{a}1)[p]=0$
+  at $p=2$ and at every good ordinary $p<48859$ except 16231. *Correction (2026-11-10):* this item used to say the
+  work extended Stein–Wuthrich beyond $p=1000$; only their Theorem 1.1 had been taken into account. The per-prime cost
   grows like $p^2$ at level 2, so a computation can never reach "all $p$". The obstruction of T2 is untouched: no
   mechanism links the $p$-adic $L$-functions for different $p$.
+* **$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$** (2026-11-10, section 6.7). This is Stein–Wuthrich's
+  Algorithm 11.1 at every odd $p<5000$, with $b_p=0$ throughout. Beyond their Theorem 12.3, which excludes them, are 389
+  and the supersingular primes 107, 599, 1049, 2957 (other literature was not checked); at the ordinary primes it
+  reproduces that theorem independently.
+  Three parts of the algorithm are replaced by short proofs. Lemma A proves surjectivity of $\bar\rho_p$ from a
+  transvection in inertia at 389 plus one Frobenius. Lemma B uses integrality of $p$-adic heights, which makes the
+  regulator and the Mordell–Weil basis unnecessary at ordinary $p$. A saturation certificate by reduction maps covers
+  the primes where PARI's regulator is used. Consequences: the cyclotomic main conjecture for $(389\mathrm{a}1,p)$ at
+  every odd $p<5000$ (at ordinary $p$ also Skinner–Urban). And the supersingular primes above 5000 can be certified the
+  same way; with Theorem 12.3, all six below 16231 would give $Ш[p]=0$ for every $p<16231$ (status in 6.7). Checked against
+  all four of SW's worked examples. Two of PARI's regulators first disagreed with SW because `ellrank`'s points for
+  446d1 have index 3, which the saturation certificate detects.
 * **T1-type statements as a by-product.** By Schneider/Perrin-Riou (Stein–Wuthrich Thm 6.1),
   $\operatorname{ord}_TL_p=r$ also proves that the cyclotomic $p$-adic height pairing on $E(\mathbb{Q})$ is
   non-degenerate. So the computations above prove Schneider's conjecture for the rank-2 curve 389a1 at each of

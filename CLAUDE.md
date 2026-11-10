@@ -22,13 +22,13 @@ this repository does not prove it.
 
 ```bash
 pip install -r requirements.txt && pip install -e .
-python -m pytest -q          # 2026-11-09: 91 pass, 1 skipped (about 20 s)
+python -m pytest -q          # 2026-11-10: 117 pass, 1 skipped (about 20 s)
 ```
 
 The skipped test needs Sage (`pip install passagemath-standard`, a large download). `research/kato-sha/` and the
 height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
 
-## State on 2026-11-09
+## State on 2026-11-10
 
 - The stranded agent work (`bsd/rigorous_l.py`, `bsd/gz_certificate.py`, `research/`) is integrated and tracked.
 - `bsd/bsd1.py` certifies rank = analytic rank. It has been run on every isogeny class with N < 20000; all
@@ -38,15 +38,21 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
   multiplicative and supersingular (a_p = 0) p. Its theorem statements follow Stein-Wuthrich 2013, sections 3 and
   6-7, which were read; Kato's own paper and Pollack's Duke paper were not. The supersingular congruence
   L^- == -theta_1 mod omega_1 is proved in `SUPERSINGULAR_PROOF` there and checked exactly in the tests.
-- `research/t2-389a1/` holds the finiteness of Sha(389a1)[p^oo] for every prime p < 5000; see `report.md` there.
+- `research/t2-389a1/` holds the finiteness of Sha(389a1)[p^oo] for every prime p < 5000 (`report.md`) and, stronger,
+  Sha(389a1)[p] = 0 for every prime p < 5000 (`sha_zero_report.md`; `bsd/sha_zero.py` implements Stein-Wuthrich
+  Algorithm 11.1 with the proofs of Lemma A, Lemma B and saturation in its docstring). Stein-Wuthrich Thm 12.3
+  already proves Sha(389a1)[p] = 0 at p = 2 and every good ordinary p < 48859 except 16231; the primes new here are
+  389 and the supersingular ones. Read both their Thm 1.1 and Thm 12.3 before claiming a range is new.
 - PARI's `ellrank` uses GRH via `bnfinit` of the cubic 2-division field (read in PARI's `ellrank.c`). Certify
   that field with `bnfcertify` before calling an `ellrank` bound unconditional, as `bsd1.descent_bound` does.
 
 ## Where the next steps are
 
 `docs/04-research-program.md` (section 4.5 is the progress log) and `docs/03-obstacles-and-strategies.md`.
-Concrete open items left by the 2026-11-09 session:
-- extending T2 for 389a1 beyond p = 5000. Each prime costs about p^2 symbol values; supersingular primes cost the
-  same, and a coefficient divisible by p needs the next level (p^3 or p^4);
-- Sha[p] = 0, rather than finiteness, needs the integral form (SW Thm 7.3) and the p-adic regulator's valuation;
+Concrete open items left by the 2026-11-10 session:
+- beyond p = 48859, T2 and Sha[p] = 0 for 389a1 are open prime by prime. Each prime costs about p^2 symbol values
+  (supersingular primes the same), and a coefficient divisible by p needs the next level (p^3 or p^4);
+- Sha(389a1)[p] = 0 for every p < 48859 (with SW Thm 12.3): the supersingular primes 28591, 30671, 30869, 31799, 34781,
+  36263, 45161 (`run_supersingular.py --pmin --tag`, then `run_sha_zero.py`; about 7 CPU-hours) and SW's exception
+  16231, where ord_p Reg_p = 3 makes [T^2]L_p divisible by p (level 3 costs p^3; overconvergent symbols may not);
 - running `bsd1` on N < 500000 with the FASRC kit in `scripts/fasrc/`.

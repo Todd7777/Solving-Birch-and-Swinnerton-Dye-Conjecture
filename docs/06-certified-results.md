@@ -204,19 +204,132 @@ vanish mod $p$ only once in $p$ tries. The GP loop that computes these coefficie
 independent Python implementation `kato_bound.riemann_coefficients`, checked at $p\le211$ and at both ends of
 the extension, $p=3001$ and $p=4999$.
 
-**Relation to known results, and what is left.** Stein–Wuthrich prove the stronger statement $Ш[p]=0$ for every
-non-CM curve of conductor $\le30000$ and rank $\ge2$, at good ordinary $5\le p<1000$ with $\bar\rho_p$ surjective. That
-covers 389a1 at those primes, so below 1000 the ordinary part here is a reproduction. The range $1000<p<5000$ goes
-beyond their published range, but only for finiteness. Whether $p=3$, $p=389$ or the four supersingular primes were
-treated before for this curve was not checked. Perrin-Riou (2003) computed supersingular examples, and Stein–Wuthrich
-excluded supersingular primes from their tables. The cost is about $p^2$ symbol evaluations per prime (318 CPU-minutes
+**Relation to known results, and what is left.** Stein–Wuthrich prove much more than finiteness for this curve.
+Their Theorem 1.1 gives $Ш[p]=0$ for every non-CM curve of conductor $\le30000$ and rank $\ge2$ at good ordinary
+$5\le p<1000$ with $\bar\rho_p$ surjective. Their Theorem 12.3, specific to 389a1, gives $Ш(389\mathrm{a}1)[p]=0$ for
+$p=2$ and for all 5,005 good ordinary primes $p<48859$ except $p=16231$. Recounted here, 5,005 is exactly the number of
+good ordinary odd primes below 48859, so $p=3$ is included. *Correction (2026-11-10):* earlier versions of this
+paragraph, of file 04 and of the README cited only Theorem 1.1. They said the range $1000<p<5000$ went beyond the
+published range. That was wrong: at every good ordinary prime the finiteness proved here is weaker than a published
+theorem. Theorem 12.3 excludes exactly $p=389$ and the supersingular primes, which their Remark 12.5 calls too slow for
+their implementation. Below 5000 those are 107, 389, 599, 1049 and 2957; 6.7 proves $Ш[p]=0$ there. The cost is about
+$p^2$ symbol evaluations per prime (318 CPU-minutes
 in total, including the $L^+$ cross-checks; the extension from 3000 to 5000 alone took about four CPU-hours), so the method never reaches all $p$. T2 asks for exactly that, and it needs a mechanism linking the $p$-adic $L$-functions for different
 $p$, which nobody has (file 03, §3.4).
 
 Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2-389a1/run_t2.py --pmin 3001 --pmax 4999 --tag ext5000` (shard with `--shard i --nshards k`), `python research/t2-389a1/run_supersingular.py`,
 `python research/t2-389a1/rho3_surjective.py`, `python research/t2-389a1/aggregate.py`. Per-prime records: `research/t2-389a1/data/`; summary: `report.md` and `summary.json` there.
 
-## 6.7 Reproduce
+## 6.7 $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$
+
+**Certified computation (2026-11-10).** *$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$*: all 669 primes, with
+$b_p=0$ at every odd one. Combined with Stein–Wuthrich's Theorem 12.3 (cited, see 6.6), the supersingular primes
+certified beyond 5000 extend this: the paragraph *Beyond 5000* below states how far.
+
+*What is new.* Relative to the literature checked (Stein–Wuthrich 2013, which lists what it excludes), the new primes
+are $107, 389, 599, 1049, 2957$: the split multiplicative prime and the supersingular primes below 5000. At $p=2$ and
+at the 663 good ordinary odd primes, the result reproduces their Theorem 12.3 with an independent implementation and
+partly different proofs. Proving $Ш[p]=0$ rather than finiteness also proves the cyclotomic Iwasawa main conjecture
+for $(389\mathrm{a}1,p)$ at each odd $p<5000$ (corollary below). It is still a statement about one curve and finitely
+many primes. It is not progress on T2, which asks for all $p$ at once.
+
+**Method.** This is Stein–Wuthrich's Algorithm 11.1, implemented in `bsd/sha_zero.py` and run by
+`research/t2-389a1/run_sha_zero.py`. For odd $p$ it computes $b_p$ with $\#Ш(p)\le p^{b_p}$. Since $\#Ш(p)$ is a
+square (Cassels), $b_p\le1$ already forces $Ш(p)=0$. The theorem chain, all as stated in SW and read there:
+- Kato (SW Thm 7.3; Prop. 7.2 for $p\ge5$): if $\rho_p$ is surjective and $p$ semistable, then $L_p=f_E\,d$ with
+  $d\in\Lambda$, and $T\mid d$ in the split case. So $\operatorname{ord}_p f_E^*\le\operatorname{ord}_pL_p^*$.
+- Schneider, Perrin-Riou, Jones (SW Thm 6.1; ordinary and multiplicative $p$) and Perrin-Riou (SW Thm 6.2;
+  supersingular $p$, $D_p$-valued). Given $\operatorname{ord}_Tf_E=r$, which T2 (6.6) proved, the leading term of
+  $f_E$ has the valuation of $\varepsilon_p\prod c_v\,\#Ш(p)\,\mathrm{Reg}_\gamma/\#E(\mathbb{Q})(p)^2$. Here
+  $\varepsilon_p=(1-1/\alpha)^2$, with $\operatorname{ord}_p\varepsilon_p=2\operatorname{ord}_p\#\tilde E(\mathbb{F}_p)$; at
+  split $p$ it is replaced by $\mathcal{L}_p/\log_p\kappa(\gamma)$; and
+  $\mathrm{Reg}_\gamma=\mathrm{Reg}_p/\log_p(1+p)^r$.
+
+Three steps of the algorithm are replaced by short proofs, given in full in the module docstring:
+- **Lemma A** (replaces Serre's and Dickson's criteria for surjectivity of $\bar\rho_p$). A subgroup of
+  $GL_2(\mathbb{F}_\ell)$ containing a transvection fixes a line or contains $SL_2(\mathbb{F}_\ell)$. By Tate's
+  uniformisation, inertia at the multiplicative prime 389 gives a transvection, because $\ell\nmid\operatorname{ord}_{389}\Delta=1$.
+  At $\ell=389$ itself the transvection comes from the Kummer extension $\mathbb{Q}_{389}^{ur}(\zeta_{389},q_E^{1/389})$.
+  A Frobenius whose characteristic polynomial is irreducible mod $\ell$ rules out a Borel subgroup. The determinant is
+  cyclotomic, so the image is $GL_2(\mathbb{F}_\ell)$. The tests check the group theory by brute force for $\ell=3,5,7$.
+  At $p=3$ the 3-adic statement is needed, and comes from `rho3_surjective.py` (6.6).
+- **Lemma B** (replaces the regulator computation and the saturation proof at good ordinary $p\nmid\prod c_v$).
+  SW (4.1) give $h(mP)=2\log_p(e/\sigma_p(t))$, with $\sigma_p=t+O(t^2)$ in $\mathbb{Z}_p[[t]]$ (SW §4.1, citing
+  Mazur–Tate). For a point that lies in the formal group and reduces into the identity component everywhere,
+  $e/\sigma_p(t)$ is a $p$-adic unit, so the height is in $p\mathbb{Z}_p$. If $p\nmid\#\tilde E(\mathbb{F}_p)$, this gives
+  $\operatorname{ord}_p\mathrm{Reg}_\gamma\ge0$. If $\operatorname{ord}_p\#\tilde E(\mathbb{F}_p)=1$ (the anomalous primes
+  3, 859, 1213, 1493, 1951, 2521), a basis adapted to the kernel of reduction gives $\ge-2$, exactly offsetting
+  $\operatorname{ord}_p\varepsilon_p=2$. Both bounds hold for *any* basis, so $b_p\le\operatorname{ord}_pL_p^*=0$ without
+  knowing $E(\mathbb{Q})$ exactly.
+- **Saturation**, needed where PARI's regulator enters the bound: the supersingular primes and 389. If $p$ divided
+  $[E(\mathbb{Q}):\langle P_1,P_2\rangle]$, some $a\not\equiv0\pmod p$ would have $a_1P_1+a_2P_2\in pE(\mathbb{Q})$.
+  Reduction at a prime $\ell$ with $\operatorname{ord}_p\#E(\mathbb{F}_\ell)=1$ gives a linear form on $\mathbb{F}_p^2$
+  that kills $a$. Two independent forms exclude every $a$. If the forms stay degenerate, the common kernel is tested
+  with `ellisdivisible` and returned as a witness, so the tests' non-saturated controls fail visibly.
+
+| primes | count | $b_p$ | leading term | regulator |
+|---|---|---|---|---|
+| 2 | 1 | – | – | 2-descent: $\dim\operatorname{Sel}_2=2=\operatorname{rank}$, $E(\mathbb{Q})[2]=0$, so $Ш[2]=0$ |
+| good ordinary, non-anomalous | 657 | 0 | $[T^2]L_p$ a unit (6.6) | Lemma B(i) |
+| good ordinary, anomalous | 6 | 0 | $[T^2]L_p$ a unit, $\operatorname{ord}_p\varepsilon_p=2$ | Lemma B(ii) |
+| supersingular 107, 599, 1049, 2957 | 4 | 0 | $[T^2]L^-$ a unit, so $(1-\varphi)^{-2}L_p^*$ has valuation 0 | PARI $D_p$-valued, $\operatorname{ord}=2$; generators $p$-saturated |
+| 389, split multiplicative | 1 | 0 | $[T^3]L_{389}\equiv321$ | PARI's modified height, $\operatorname{ord}\mathrm{Reg}_\gamma=0$, $\operatorname{ord}\mathcal{L}_{389}=1$; 389-saturated |
+
+At a supersingular $p$, $L_p=G\,\omega-pH\,\varphi(\omega)$ with $G=L^-\log^+$ and $H=L^+\log^-$ (6.6). With
+$\varphi^2=-1/p$ one gets
+$(1-\varphi)^{-2}L_p^*=\big(((p-1)L_2^-+2pL_2^+)\,\omega+p(2L_2^--(p-1)L_2^+)\,\varphi(\omega)\big)/(p+1)^2$, where
+$L_2^\pm=[T^2]L^\pm$. At $T=0$ this formula reproduces SW's interpolation $(1-\varphi)^{-2}L_p(0)=(L(E,1)/\Omega)\,\omega$.
+Valuations are taken in the lattice $\mathbb{Z}_p\omega+\mathbb{Z}_p\varphi(\omega)$, which here equals
+$\mathbb{Z}_p\omega+\mathbb{Z}_p\eta$ (checked with PARI's Frobenius matrix).
+
+**Conventions.** The normalisations are those of the theorems: $\mathrm{Reg}_\gamma$ at supersingular $p$ (as in SW's
+own example 12.2) and $\mathcal{L}_p/\log_p\kappa(\gamma)$ at split $p$ (SW Thm 6.1). Read literally, Algorithm 11.1
+prints $\mathrm{Reg}_p$ and $\mathcal{L}_p$. That reading would give the impossible $b_p=-2$ (supersingular) and $-1$
+(at 389), and $-1$ for SW's own example 446d1 at $p=223$. The theorem versions also give the larger, weaker bounds.
+
+**Checks against Stein–Wuthrich's worked examples** (`tests/test_sha_zero.py`):
+- PARI reproduces their $\mathrm{Reg}_5(446\mathrm{d}1)$ (4.2) digit for digit.
+- At 446d1, $p=223$ (§12.1), PARI reproduces $\mathcal{L}_{223}$ and the modified $\mathrm{Reg}_{223}$ digit for digit, and $b_{223}=0$.
+- At 1483a1, $p=5$ (§12.2, supersingular), $b_5=0$. The $D_p$-valued regulator matches theirs to $O(5^6)$ in the
+  $\varphi(\omega)$-coordinate and to $O(5^4)$ in the $\omega$-coordinate. There PARI has $4\cdot5^4$ at every precision
+  tried, where they print $O(5^5)$.
+- 446d1 at $p=5$ (§7.1) is anomalous ($\#\tilde E(\mathbb{F}_5)=10$), so $\operatorname{ord}_5\varepsilon_5=2$. SW's remark
+  that $\varepsilon_5$ is prime to 5 is therefore inaccurate. Their conclusion still stands, because with
+  $\mathrm{Reg}_\gamma$ (valuation $-1$) the count is the same. Lemma B gives $b_5=1$ there, and the regulator gives 0.
+
+These examples matter because two of PARI's regulators first disagreed with SW: `ellrank`'s points for 446d1 have
+index 3 in $E(\mathbb{Q})$, which is exactly what the saturation certificate is for.
+
+**Cross-checks, not used in the proof.**
+- The generators are $p$-saturated at all 663 ordinary primes as well. So PARI's regulator gives the same $b_p=0$ by a
+  second, independent route. Lemma B predicts its valuation exactly (2, or 0 at anomalous $p$), and no prime deviates.
+- Direction check. Kato's divisibility and Perrin-Riou's formula make $(1-\varphi)^{-2}L_p^*$ a scalar multiple of the
+  $D_p$-valued regulator. Its coordinate ratio, $-2-L_2^+/L_2^-\bmod p$, matches PARI's at $p=107$ (81) and $p=599$
+  (413), the two primes where $L^+$ is known. Swapping $L^\pm$ gives 47 and 151, so the check is not vacuous; it
+  confirms the conventions of 6.6 independently of SW.
+- PARI's `ellsaturation(E, gens, 5000)` returns a basis of the same regulator.
+
+**Corollary (main conjecture).** By the remark after SW Algorithm 11.1, $b_p=0$ means $f_E$ and $L_p$ have the same
+order and leading-term valuation, so $L_p/f_E\in\Lambda^\times$ (in $T\Lambda^\times$ at 389). So the cyclotomic
+main conjecture holds for $(389\mathrm{a}1,p)$ at every odd $p<5000$. At good ordinary $p$ this is also a case of
+Skinner–Urban (SW Thm 7.5, with $q=389$). The supersingular and multiplicative literature (Wan, Sprung, Skinner) was
+not checked.
+
+**Beyond 5000.** SW Thm 12.3 leaves out the supersingular primes, the first of which above 5000 are 6661, 8263, 9397,
+9551, 14633 and 15101. The same certificate, applied to them, is in `research/t2-389a1/sha_zero_report.md`. If all six are
+certified, then $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<16231$: our certificates for $p<5000$ and at those six,
+together with SW Thm 12.3 (cited) for the good ordinary primes between. 16231 is the ordinary prime SW could not
+finish: $\operatorname{ord}_p\mathrm{Reg}_p=3$ there (their Remark 12.4), so $[T^2]L_p$ is needed modulo $p^2$. That means
+level-3 Riemann sums at a cost of $p^3\approx4\cdot10^{12}$, or overconvergent symbols. The remaining supersingular
+primes below 48859 are 28591, 30671, 30869, 31799, 34781, 36263 and 45161, about 7 CPU-hours at level 2.
+
+*Trusted:* PARI/GP 2.17.2 (`ellpadicregulator`, `ellpadicheightmatrix`, `ellpadics2`, `ellpadicfrobenius`, Tate
+parametrisation, `ellap`, `elllog`, `ellisdivisible`, `bnfcertify`), and the inputs of 6.6. *Cited:* SW Thms 6.1, 6.2,
+7.3, Prop. 7.2 and 12.3; the integrality of $\sigma_p$ (Mazur–Tate, as stated by SW); Cassels; Tate's uniformisation.
+Reproduce: `python research/t2-389a1/run_sha_zero.py --shard i --nshards 4` for $i=0,\dots,3$ (11 CPU-minutes), then
+`--aggregate`. Per-prime records: `data/sha_zero_shard*.jsonl`; report: `sha_zero_report.md`, `sha_zero_summary.json`.
+
+## 6.8 Reproduce
 
 ```bash
 python -m bsd.bsd1 --min 1 --max 19999 --out results/bsd1/bsd1_raw.jsonl --workers 3 --kato-max-conductor 3000

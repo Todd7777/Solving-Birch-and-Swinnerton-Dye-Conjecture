@@ -17,9 +17,11 @@ What this repository contains instead is the most useful thing that can honestly
 6. **Results** of running the toolkit on Cremona's database and on the record-rank curves (`results/`, summarised in
    `docs/05-numerical-evidence.md`).
 7. **Certified results** (`docs/06-certified-results.md`): rank $=$ analytic rank **proved** for all 132,535 curves of
-   conductor $<20000$ in Cremona's tables (interval arithmetic for $L^{(r)}(E,1)$, unconditional 2-descent), and $Ш(389\mathrm{a}1)[p^\infty]$ proved finite
-   at every prime $p<5000$, including the supersingular ones (107, 599, 1049, 2957). These are certified computations about finitely many
-   curves, re-deriving and extending known results; they are not progress on the conjecture itself.
+   conductor $<20000$ in Cremona's tables (interval arithmetic for $L^{(r)}(E,1)$, unconditional 2-descent), and $Ш(389\mathrm{a}1)[p]=0$
+   proved at every prime $p<5000$ (Stein–Wuthrich's Algorithm 11.1 with short proofs replacing three of its steps). At the
+   supersingular primes 107, 599, 1049, 2957 and at 389 it goes beyond Stein–Wuthrich's Theorem 12.3, which excludes them
+   (other literature was not checked); at the ordinary primes it reproduces that theorem. These are certified computations about finitely many curves and primes, re-deriving and extending known
+   results; they are not progress on the conjecture itself.
 
 The distinction between *theorem*, *certified computation*, and *numerical evidence* is maintained everywhere; the code prints
 it for every curve.
@@ -52,6 +54,7 @@ python -m bsd verify 11a1 571a1 --sage     # Sage: prove the full formula (rank 
 python -m bsd.rigorous_l 389a1             # Arb enclosures of L^(k)(E,1)/k!, certified order of vanishing
 python -m bsd.bsd1 --min 1 --max 19999 --out results/bsd1/bsd1_raw.jsonl --workers 3   # certify rank = analytic rank
 python research/t2-389a1/run_t2.py --pmax 4999 && python research/t2-389a1/aggregate.py  # Sha(389a1)[p^oo], p < 5000
+python research/t2-389a1/run_sha_zero.py && python research/t2-389a1/run_sha_zero.py --aggregate  # Sha(389a1)[p] = 0, p < 5000
 ```
 
 Curves of conductor $< 20000$ can be given by Cremona label (the coefficients are fetched from
