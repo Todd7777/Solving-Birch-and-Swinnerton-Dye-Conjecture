@@ -75,3 +75,28 @@ def test_compiled_pipeline_small_p(tmp_path):
         coeffs, _, covered = run_level3.coefficients(p, ap, rows, eps)
         assert len(covered) == p and all(r["hecke"] and r["hecke_r"] for r in rows)
         assert coeffs == kb.riemann_coefficients(sym, p, ap, 3, 4, P=4)["coeffs"]
+
+
+@pytest.mark.skipif(shutil.which("gcc") is None or not _have_avx512(), reason="needs gcc and AVX-512")
+def test_compiled_level2_small_p(tmp_path):
+    """research/t2-389a1/beyond/level2.c: theta_1 = kato_bound's GP loop, and the ordinary level-2 Riemann sum
+    = kato_bound.riemann_coefficients(n = 2), both mod p^3; every row passes its Hecke check."""
+    import run_level3
+    sys.path.insert(0, os.path.join(os.path.dirname(LEVEL3), "beyond"))
+    import run_beyond
+    table, binary = str(tmp_path / "phi389.bin"), str(tmp_path / "level2")
+    run_level3.TABLE = run_beyond.TABLE = table
+    run_beyond.BINARY = binary
+    run_level3.table()
+    subprocess.run(["gcc", "-O2", "-march=native", "-o", binary,
+                    os.path.join(os.path.dirname(LEVEL3), "beyond", "level2.c")], check=True)
+    E = pari.ellinit(C389)
+    sym = kb.PlusSymbol(E)
+    for p in (101, 107):
+        d = run_beyond.level2(p, E)
+        assert d["hecke_fail"] == 0 and d["fricke_fail"] == 0
+        assert [x % p ** 3 for x in kb.theta1_coefficients(sym, p, 4)] == d["C"]
+    for p in (7, 11):
+        d = run_beyond.level2(p, E)
+        c, _ = run_beyond.ordinary_coeffs(d)
+        assert c == kb.riemann_coefficients(sym, p, int(pari.ellap(E, p)), 2, 4, P=3)["coeffs"]
