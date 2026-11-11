@@ -1,0 +1,95 @@
+{
+ "theta1": [
+  {
+   "p": 101,
+   "agree": true
+  },
+  {
+   "p": 107,
+   "agree": true
+  },
+  {
+   "p": 211,
+   "agree": true
+  },
+  {
+   "p": 599,
+   "agree": true
+  },
+  {
+   "p": 1049,
+   "agree": true
+  },
+  {
+   "p": 2957,
+   "agree": true
+  }
+ ],
+ "riemann_level2": [
+  {
+   "p": 5,
+   "agree": true
+  },
+  {
+   "p": 7,
+   "agree": true
+  },
+  {
+   "p": 11,
+   "agree": true
+  },
+  {
+   "p": 13,
+   "agree": true
+  },
+  {
+   "p": 101,
+   "agree": true
+  },
+  {
+   "p": 211,
+   "agree": true
+  },
+  {
+   "p": 307,
+   "agree": true
+  },
+  {
+   "p": 1009,
+   "agree": true
+  }
+ ],
+ "stored": [
+  {
+   "p": 4931,
+   "got": 1639,
+   "stored": 1639,
+   "agree": true
+  },
+  {
+   "p": 4993,
+   "got": 2084,
+   "stored": 2084,
+   "agree": true
+  },
+  {
+   "p": 4999,
+   "got": 535,
+   "stored": 535,
+   "agree": true
+  },
+  {
+   "p": 6661,
+   "got": 3666,
+   "stored": 3666,
+   "agree": true
+  },
+  {
+   "p": 15101,
+   "got": 4442,
+   "stored": 4442,
+   "agree": true
+  }
+ ],
+ "ok": true
+}
