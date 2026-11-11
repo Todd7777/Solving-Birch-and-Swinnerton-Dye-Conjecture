@@ -1,0 +1,32 @@
+{
+ "p": 16231,
+ "a_p": 128,
+ "reflection_c": 8947810,
+ "k_star": 10380,
+ "root_number": 1,
+ "representatives": 8116,
+ "representatives_done": 8116,
+ "hecke_failures": [],
+ "cpu_seconds": 43389.5,
+ "classes_covered": 16231,
+ "coeffs_mod_p4": [
+  0,
+  40027415792807727,
+  2090860498159947,
+  58128880149445413,
+  19619197867874542
+ ],
+ "coeffs_mod_p2": [
+  0,
+  0,
+  46047347,
+  35529659,
+  58181581
+ ],
+ "c0_is_exact_constant": true,
+ "c1_zero_mod_p2": true,
+ "c2_mod_p2": 46047347,
+ "vp_c2_at_least": 1,
+ "c2_over_p_mod_p": 2837,
+ "certified_ord_p_T2_is_1": true
+}

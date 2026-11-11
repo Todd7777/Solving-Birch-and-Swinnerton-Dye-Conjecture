@@ -1,0 +1,80 @@
+{
+ "p": 16231,
+ "level3": {
+  "c2_mod_p2": 46047347,
+  "c0_is_exact_constant": true,
+  "c1_zero_mod_p2": true,
+  "classes_covered": 16231,
+  "hecke_failures": []
+ },
+ "checks": {
+  "complete": true,
+  "c0_exact": true,
+  "c1_zero_mod_p2": true,
+  "c2_zero_mod_p": true
+ },
+ "vp_T2_coefficient": 1,
+ "ord_T_Lp": 2,
+ "surjectivity": {
+  "ok": true,
+  "ell": 16231,
+  "transvection": {
+   "q": 389,
+   "ord_q_Delta_min": 1,
+   "reduction": "multiplicative",
+   "q_equals_ell": false
+  },
+  "frobenius": {
+   "q": 3,
+   "a_q": -2,
+   "disc_mod_ell": 16223
+  },
+  "method": "Lemma A: transvection at a multiplicative prime + Frobenius with irreducible char poly"
+ },
+ "saturation": {
+  "ok": true,
+  "p": 16231,
+  "primes": [
+   {
+    "l": 16069,
+    "card": 16231,
+    "form": [
+     1,
+     13518
+    ]
+   },
+   {
+    "l": 65101,
+    "card": 64924,
+    "form": [
+     1,
+     11540
+    ]
+   }
+  ],
+  "method": "reduction maps E(Q)/p -> E(F_l)/p with ord_p #E(F_l) = 1"
+ },
+ "bound": {
+  "p": 16231,
+  "a_p": 128,
+  "N_p": 16104,
+  "vp_N_p": 0,
+  "vp_eps": 0,
+  "vp_Lstar": 1,
+  "reg_gamma_lower_bound": 0,
+  "tamagawa": [
+   {
+    "q": 389,
+    "c": 1
+   }
+  ],
+  "torsion": 1,
+  "b_p": 1,
+  "sha_p_trivial": true,
+  "pari_vp_Reg_p": 3,
+  "b_p_from_pari_regulator": 0,
+  "consistent": true
+ },
+ "ok": true,
+ "main_conjecture": true
+}
