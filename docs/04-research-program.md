@@ -101,11 +101,13 @@ Every one of the following has appeared in attempted proofs. If an argument uses
   regulator and the Mordell–Weil basis unnecessary at ordinary $p$. A saturation certificate by reduction maps covers
   the primes where PARI's regulator is used. Consequences: the cyclotomic main conjecture for $(389\mathrm{a}1,p)$ at
   every odd $p<5000$ (at ordinary $p$ also Skinner–Urban). All 13 supersingular primes between 5000 and 48859 are certified the same
-  way, so with Theorem 12.3, **$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$ except 16231**, the one ordinary
-  prime that theorem leaves open (it needs $[T^2]L_p$ modulo $p^2$). An attempt at 16231 with overconvergent symbols
-  failed. PARI's implementation needs memory growing like $p^2$ at level 389 (0.94 GB at $p=23$), and level-2 data
-  ($c_2\equiv c_3\equiv0$, $c_4$ a unit) give only $\operatorname{ord}_TL_p\le4$, which does not decide even
-  finiteness there (section 6.7). Checked against
+  way, so with Theorem 12.3, **$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$**. The one ordinary prime that
+  theorem leaves open, 16231, has $\operatorname{ord}_p\mathrm{Reg}_p=3$, so it needed $[T^2]L_p$ modulo $p^2$.
+  PARI's overconvergent symbols cannot reach it (memory grows like $p^2$ at level 389), and level-2 data decide
+  nothing there. So a compiled level-3 Riemann sum was written (2026-11-11, `research/t2-389a1/level3/`). It uses
+  AVX-512 with exact arithmetic, plus the evenness of the plus symbol and a Fricke-symmetry lemma proved here, and
+  needed $1.07\cdot10^{12}$ symbol values in 12 CPU-hours. Result: $\operatorname{ord}_p[T^2]L_p=1$, so $b_p=1$ by Lemma B
+  and $Ш(389\mathrm{a}1)[16231]=0$ (section 6.7). Checked against
   all four of SW's worked examples. Two of PARI's regulators first disagreed with SW because `ellrank`'s points for
   446d1 have index 3, which the saturation certificate detects.
 * **T1-type statements as a by-product.** By Schneider/Perrin-Riou (Stein–Wuthrich Thm 6.1),

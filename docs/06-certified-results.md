@@ -223,14 +223,14 @@ Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2
 ## 6.7 $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$
 
 **Certified computation (2026-11-10).** *$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$*: all 669 primes, with
-$b_p=0$ at every odd one. The same certificate holds at all 13 supersingular primes between 5000 and 48859. With
-Stein–Wuthrich's Theorem 12.3 (cited, see 6.6) for the good ordinary primes in between, this gives
-*$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$ except $p=16231$*, the one ordinary prime their theorem leaves
-open. That exception stays open here.
+$b_p=0$ at every odd one. The same certificate holds at all 13 supersingular primes between 5000 and 48859. At
+16231, the one ordinary prime that Stein–Wuthrich's Theorem 12.3 leaves open, a compiled level-3 sum settles it.
+With their theorem (cited, see 6.6) for the other good ordinary primes in between, this gives
+*$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$*.
 
 *What is new.* Relative to the literature checked (Stein–Wuthrich 2013, which lists what it excludes), the new primes
-are 389 and the 17 supersingular primes below 48859: $107, 599, 1049, 2957, 6661, 8263, 9397, 9551, 14633, 15101$,
-$28591, 30671, 30869, 31799, 34781, 36263, 45161$. At $p=2$ and
+are 389, the 17 supersingular primes below 48859 ($107, 599, 1049, 2957, 6661, 8263, 9397, 9551, 14633, 15101$,
+$28591, 30671, 30869, 31799, 34781, 36263, 45161$) and SW's exceptional ordinary prime 16231. At $p=2$ and
 at the 663 good ordinary odd primes, the result reproduces their Theorem 12.3 with an independent implementation and
 partly different proofs. Proving $Ш[p]=0$ rather than finiteness also proves the cyclotomic Iwasawa main conjecture
 for $(389\mathrm{a}1,p)$ at each odd $p<5000$ (corollary below). It is still a statement about one curve and finitely
@@ -318,7 +318,7 @@ main conjecture holds for $(389\mathrm{a}1,p)$ at every odd $p<5000$. At good or
 Skinner–Urban (SW Thm 7.5, with $q=389$). The supersingular and multiplicative literature (Wan, Sprung, Skinner) was
 not checked.
 
-**Beyond 5000: every prime $p<48859$ except 16231.** There are 13 supersingular primes between 5000 and SW's bound
+**Beyond 5000.** There are 13 supersingular primes between 5000 and SW's bound
 48859. At each, `run_supersingular.py` certifies $\operatorname{ord}_TL_p\le2$ at level 2: $[T^2]L^-\bmod p$ is a unit
 and the $T^0$, $T^1$ coefficients vanish as rank 2 forces. `run_sha_zero.py` then gives $b_p=0$:
 $\operatorname{ord}_p\mathrm{Reg}_p=2$, equal lattices, saturated generators (auxiliary primes $\ell$ up to $3.6\cdot10^6$),
@@ -332,36 +332,49 @@ and $\bar\rho_p$ surjective by Lemma A. So the main conjecture holds at these pr
 The last seven were run with the inner sum of $\theta_1$ halved: the plus symbol is even and
 $\omega(p-i)\equiv-\omega(i)\bmod p^2$. The halved loop reproduces the stored exact $\theta_1$ coefficients at
 107, 599, 1049, 2957, 6661 and 8263, and recomputes the full sum once per prime as a guard. Every other prime
-$p<48859$ is below 5000, where it is certified here, or good ordinary, where SW Thm 12.3 covers it unless $p=16231$.
-Hence $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$ other than 16231.
+$p<48859$ is below 5000, where it is certified here, or good ordinary, where SW Thm 12.3 covers it unless $p=16231$,
+which is treated next.
 
-16231 is the ordinary prime SW could not finish: there $\operatorname{ord}_p\mathrm{Reg}_p=3$ (their Remark 12.4).
-Confirmed here: PARI's regulator has valuation 3, the generators are 16231-saturated, and $p$ is not anomalous
-($a_p=128$). So $\operatorname{ord}_p\mathrm{Reg}_\gamma=1$, and Thm 6.1 with Kato's divisibility forces
-$\operatorname{ord}_p[T^2]L_p\ge1+\operatorname{ord}_p\#Ш(p)\ge1$. Proving $Ш(16231)=0$ therefore needs $[T^2]L_p$
-modulo $p^2$. Both routes to that were tried on 2026-11-10 (`research/t2-389a1/p16231.py`, output `data/p16231.json`),
-and neither is within reach.
-- *Riemann sums* need level 3: $p^3/2\approx2\cdot10^{12}$ symbol values, about 40 CPU-days at the present
-  $1.7\,\mu$s per value.
-- *Overconvergent modular symbols* through PARI (`mspadicinit`, `mspadicmoments`) need memory growing like $p^2$
-  at this level, even with only 3 digits: 0.07 GB at $p=5$, 0.94 GB at $p=23$, and $p=101$ overflows a 12 GB
-  stack. Extrapolated to $p=16231$ that is about $5\cdot10^5$ GB. A Pollack–Stevens computation done otherwise
-  would need modular symbols for $\Gamma_0(389\cdot16231)$, a group of index $6.3\cdot10^6$. *Correction:* an earlier
-  version of this paragraph said overconvergent symbols "would be much cheaper"; for this level that was wrong.
+**$p=16231$: a compiled level-3 sum (2026-11-11).** 16231 is the ordinary prime SW could not finish: there
+$\operatorname{ord}_p\mathrm{Reg}_p=3$ (their Remark 12.4). Confirmed here: PARI's regulator has valuation 3, the
+generators are 16231-saturated, and $p$ is not anomalous ($a_p=128$). So $\operatorname{ord}_p\mathrm{Reg}_\gamma=1$, and
+Thm 6.1 with Kato's divisibility forces $\operatorname{ord}_p[T^2]L_p\ge1+\operatorname{ord}_p\#Ш(p)\ge1$. Deciding
+$Ш(16231)$ therefore needs $[T^2]L_p$ modulo $p^2$. The level-3 Riemann sum gives exactly that: $e_2=2$ in (*).
+- *Cheaper routes do not decide.* Level 2 gives $c_0=0$, $c_1\equiv c_2\equiv c_3\equiv0$ and $c_4\equiv9677\pmod p$,
+  hence only $\operatorname{ord}_TL_p\le4$ (`research/t2-389a1/p16231.py`). Here $c_3\equiv0$ follows from the relation
+  $c_3\equiv-(1+\tfrac12\log_\gamma\langle389\rangle)\,c_2$, which follows from the Fricke symmetry below.
+  PARI's overconvergent symbols need memory growing like $p^2$ at level 389, even with 3 digits: 0.07 GB at $p=5$,
+  0.94 GB at $p=23$, and $p=101$ overflows 12 GB. That extrapolates to about $5\cdot10^5$ GB at 16231.
+  *Correction:* an earlier version of this paragraph said overconvergent symbols "would be much cheaper". For this
+  level that was wrong.
+- *The compiled sum* is in `research/t2-389a1/level3/`. It evaluates $m'(b/p^3)$ from the continued fraction of
+  $b/p^3$ and a table of the $2\cdot389^2$ Manin-symbol values built with PARI's `mseval`. It runs 8 AVX-512 lanes per
+  vector with 3 vectors in flight, in exact double arithmetic: every integer stays below $2^{53}$, where
+  $\lfloor\mathrm{fl}(x/y)\rfloor=\lfloor x/y\rfloor$. Two symmetries each halve the work. One is the evenness of the
+  plus symbol. The other is the Fricke symmetry $m'(b/M)=-w_N\,m'(b'/M)$ for $Nbb'\equiv-1\pmod M$, a lemma proved
+  in `run_level3.py`. Its proof: $\gamma=((1+Nbb')/M,\,b;\,Nb',\,M)\in\Gamma_0(N)$ sends $0\mapsto b/M$ and
+  $-M/(Nb')\mapsto\infty$, and $W_N$ multiplies the symbol by $w_N$. That left $1.07\cdot10^{12}$ symbol values: 12
+  CPU-hours on 4 cores.
+- *Checks.* The scalar evaluator equals PARI's `mseval` on 5400 values, $q=16231^3$ included. The vector kernel
+  equals the scalar one on $4\cdot10^6$ values. The pipeline (half the classes plus their mirrors) reproduces
+  `kato_bound.riemann_coefficients` exactly modulo $p^4$ at $p=5,7,11,13,101,211,307$. At 16231, two mirrored classes
+  equal their direct computation. Each of the 8116 computed classes, and each mirror, passes the exact Hecke
+  relation $\sum_{k_1}A(k_0+pk_1)=a_pS_2(k_0)-S_1$, which ties every class's $p(p-1)$ level-3 values to level-2 data.
+  Finally $c_0=0$ exactly, $c_1\equiv0\pmod{p^2}$ as rank 2 forces, and $c_4\equiv9677\pmod p$, the value of the
+  independent level-2 computation with PARI's `mseval`.
+- *Result* (`data/level3_p16231.json`, `data/sha_zero_p16231.json`): $c_2\equiv2837\,p\pmod{p^2}$, so
+  $\operatorname{ord}_p[T^2]L_p=1$. Hence $\operatorname{ord}_TL_p=2$ and $Ш[16231^\infty]$ is finite. Lemma B gives
+  $b_p=1$, so $Ш(389\mathrm{a}1)[16231]=0$. PARI's regulator gives $b_p=0$, so the main conjecture holds at 16231 too.
 
-The cheap level-2 data do not even decide finiteness. At $p=16231$ the level-2 sum gives $c_0=0$ and
-$c_1\equiv c_2\equiv c_3\equiv0$, with $c_4\equiv9677\pmod p$. Here $c_2\equiv0$ is the analytic counterpart of
-$\operatorname{ord}_p\mathrm{Reg}_\gamma=1$. For $c_3$ the relation $c_3\equiv-(1+\tfrac12\log_\gamma\langle389\rangle)\,c_2\pmod p$
-holds at every prime where it was tested (5 to 307 and 2969). *Numerical:* it is consistent with the functional
-equation of $L_p$, whose exact form was not read. So $\operatorname{ord}_TL_p\le4$, which bounds the Selmer corank by 4
-but does not force it down to the rank 2. Even finiteness of $Ш(389\mathrm{a}1)[16231^\infty]$ is therefore open here.
+With this, *$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$*, using SW Thm 12.3 for the good ordinary primes
+$5000<p<48859$ other than 16231.
 
-*Trusted:* PARI/GP 2.17.2 (`ellpadicregulator`, `ellpadicheightmatrix`, `ellpadics2`, `ellpadicfrobenius`, Tate
+*Trusted:* the compiled kernel `level3.c` (validated as above), PARI/GP 2.17.2 (`ellpadicregulator`, `ellpadicheightmatrix`, `ellpadics2`, `ellpadicfrobenius`, Tate
 parametrisation, `ellap`, `elllog`, `ellisdivisible`, `bnfcertify`), and the inputs of 6.6. *Cited:* SW Thms 6.1, 6.2,
 7.3, Prop. 7.2 and 12.3; the integrality of $\sigma_p$ (Mazur–Tate, as stated by SW); Cassels; Tate's uniformisation.
 Reproduce: `python research/t2-389a1/run_supersingular.py --pmin 5001 --pmax 48858 --tag ext` (here run as one range per
 prime or pair of primes, tags `ext16231a`–`d` and `ext48859a`–`g`, about 4.9 CPU-hours with the halved loop), then `python research/t2-389a1/run_sha_zero.py --shard i --nshards 4` for
-$i=0,\dots,3$ (12 CPU-minutes), then `--aggregate`. Per-prime records: `data/sha_zero_shard*.jsonl`; report: `sha_zero_report.md`, `sha_zero_summary.json`.
+$i=0,\dots,3$ (12 CPU-minutes), then `--aggregate`. For 16231: `python research/t2-389a1/level3/run_level3.py` with `table`, `build`, `validate`, `run`, `aggregate`, `certify` in turn (about 12 CPU-hours; needs gcc and AVX-512). Per-prime records: `data/sha_zero_shard*.jsonl`; report: `sha_zero_report.md`, `sha_zero_summary.json`.
 
 ## 6.8 Reproduce
 
