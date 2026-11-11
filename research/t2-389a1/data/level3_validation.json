@@ -1,0 +1,80 @@
+{
+ "scalar_vs_pari": {
+  "pairs": 5400,
+  "mismatches": 0
+ },
+ "vector_vs_scalar": "vtest q=4275981654391 n=4000000: 34.0 ns/eval, destinations differing: 0",
+ "pipeline_vs_python": [
+  {
+   "p": 5,
+   "a_p": -3,
+   "c": 8,
+   "agree": true,
+   "hecke_all": true,
+   "classes": 5
+  },
+  {
+   "p": 7,
+   "a_p": -5,
+   "c": 27,
+   "agree": true,
+   "hecke_all": true,
+   "classes": 7
+  },
+  {
+   "p": 11,
+   "a_p": -4,
+   "c": 81,
+   "agree": true,
+   "hecke_all": true,
+   "classes": 11
+  },
+  {
+   "p": 13,
+   "a_p": -3,
+   "c": 160,
+   "agree": true,
+   "hecke_all": true,
+   "classes": 13
+  },
+  {
+   "p": 101,
+   "a_p": -4,
+   "c": 6818,
+   "agree": true,
+   "hecke_all": true,
+   "classes": 101
+  },
+  {
+   "p": 211,
+   "a_p": 7,
+   "c": 42769,
+   "agree": true,
+   "hecke_all": true,
+   "classes": 211
+  },
+  {
+   "p": 307,
+   "a_p": 26,
+   "c": 81335,
+   "agree": true,
+   "hecke_all": true,
+   "classes": 307
+  }
+ ],
+ "mirror_direct_checks": [
+  {
+   "k0": 10381,
+   "mirror": 10379,
+   "agree": 1,
+   "seconds": 10.8
+  },
+  {
+   "k0": 10382,
+   "mirror": 10378,
+   "agree": 1,
+   "seconds": 9.8
+  }
+ ],
+ "ok": true
+}
