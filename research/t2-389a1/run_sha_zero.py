@@ -149,6 +149,10 @@ def aggregate():
     missing = [p for p in primes if p not in recs]
     bad = sorted(p for p, r in recs.items() if not r.get("ok"))
     reach = min(ext_missing + [SW_BOUND]) if not bad and not missing else None
+    # SW's exception 16231: certified separately by the compiled level-3 sum (level3/run_level3.py certify)
+    exc_fn = os.path.join(HERE, "data", f"sha_zero_p{SW_EXCEPTION}.json")
+    exc = json.load(open(exc_fn)) if os.path.exists(exc_fn) else {}
+    exception_certified = bool(exc.get("ok"))
     odd = [r for r in recs.values() if r["p"] > 2]
     ords = [r for r in odd if r.get("kind") == "ordinary"]
     ss = sorted(r["p"] for r in odd if r.get("kind") == "supersingular")
@@ -181,7 +185,11 @@ def aggregate():
                                  not_certified=sorted(p for p, r in ext.items() if not r.get("ok")),
                                  supersingular_between_5000_and_SW_bound=ss_beyond, supersingular_missing=ext_missing,
                                  with_SW_12_3_every_prime_below=reach,
-                                 except_prime=SW_EXCEPTION if reach and reach > SW_EXCEPTION else None))
+                                 except_prime=SW_EXCEPTION if reach and reach > SW_EXCEPTION and not exception_certified
+                                 else None,
+                                 p16231=dict(certified=exception_certified, b_p=exc.get("bound", {}).get("b_p"),
+                                             vp_T2_coefficient=exc.get("vp_T2_coefficient"),
+                                             main_conjecture=exc.get("main_conjecture"))))
     with open(os.path.join(HERE, "sha_zero_summary.json"), "w") as fh:
         json.dump(summ, fh, indent=1)
     n_non = len([r for r in ords if r["bound"]["vp_N_p"] == 0])
@@ -241,7 +249,12 @@ def aggregate():
         + (f" (not certified: {summ['beyond_5000']['not_certified']})" if summ['beyond_5000']['not_certified'] else "")
         + ". "
         + ("" if reach is None else
-           (f"Together with SW Thm 12.3 this gives **Sha(389a1)[p] = 0 for every prime p < {reach} other than "
+           (f"SW's exception p = {SW_EXCEPTION} (their Remark 12.4: ord_p Reg_p = 3) is certified here by the compiled "
+            f"level-3 Riemann sum (level3/, data/sha_zero_p{SW_EXCEPTION}.json): ord_p [T^2]L_p = "
+            f"{exc.get('vp_T2_coefficient')}, b_p = {exc.get('bound', {}).get('b_p')} by Lemma B. Together with SW Thm "
+            f"12.3 this gives **Sha(389a1)[p] = 0 for every prime p < {reach}**."
+            if reach > SW_EXCEPTION and exception_certified else
+            f"Together with SW Thm 12.3 this gives **Sha(389a1)[p] = 0 for every prime p < {reach} other than "
             f"p = {SW_EXCEPTION}**, the ordinary prime SW could not finish (their Remark 12.4: ord_p Reg_p = 3), which "
             "stays open here; in particular for every prime p < 16231."
             if reach > SW_EXCEPTION else

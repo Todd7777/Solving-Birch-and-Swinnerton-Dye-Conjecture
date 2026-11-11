@@ -27,6 +27,7 @@ Steps (each also a subcommand):
              (c) the whole level-3 pipeline = kato_bound.riemann_coefficients(n = 3) exactly mod p^4 at small p
   run        shards over k0 in [0, p), resumable: data/level3_p16231_shard<i>.txt, one line per k0
   aggregate  completeness, Hecke checks, T^j coefficients mod p^4 -> data/level3_p16231.json
+  certify    if ord_p [T^2]L_p = 1: the Sha certificate at p (bsd/sha_zero.py) -> data/sha_zero_p16231.json
 
 Usage: python3 research/t2-389a1/level3/run_level3.py {table,build,validate,run,aggregate} [--p P] [--nshards K]
 """
@@ -231,11 +232,10 @@ def aggregate(p, nshards):
     pari, E, sym = curve()
     ap = int(pari.ellap(E, p))
     rows = {}
-    for s in range(nshards):
-        fn = shard_file(p, s)
-        if os.path.exists(fn):
-            for r in parse(open(fn).read()):
-                rows[r["k0"]] = r
+    import glob
+    for fn in sorted(glob.glob(os.path.join(T2, "data", f"level3_p{p}_shard*.txt"))):   # extra shards allowed
+        for r in parse(open(fn).read()):
+            rows[r["k0"]] = r
     c0, kstar, eps = reflection(p, E)
     reps = [(kstar + t) % p for t in range((p + 1) // 2)]
     missing = [k for k in reps if k not in rows]
@@ -261,9 +261,41 @@ def aggregate(p, nshards):
     return out
 
 
+def certify(p):
+    """Sha(389a1)[p] = 0 from the level-3 result, by the chain of bsd/sha_zero.py (Lemmas A and B)."""
+    from bsd import sha_zero as sz
+    pari, E, sym = curve()
+    lv = json.load(open(os.path.join(T2, "data", f"level3_p{p}.json")))
+    p2 = p * p
+    c = lv.get("coeffs_mod_p4")
+    out = dict(p=p, level3=dict((k, lv.get(k)) for k in ("c2_mod_p2", "c0_is_exact_constant", "c1_zero_mod_p2",
+                                                            "classes_covered", "hecke_failures")))
+    checks = dict(complete=lv.get("classes_covered") == p and not lv.get("hecke_failures"),
+                  c0_exact=bool(lv.get("c0_is_exact_constant")), c1_zero_mod_p2=bool(lv.get("c1_zero_mod_p2")),
+                  c2_zero_mod_p=c is not None and c[2] % p == 0)
+    vL = None if c is None or c[2] % p2 == 0 else kb.vp(c[2] % p2, p)
+    out["checks"] = checks
+    out["vp_T2_coefficient"] = vL if vL is not None else ">= 2"
+    if not all(checks.values()) or vL != 1:
+        out.update(ok=False, reason="ord_p [T^2]L_p = 1 not established")
+    else:
+        gens = [[-1, 1], [0, 0]]
+        out["ord_T_Lp"] = 2                       # [T^2]L_p != 0 (valuation 1); >= 2 by Kato and rank 2
+        out["surjectivity"] = sz.rhobar_surjective_certificate(E, p)
+        out["saturation"] = sz.saturation_certificate(E, gens, p)
+        out["bound"] = sz.ordinary_bound(E, p, vL, 2, gens)
+        b = out["bound"]
+        out["ok"] = bool(out["surjectivity"]["ok"] and b["sha_p_trivial"] and b.get("consistent", True))
+        out["main_conjecture"] = bool(out["ok"] and out["saturation"]["ok"] and b.get("b_p_from_pari_regulator") == 0)
+    with open(os.path.join(T2, "data", f"sha_zero_p{p}.json"), "w") as fh:
+        json.dump(out, fh, indent=1, default=str)
+    print(json.dumps(out, indent=1, default=str))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["table", "build", "validate", "run", "aggregate"])
+    ap.add_argument("cmd", choices=["table", "build", "validate", "run", "aggregate", "certify"])
     ap.add_argument("--p", type=int, default=16231)
     ap.add_argument("--nshards", type=int, default=4)
     a = ap.parse_args()
@@ -275,8 +307,10 @@ def main():
         sys.exit(0 if validate(a.p) else 1)
     elif a.cmd == "run":
         run(a.p, a.nshards)
-    else:
+    elif a.cmd == "aggregate":
         aggregate(a.p, a.nshards)
+    else:
+        certify(a.p)
 
 
 if __name__ == "__main__":

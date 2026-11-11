@@ -92,6 +92,12 @@
   ],
   "supersingular_missing": [],
   "with_SW_12_3_every_prime_below": 48859,
-  "except_prime": 16231
+  "except_prime": 16231,
+  "p16231": {
+   "certified": false,
+   "b_p": null,
+   "vp_T2_coefficient": null,
+   "main_conjecture": null
+  }
  }
 }
