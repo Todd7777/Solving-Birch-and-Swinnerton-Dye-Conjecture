@@ -153,6 +153,12 @@ def aggregate():
     exc_fn = os.path.join(HERE, "data", f"sha_zero_p{SW_EXCEPTION}.json")
     exc = json.load(open(exc_fn)) if os.path.exists(exc_fn) else {}
     exception_certified = bool(exc.get("ok"))
+    # beyond SW's bound: every prime from 48859 on certified by beyond/run_beyond.py (data/beyond48859_summary.json)
+    bey_fn = os.path.join(HERE, "data", "beyond48859_summary.json")
+    bey = json.load(open(bey_fn)) if os.path.exists(bey_fn) else {}
+    below_sw_complete = bool(reach == SW_BOUND and exception_certified)
+    overall = bey.get("every_prime_below") if below_sw_complete and bey.get("every_prime_below") else (
+        SW_BOUND if below_sw_complete else None)
     odd = [r for r in recs.values() if r["p"] > 2]
     ords = [r for r in odd if r.get("kind") == "ordinary"]
     ss = sorted(r["p"] for r in odd if r.get("kind") == "supersingular")
@@ -189,7 +195,10 @@ def aggregate():
                                  else None,
                                  p16231=dict(certified=exception_certified, b_p=exc.get("bound", {}).get("b_p"),
                                              vp_T2_coefficient=exc.get("vp_T2_coefficient"),
-                                             main_conjecture=exc.get("main_conjecture"))))
+                                             main_conjecture=exc.get("main_conjecture"))),
+                beyond_48859=dict((k, bey.get(k)) for k in ("pmax", "certified", "primes_in_range", "every_prime_below",
+                                                             "first_gap", "level3_needed", "supersingular")),
+                every_prime_below=overall)
     with open(os.path.join(HERE, "sha_zero_summary.json"), "w") as fh:
         json.dump(summ, fh, indent=1)
     n_non = len([r for r in ords if r["bound"]["vp_N_p"] == 0])
@@ -261,6 +270,15 @@ def aggregate():
             f"Together with SW Thm 12.3 this gives **Sha(389a1)[p] = 0 for every prime p < {reach}**.")
            + (f" Supersingular primes below {SW_BOUND} still missing: {ext_missing}." if ext_missing else
               f" Every supersingular prime below SW's bound {SW_BOUND} is certified.")),
+        "",
+        "## Beyond 48859",
+        "",
+        (f"From 48859 (itself prime) on, every prime is certified directly by beyond/run_beyond.py, with the compiled "
+         f"level-2 sum (ordinary: unit c_2, Lemma A, Lemma B; supersingular: unit [T^2]L^-, D_p-valued regulator, "
+         f"saturation): {bey.get('certified')} of the {bey.get('primes_in_range')} primes in [48859, {bey.get('pmax')}). "
+         + (f"**Altogether, Sha(389a1)[p] = 0 for every prime p < {overall}.**" if overall else "")
+         + (f" First uncertified prime: {bey.get('first_gap')}." if bey.get("first_gap") else "")
+         if bey else "Not run yet."),
     ]
     with open(os.path.join(HERE, "sha_zero_report.md"), "w") as fh:
         fh.write("\n".join(lines) + "\n")

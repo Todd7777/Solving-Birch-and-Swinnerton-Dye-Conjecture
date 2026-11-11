@@ -99,5 +99,15 @@
    "vp_T2_coefficient": 1,
    "main_conjecture": true
   }
- }
+ },
+ "beyond_48859": {
+  "pmax": 70000,
+  "certified": 12,
+  "primes_in_range": 1911,
+  "every_prime_below": 49009,
+  "first_gap": 49009,
+  "level3_needed": [],
+  "supersingular": []
+ },
+ "every_prime_below": 49009
 }

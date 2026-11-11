@@ -1,0 +1,18 @@
+{
+ "pmin": 48859,
+ "pmax": 70000,
+ "primes_in_range": 1911,
+ "certified": 12,
+ "every_prime_below": 49009,
+ "first_gap": 49009,
+ "level3_needed": [],
+ "other_failures": [],
+ "supersingular": [],
+ "anomalous": [],
+ "b_p_values": [
+  0
+ ],
+ "hecke_row_checks": 146787,
+ "symbol_evaluations": 7181977873,
+ "cpu_seconds": 260.7
+}

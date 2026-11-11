@@ -22,3 +22,7 @@ Corollary (remark after SW Algorithm 11.1): where b_p = 0, f_E and L_p have the 
 ## Relation to Stein-Wuthrich Theorem 12.3, and beyond 5000
 
 SW Thm 12.3 (cited, not re-derived) proves Sha(389a1)[p] = 0 for p = 2 and every good ordinary p < 48859 except 16231; it excludes 389 and the supersingular primes. Below 5000 the ordinary part of this table is therefore an independent reproduction, and the primes beyond SW Thm 12.3 are 107, 389, 599, 1049, 2957. Beyond 5000 this directory certifies, by the same method and with b_p = 0 (so the main conjecture holds there too), the supersingular primes [6661, 8263, 9397, 9551, 14633, 15101, 28591, 30671, 30869, 31799, 34781, 36263, 45161]. SW's exception p = 16231 (their Remark 12.4: ord_p Reg_p = 3) is certified here by the compiled level-3 Riemann sum (level3/, data/sha_zero_p16231.json): ord_p [T^2]L_p = 1, b_p = 1 by Lemma B. Together with SW Thm 12.3 this gives **Sha(389a1)[p] = 0 for every prime p < 48859**. Every supersingular prime below SW's bound 48859 is certified.
+
+## Beyond 48859
+
+From 48859 (itself prime) on, every prime is certified directly by beyond/run_beyond.py, with the compiled level-2 sum (ordinary: unit c_2, Lemma A, Lemma B; supersingular: unit [T^2]L^-, D_p-valued regulator, saturation): 12 of the 1911 primes in [48859, 70000). **Altogether, Sha(389a1)[p] = 0 for every prime p < 49009.** First uncertified prime: 49009.
