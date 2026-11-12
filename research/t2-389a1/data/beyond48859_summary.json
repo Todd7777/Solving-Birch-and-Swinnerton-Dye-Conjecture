@@ -2,17 +2,24 @@
  "pmin": 48859,
  "pmax": 70000,
  "primes_in_range": 1911,
- "certified": 12,
- "every_prime_below": 49009,
- "first_gap": 49009,
+ "certified": 1911,
+ "every_prime_below": 70000,
+ "first_gap": null,
  "level3_needed": [],
  "other_failures": [],
- "supersingular": [],
+ "supersingular": [
+  58631,
+  61751,
+  62801,
+  65003,
+  66571,
+  66851
+ ],
  "anomalous": [],
  "b_p_values": [
   0
  ],
- "hecke_row_checks": 146787,
- "symbol_evaluations": 7181977873,
- "cpu_seconds": 260.7
+ "hecke_row_checks": 28316798,
+ "symbol_evaluations": 1695982182700,
+ "cpu_seconds": 57157.2
 }
