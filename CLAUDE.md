@@ -22,13 +22,13 @@ this repository does not prove it.
 
 ```bash
 pip install -r requirements.txt && pip install -e .
-python -m pytest -q          # 2026-11-11: 121 pass, 1 skipped (about 20 s)
+python -m pytest -q          # 2026-11-12: 122 pass, 1 skipped (about 20 s)
 ```
 
 The skipped test needs Sage (`pip install passagemath-standard`, a large download). `research/kato-sha/` and the
 height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
 
-## State on 2026-11-11
+## State on 2026-11-12
 
 - The stranded agent work (`bsd/rigorous_l.py`, `bsd/gz_certificate.py`, `research/`) is integrated and tracked.
 - `bsd/bsd1.py` certifies rank = analytic rank. It has been run on every isogeny class with N < 20000; all
@@ -39,7 +39,8 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
   6-7, which were read; Kato's own paper and Pollack's Duke paper were not. The supersingular congruence
   L^- == -theta_1 mod omega_1 is proved in `SUPERSINGULAR_PROOF` there and checked exactly in the tests.
 - `research/t2-389a1/` holds the finiteness of Sha(389a1)[p^oo] for every prime p < 5000 (`report.md`) and, stronger,
-  Sha(389a1)[p] = 0 for every prime p < 5000, and with SW Thm 12.3 every p < 48859 (`sha_zero_report.md`;
+  Sha(389a1)[p] = 0 for every prime p < 5000, and with SW Thm 12.3 every p < 48859, and beyond it every
+  p < 70000 by direct certificates (`beyond/run_beyond.py`, compiled level-2 sums) (`sha_zero_report.md`;
   `bsd/sha_zero.py` implements Stein-Wuthrich Algorithm 11.1 with the proofs of Lemma A, Lemma B and saturation
   in its docstring). Stein-Wuthrich Thm 12.3
   already proves Sha(389a1)[p] = 0 at p = 2 and every good ordinary p < 48859 except 16231; the primes new here are
@@ -52,10 +53,9 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
 ## Where the next steps are
 
 `docs/04-research-program.md` (section 4.5 is the progress log) and `docs/03-obstacles-and-strategies.md`.
-Concrete open items left by the 2026-11-11 session:
-- beyond p = 48859, T2 and Sha[p] = 0 for 389a1 are open prime by prime. Each prime costs about p^2 symbol values
-  (supersingular primes the same), and a coefficient divisible by p needs the next level (p^3 or p^4);
-- beyond 48859, a prime where [T^2]L_p = 0 mod p can be handled by `research/t2-389a1/level3/` (cost about p^3/4
-  symbol values: 12 CPU-hours at p = 16231, so it grows quickly). PARI's overconvergent symbols are not an option at
-  level 389: their memory grows like p^2 (0.94 GB at p = 23 with 3 digits);
+Concrete open items left by the 2026-11-12 session:
+- extending Sha(389a1)[p] = 0 beyond 70000: `beyond/run_beyond.py run --pmax X` is resumable. A prime costs about p^2/4
+  symbol values (about 20 s at p = 50000, 40 s at p = 70000). A prime where c_2 = 0 mod p needs
+  `research/t2-389a1/level3/` (about p^3/4 symbol values: 12 CPU-hours at 16231, so it grows quickly). PARI's
+  overconvergent symbols are not an option at level 389: their memory grows like p^2;
 - running `bsd1` on N < 500000 with the FASRC kit in `scripts/fasrc/`.

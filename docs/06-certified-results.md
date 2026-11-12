@@ -220,13 +220,14 @@ $p$, which nobody has (file 03, §3.4).
 Reproduce: `python research/t2-389a1/run_t2.py --pmax 3000`, `python research/t2-389a1/run_t2.py --pmin 3001 --pmax 4999 --tag ext5000` (shard with `--shard i --nshards k`), `python research/t2-389a1/run_supersingular.py`,
 `python research/t2-389a1/rho3_surjective.py`, `python research/t2-389a1/aggregate.py`. Per-prime records: `research/t2-389a1/data/`; summary: `report.md` and `summary.json` there.
 
-## 6.7 $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$
+## 6.7 $Ш(389\mathrm{a}1)[p]=0$ for every prime $p<70000$
 
 **Certified computation (2026-11-10).** *$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<5000$*: all 669 primes, with
 $b_p=0$ at every odd one. The same certificate holds at all 13 supersingular primes between 5000 and 48859. At
 16231, the one ordinary prime that Stein–Wuthrich's Theorem 12.3 leaves open, a compiled level-3 sum settles it.
 With their theorem (cited, see 6.6) for the other good ordinary primes in between, this gives
-*$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$*.
+*$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$*. Beyond their bound every prime is certified here directly,
+which extends the statement to *every prime $p<70000$* (paragraph *Beyond 48859* below).
 
 *What is new.* Relative to the literature checked (Stein–Wuthrich 2013, which lists what it excludes), the new primes
 are 389, the 17 supersingular primes below 48859 ($107, 599, 1049, 2957, 6661, 8263, 9397, 9551, 14633, 15101$,
@@ -369,10 +370,28 @@ $Ш(16231)$ therefore needs $[T^2]L_p$ modulo $p^2$. The level-3 Riemann sum giv
 With this, *$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<48859$*, using SW Thm 12.3 for the good ordinary primes
 $5000<p<48859$ other than 16231.
 
-*Trusted:* the compiled kernel `level3.c` (validated as above), PARI/GP 2.17.2 (`ellpadicregulator`, `ellpadicheightmatrix`, `ellpadics2`, `ellpadicfrobenius`, Tate
+**Beyond 48859 (2026-11-12): every prime $p<70000$.** SW's Theorem 12.3 stops below 48859, which is itself prime. From
+there on, every prime is certified here directly (`research/t2-389a1/beyond/`), 1911 primes in $[48859,70000)$.
+- *The sum.* `level2.c` contains the kernel of `level3.c` verbatim. For each prime it computes the level-2 data
+  row by row, where $R_i(k)=m'(\omega(i)\gamma^k/p^2)$ and row $i$ runs over the lifts of $i$ mod $p$. Each row
+  therefore satisfies the exact Hecke relation $\sum_kR_i(k)=a_pm'(i/p)-m'(0)$, which is checked for every row
+  (28,316,798 rows in all). Evenness and the Fricke lemma leave one row per orbit
+  $\{i,-i,\tau i,-\tau i\}$, with $\tau i=-389^{-1}i^{-1}$. On orbits of size 2 the lemma is checked directly.
+- *The certificate.* At an ordinary $p$, $c_2$ is a unit mod $p$, so $\operatorname{ord}_TL_p\le2$. Lemma A gives
+  surjectivity, and Lemma B gives $b_p=0$ with no regulator. At the supersingular primes (58631, 61751, 62801, 65003, 66571, 66851), $[T^2]L^-$ is a
+  unit; PARI's $D_p$-valued regulator, the saturation certificate and Lemma A then give $b_p=0$.
+- *Validation* (`data/beyond48859_validation.json`). $\theta_1$ equals `kato_bound`'s GP loop modulo $p^3$ at six
+  primes. The ordinary level-2 coefficients equal `riemann_coefficients` exactly modulo $p^3$ at eight primes. The
+  results agree with the stored GP data at 4931, 4993, 4999, 6661 and 15101.
+- *Result.* All 1911 primes are certified, with $b_p=0$ throughout. No prime had $c_2\equiv0\pmod p$, so none needed
+  level 3. The run used $1.70\cdot10^{12}$ symbol values and 15.9 CPU-hours. Hence
+  *$Ш(389\mathrm{a}1)[p]=0$ for every prime $p<70000$*, and the main conjecture holds at every odd prime of
+  $[48859,70000)$.
+
+*Trusted:* the compiled kernels `level3.c` and `level2.c` (validated as above), PARI/GP 2.17.2 (`ellpadicregulator`, `ellpadicheightmatrix`, `ellpadics2`, `ellpadicfrobenius`, Tate
 parametrisation, `ellap`, `elllog`, `ellisdivisible`, `bnfcertify`), and the inputs of 6.6. *Cited:* SW Thms 6.1, 6.2,
 7.3, Prop. 7.2 and 12.3; the integrality of $\sigma_p$ (Mazur–Tate, as stated by SW); Cassels; Tate's uniformisation.
-Reproduce: `python research/t2-389a1/run_supersingular.py --pmin 5001 --pmax 48858 --tag ext` (here run as one range per
+Beyond 48859: `python research/t2-389a1/beyond/run_beyond.py build`, then `validate`, then `run --pmax 70000 --shard i --nshards 4` and `aggregate --pmax 70000`. Reproduce: `python research/t2-389a1/run_supersingular.py --pmin 5001 --pmax 48858 --tag ext` (here run as one range per
 prime or pair of primes, tags `ext16231a`–`d` and `ext48859a`–`g`, about 4.9 CPU-hours with the halved loop), then `python research/t2-389a1/run_sha_zero.py --shard i --nshards 4` for
 $i=0,\dots,3$ (12 CPU-minutes), then `--aggregate`. For 16231: `python research/t2-389a1/level3/run_level3.py` with `table`, `build`, `validate`, `run`, `aggregate`, `certify` in turn (about 12 CPU-hours; needs gcc and AVX-512). Per-prime records: `data/sha_zero_shard*.jsonl`; report: `sha_zero_report.md`, `sha_zero_summary.json`.
 
