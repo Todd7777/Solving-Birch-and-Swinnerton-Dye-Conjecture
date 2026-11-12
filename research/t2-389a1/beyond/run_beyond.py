@@ -44,6 +44,8 @@ TABLE = run_level3.TABLE
 
 def curve():
     pari = get_pari(stack=2 ** 30)
+    # the D_p-valued regulator at supersingular p > 75000 needs more than 1 GB of PARI stack: allow it to grow
+    pari.default("parisizemax", 12 * 10 ** 9)
     E = pari.ellinit(AINVS)
     return pari, E
 
