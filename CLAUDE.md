@@ -40,11 +40,11 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
   L^- == -theta_1 mod omega_1 is proved in `SUPERSINGULAR_PROOF` there and checked exactly in the tests.
 - `research/t2-389a1/` holds the finiteness of Sha(389a1)[p^oo] for every prime p < 5000 (`report.md`) and, stronger,
   Sha(389a1)[p] = 0 for every prime p < 5000, and with SW Thm 12.3 every p < 48859, and beyond it every
-  p < 70000 by direct certificates (`beyond/run_beyond.py`, compiled level-2 sums) (`sha_zero_report.md`;
+  p < 100000 by direct certificates (`beyond/run_beyond.py`, compiled level-2 sums) (`sha_zero_report.md`;
   `bsd/sha_zero.py` implements Stein-Wuthrich Algorithm 11.1 with the proofs of Lemma A, Lemma B and saturation
   in its docstring). Stein-Wuthrich Thm 12.3
   already proves Sha(389a1)[p] = 0 at p = 2 and every good ordinary p < 48859 except 16231; the primes new here are
-  389, the supersingular ones and SW's exception 16231. 16231 needed [T^2]L_p mod p^2: the compiled level-3 sum in
+  389, the supersingular ones, SW's exception 16231 and every prime from 48859 to 100000. 16231 needed [T^2]L_p mod p^2: the compiled level-3 sum in
   `research/t2-389a1/level3/` (C + AVX-512, exact; run_level3.py validates it and proves the Fricke symmetry it
   uses) gave ord_p [T^2]L_p = 1 in 12 CPU-hours. Read both SW Thm 1.1 and Thm 12.3 before claiming a range is new.
 - PARI's `ellrank` uses GRH via `bnfinit` of the cubic 2-division field (read in PARI's `ellrank.c`). Certify
@@ -54,8 +54,9 @@ height bound of `bsd/gz_certificate.py` also need Sage; nothing else does.
 
 `docs/04-research-program.md` (section 4.5 is the progress log) and `docs/03-obstacles-and-strategies.md`.
 Concrete open items left by the 2026-11-12 session:
-- extending Sha(389a1)[p] = 0 beyond 70000: `beyond/run_beyond.py run --pmax X` is resumable. A prime costs about p^2/4
-  symbol values (about 20 s at p = 50000, 40 s at p = 70000). A prime where c_2 = 0 mod p needs
+- extending Sha(389a1)[p] = 0 beyond 100000: `beyond/run_beyond.py run --pmax X` is resumable. A prime costs about p^2/4
+  symbol values (about 20 s at p = 50000, 90 s at p = 100000). Supersingular primes above 75000 need more than
+  1 GB of PARI stack for the D_p-valued regulator (`parisizemax` is set to 12 GB). A prime where c_2 = 0 mod p needs
   `research/t2-389a1/level3/` (about p^3/4 symbol values: 12 CPU-hours at 16231, so it grows quickly). PARI's
   overconvergent symbols are not an option at level 389: their memory grows like p^2;
 - running `bsd1` on N < 500000 with the FASRC kit in `scripts/fasrc/`.

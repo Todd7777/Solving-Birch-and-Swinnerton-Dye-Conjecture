@@ -1,9 +1,9 @@
 {
  "pmin": 48859,
- "pmax": 70000,
- "primes_in_range": 1911,
- "certified": 1911,
- "every_prime_below": 70000,
+ "pmax": 100000,
+ "primes_in_range": 4568,
+ "certified": 4568,
+ "every_prime_below": 100000,
  "first_gap": null,
  "level3_needed": [],
  "other_failures": [],
@@ -13,13 +13,20 @@
   62801,
   65003,
   66571,
-  66851
+  66851,
+  75431,
+  79979,
+  88651,
+  90227,
+  94343
  ],
- "anomalous": [],
+ "anomalous": [
+  78787
+ ],
  "b_p_values": [
   0
  ],
- "hecke_row_checks": 28316798,
- "symbol_evaluations": 1695982182700,
- "cpu_seconds": 57157.2
+ "hecke_row_checks": 84693998,
+ "symbol_evaluations": 6531058606078,
+ "cpu_seconds": 244259.6
 }

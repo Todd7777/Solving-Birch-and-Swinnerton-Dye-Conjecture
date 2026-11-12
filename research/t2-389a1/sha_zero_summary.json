@@ -101,10 +101,10 @@
   }
  },
  "beyond_48859": {
-  "pmax": 70000,
-  "certified": 1911,
-  "primes_in_range": 1911,
-  "every_prime_below": 70000,
+  "pmax": 100000,
+  "certified": 4568,
+  "primes_in_range": 4568,
+  "every_prime_below": 100000,
   "first_gap": null,
   "level3_needed": [],
   "supersingular": [
@@ -113,8 +113,13 @@
    62801,
    65003,
    66571,
-   66851
+   66851,
+   75431,
+   79979,
+   88651,
+   90227,
+   94343
   ]
  },
- "every_prime_below": 70000
+ "every_prime_below": 100000
 }

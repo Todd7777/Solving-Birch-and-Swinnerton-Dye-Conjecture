@@ -108,8 +108,8 @@ Every one of the following has appeared in attempted proofs. If an argument uses
   AVX-512 with exact arithmetic, plus the evenness of the plus symbol and a Fricke-symmetry lemma proved here, and
   needed $1.07\cdot10^{12}$ symbol values in 12 CPU-hours. Result: $\operatorname{ord}_p[T^2]L_p=1$, so $b_p=1$ by Lemma B
   and $Ш(389\mathrm{a}1)[16231]=0$ (section 6.7). Beyond SW's bound, a compiled level-2 sum certifies every prime
-  directly (`research/t2-389a1/beyond/`, 2026-11-12, 15.9 CPU-hours): **$Ш(389\mathrm{a}1)[p]=0$ for every
-  prime $p<70000$**. Checked against
+  directly (`research/t2-389a1/beyond/`, 2026-11-12, 68 CPU-hours): **$Ш(389\mathrm{a}1)[p]=0$ for every
+  prime $p<100000$**. Checked against
   all four of SW's worked examples. Two of PARI's regulators first disagreed with SW because `ellrank`'s points for
   446d1 have index 3, which the saturation certificate detects.
 * **T1-type statements as a by-product.** By Schneider/Perrin-Riou (Stein–Wuthrich Thm 6.1),
