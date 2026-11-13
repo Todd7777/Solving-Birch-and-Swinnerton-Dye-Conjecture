@@ -100,3 +100,15 @@ def test_compiled_level2_small_p(tmp_path):
         d = run_beyond.level2(p, E)
         c, _ = run_beyond.ordinary_coeffs(d)
         assert c == kb.riemann_coefficients(sym, p, int(pari.ellap(E, p)), 2, 4, P=3)["coeffs"]
+    # the lean kernel (default build) against run_blocks (-DREFERENCE_KERNEL build): whole output lines
+    ref = str(tmp_path / "level2_ref")
+    subprocess.run(["gcc", "-O2", "-march=native", "-DREFERENCE_KERNEL", "-o", ref,
+                    os.path.join(os.path.dirname(LEVEL3), "beyond", "level2.c")], check=True)
+    for p in (101, 1009):
+        a, b = run_beyond.level2(p, E), run_beyond.level2(p, E, binary=ref)
+        assert (a["kernel"], b["kernel"]) == ("lean", "run_blocks")
+        assert all(a[k] == b[k] for k in a if k not in ("seconds", "kernel"))
+    # and against both run_blocks and the scalar msym on random b/q, up to the lean kernel's bound q < 2^40
+    for q in (16231 ** 2, 1048573 ** 2):
+        r = subprocess.run([binary, table, "vtest", str(q), "200000", "7"], capture_output=True, text=True)
+        assert r.returncode == 0, r.stdout + r.stderr

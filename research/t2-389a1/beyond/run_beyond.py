@@ -13,6 +13,7 @@ A prime where c_2 = 0 mod p would need level 3 (see ../level3/); the certified r
 
 Usage: python3 research/t2-389a1/beyond/run_beyond.py build
        python3 research/t2-389a1/beyond/run_beyond.py validate
+       python3 research/t2-389a1/beyond/run_beyond.py validate-lean   (lean kernel = run_blocks, whole output lines)
        python3 research/t2-389a1/beyond/run_beyond.py run --pmax 100000 [--shard i --nshards k]
        python3 research/t2-389a1/beyond/run_beyond.py aggregate --pmax 100000
 """
@@ -57,17 +58,18 @@ def build():
     print("built", BINARY)
 
 
-def level2(p, E):
+def level2(p, E, binary=None):
     pari = get_pari()
     ap = int(pari.ellap(E, p))
     c, _, eps = run_level3.reflection(p, E)
-    r = subprocess.run([BINARY, TABLE, str(p), str(ap), str(c % p), str(eps)], capture_output=True, text=True)
+    r = subprocess.run([binary or BINARY, TABLE, str(p), str(ap), str(c % p), str(eps)], capture_output=True, text=True)
     if r.returncode:
         raise RuntimeError(f"level2 p={p}: {r.stderr}")
     f = r.stdout.split()
     n = [int(x) for x in f[:19]]
     return dict(p=n[0], a_p=n[1], c=n[2], eps=n[3], S1=n[4], m0=n[5], rows=n[6], hecke_fail=n[7], fricke_fail=n[8],
-                C=n[9:14], W=n[14:19], evals=int(f[19]), seconds=float(f[20]))
+                C=n[9:14], W=n[14:19], evals=int(f[19]), seconds=float(f[20]),
+                kernel=f[21] if len(f) > 21 else "run_blocks")      # binaries before 2026-11-13 printed no tag
 
 
 def ordinary_coeffs(d, P=3):
@@ -81,7 +83,8 @@ def certify_prime(p, E):
     pari = get_pari()
     t0 = time.time()
     d = level2(p, E)
-    out = dict(p=p, a_p=d["a_p"], level2={k: d[k] for k in ("rows", "hecke_fail", "fricke_fail", "evals", "seconds")})
+    out = dict(p=p, a_p=d["a_p"],
+               level2={k: d[k] for k in ("rows", "hecke_fail", "fricke_fail", "evals", "seconds", "kernel")})
     checks_ok = d["hecke_fail"] == 0 and d["fricke_fail"] == 0
     if d["a_p"] % p == 0:                                     # supersingular, a_p = 0
         out["kind"] = "supersingular"
@@ -166,6 +169,40 @@ def validate():
     return ok
 
 
+def validate_lean(primes=(101, 1009, 4999, 15101, 20011, 30011, 48859, 58631, 75431, 78787, 99991, 100003)):
+    """The lean kernel (default build) against run_blocks (-DREFERENCE_KERNEL build of the same source): the whole
+    output line, every C_j and W_j mod p^3 included, must agree; then vtest at q up to 2^40."""
+    import tempfile
+    from concurrent.futures import ThreadPoolExecutor
+    pari, E = curve()
+    ref = os.path.join(tempfile.mkdtemp(), "level2_ref")
+    subprocess.run(["gcc", "-O3", "-march=native", "-DREFERENCE_KERNEL", "-o", ref, os.path.join(HERE, "level2.c")],
+                   check=True)
+    keys = ("p", "a_p", "c", "eps", "S1", "m0", "rows", "hecke_fail", "fricke_fail", "C", "W", "evals")
+
+    def both(p):
+        a, b = level2(p, E), level2(p, E, binary=ref)
+        return dict(p=p, a_p=a["a_p"], identical=all(a[k] == b[k] for k in keys) and a["kernel"] == "lean"
+                    and b["kernel"] == "run_blocks", seconds_lean=a["seconds"], seconds_run_blocks=b["seconds"])
+
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        rows = list(ex.map(both, sorted(primes, reverse=True)))
+    rows.sort(key=lambda r: r["p"])
+    for r in rows:
+        print(f"p = {r['p']}: identical output {r['identical']} (lean {r['seconds_lean']} s, "
+              f"run_blocks {r['seconds_run_blocks']} s)", flush=True)
+    vt = []
+    for q in (10 ** 6 + 3, 16231 ** 2, 524287 ** 2, 1048573 ** 2, 999999999989):
+        r = subprocess.run([BINARY, TABLE, "vtest", str(q), "4000000", "20261113"], capture_output=True, text=True)
+        vt.append(dict(q=q, ok=r.returncode == 0, line=r.stdout.strip()))
+        print(r.stdout.strip(), flush=True)
+    ok = all(r["identical"] for r in rows) and all(v["ok"] for v in vt)
+    with open(os.path.join(T2, "data", "beyond_lean_validation.json"), "w") as fh:
+        json.dump(dict(primes=rows, vtest=vt, ok=ok), fh, indent=1)
+    print("lean validation", "PASSED" if ok else "FAILED")
+    return ok
+
+
 def shard_file(s):
     return os.path.join(T2, "data", f"beyond48859_shard{s}.jsonl")
 
@@ -213,7 +250,7 @@ def aggregate(pmax):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["build", "validate", "run", "aggregate"])
+    ap.add_argument("cmd", choices=["build", "validate", "validate-lean", "run", "aggregate"])
     ap.add_argument("--pmax", type=int, default=100000)
     ap.add_argument("--shard", type=int, default=0)
     ap.add_argument("--nshards", type=int, default=1)
@@ -222,6 +259,8 @@ def main():
         build()
     elif a.cmd == "validate":
         sys.exit(0 if validate() else 1)
+    elif a.cmd == "validate-lean":
+        sys.exit(0 if validate_lean() else 1)
     elif a.cmd == "run":
         run(a.pmax, a.shard, a.nshards)
     else:

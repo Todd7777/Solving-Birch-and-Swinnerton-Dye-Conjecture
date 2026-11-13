@@ -14,11 +14,17 @@
                                                 for N b b' = -1 mod M; eps = -w_N, c = -log_gamma<N> mod p).
    For an orbit of size 2 (tau(i) = +-i) the second relation becomes the check R_i(k) = eps R_i(c - k).
 
-   Output (one line):  p a_p c eps S1 m0 rows hecke_fail fricke_fail C_0..C_4 W_0..W_4 evals seconds
-   with C_j = sum_k binom(k, j) A2(k) and W_j = sum_k binom(k, j), both mod p^3.
+   Output (one line):  p a_p c eps S1 m0 rows hecke_fail fricke_fail C_0..C_4 W_0..W_4 evals seconds kernel
+   with C_j = sum_k binom(k, j) A2(k) and W_j = sum_k binom(k, j), both mod p^3, and kernel = "lean".
 
-   The kernel (msym, run_blocks and helpers) is copied verbatim from ../level3/level3.c, where it is validated.
-   Usage: level2 TABLE p a_p c eps          Build: gcc -O3 -march=native -o level2 level2.c */
+   msym (scalar) and run_blocks (vector) are copied verbatim from ../level3/level3.c, where they are validated.
+   The rows are computed by run_blocks_lean (2026-11-13), the same continued-fraction arithmetic with fewer vector
+   instructions per step (about 1.3 times faster); its exactness argument is at the function. `vtest` checks it
+   against run_blocks and msym on random b/q, and its output line equals that of the run_blocks version at every
+   prime compared (../data/beyond_lean_validation.json).
+   Usage: level2 TABLE p a_p c eps
+          level2 TABLE vtest q count seed     (lean kernel = run_blocks = msym on random b/q, q < 2^40)
+   Build: gcc -O3 -march=native -o level2 level2.c   (-DREFERENCE_KERNEL computes the rows with run_blocks) */
 #include <immintrin.h>
 #include <math.h>
 #include <stdint.h>
@@ -114,6 +120,83 @@ static void run_blocks(const double *tb, const int32_t *td, size_t nblk, u64 q, 
     }
 }
 
+
+/* Lean kernel: the arithmetic of run_blocks with fewer vector instructions per continued-fraction step. Valid for
+   q < 2^40 (then every quotient is below 2^40 and the expansion of b/q has at most 59 steps).
+   - Residues K are kept in [0, N], N standing for 0. F = floor(fl(T * fl(1/N))) has relative error below 2^-51 and
+     T = A K1 + K2 < 2^49, so F = floor(T/N), except that F may be one less when N divides T. Hence Kn = T - F N lies
+     in [0, N], is computed exactly, and no correction is needed. PHI8 has (N+1)^2 entries per parity, its row and
+     column N repeating row and column 0.
+   - All lanes of a group step together, so the parity (which of the two tables) is one scalar per group.
+   - A finished lane is parked with Y = 1 (X becomes the gcd, 1): every later step has A = 1, R = 0 and an index in
+     range, and its sum is no longer updated. Padding lanes hold b = 1 and are not stored.
+   - PHI8 holds bytes. Each step adds the 4 bytes read at the index to a 32-bit lane sum, and only the low byte of
+     that sum is used. It equals the sum of the table values mod 256. That sum has absolute value at most 2 * 59 < 128
+     (|values| <= 2, checked when PHI8 is filled), so the signed low byte is the sum itself. */
+#define N1 (N + 1)
+#define GL 4
+static int8_t PHI8[2 * N1 * N1 + 8];
+
+static void fill_phi8(void) {
+    for (int par = 0; par < 2; par++)
+        for (int a = 0; a <= N; a++)
+            for (int b = 0; b <= N; b++) {
+                int v = PHI[par][a % N][b % N];
+                if (v < -2 || v > 2) { fprintf(stderr, "table value outside [-2, 2]\n"); exit(2); }
+                PHI8[par * N1 * N1 + a * N1 + b] = (int8_t)v;
+            }
+}
+
+/* tasks tb[0..ntask) (padding up to 8 nblk holds 1.0), results added to acc[td[t]] */
+static void run_blocks_lean(const double *tb, const int32_t *td, size_t nblk, size_t ntask, u64 q, i64 *acc) {
+    const __m512d vq = _mm512_set1_pd((double)q), vN = _mm512_set1_pd((double)N), vN1 = _mm512_set1_pd((double)N1);
+    const __m512d invN = _mm512_set1_pd(1.0 / N), one = _mm512_set1_pd(1.0), zero = _mm512_setzero_pd();
+    const i64 s0 = PHI[0][0][1];
+    __m512d X[GL], Y[GL], K1[GL], K2[GL];
+    __m256i S[GL];
+    __mmask8 ACT[GL], REAL[GL];
+    int par[GL];
+    size_t blk[GL], next = 0, live = 0;
+    for (int g = 0; g < GL; g++) {
+        X[g] = vq; K1[g] = one; K2[g] = zero; S[g] = _mm256_setzero_si256(); par[g] = 1;
+        if (next < nblk) {
+            blk[g] = next++; live++;
+            Y[g] = _mm512_loadu_pd(tb + 8 * blk[g]);
+            size_t left = ntask - 8 * blk[g];
+            ACT[g] = REAL[g] = left >= 8 ? 0xFF : (__mmask8)((1u << left) - 1);
+        } else { blk[g] = (size_t)-1; X[g] = one; Y[g] = one; ACT[g] = REAL[g] = 0; }
+    }
+    while (live) {
+        for (int g = 0; g < GL; g++) {
+            __m512d A = _mm512_roundscale_pd(_mm512_div_pd(X[g], Y[g]), _MM_FROUND_TO_NEG_INF | _MM_FROUND_NO_EXC);
+            __m512d R = _mm512_fnmadd_pd(A, Y[g], X[g]);                 /* exact remainder */
+            __m512d T = _mm512_fmadd_pd(A, K1[g], K2[g]);                /* exact, < 2^49 */
+            __m512d F = _mm512_roundscale_pd(_mm512_mul_pd(T, invN), _MM_FROUND_TO_NEG_INF | _MM_FROUND_NO_EXC);
+            __m512d Kn = _mm512_fnmadd_pd(F, vN, T);                     /* T mod N in [0, N], exact */
+            __m256i idx = _mm512_cvttpd_epi32(_mm512_fmadd_pd(K1[g], vN1, Kn));
+            const int8_t *base = PHI8 + (par[g] ? N1 * N1 : 0);
+            S[g] = _mm256_mask_add_epi32(S[g], ACT[g], S[g], _mm256_i32gather_epi32((const int *)base, idx, 1));
+            __mmask8 done = _mm512_cmp_pd_mask(R, zero, _CMP_EQ_OQ) & ACT[g];
+            ACT[g] &= ~done;
+            K2[g] = K1[g]; K1[g] = Kn; X[g] = Y[g]; Y[g] = _mm512_mask_mov_pd(one, ACT[g], R);   /* parked: Y = 1 */
+            par[g] ^= 1;
+            if (__builtin_expect(ACT[g] == 0 && blk[g] != (size_t)-1, 0)) {
+                int32_t s[8];
+                _mm256_storeu_si256((__m256i *)s, S[g]);
+                for (int l = 0; l < 8; l++)
+                    if (REAL[g] >> l & 1) acc[td[8 * blk[g] + l]] += s0 + (int8_t)(s[l] & 0xFF);
+                X[g] = vq; K1[g] = one; K2[g] = zero; S[g] = _mm256_setzero_si256(); par[g] = 1;
+                if (next < nblk) {
+                    blk[g] = next++;
+                    Y[g] = _mm512_loadu_pd(tb + 8 * blk[g]);
+                    size_t left = ntask - 8 * blk[g];
+                    ACT[g] = REAL[g] = left >= 8 ? 0xFF : (__mmask8)((1u << left) - 1);
+                } else { blk[g] = (size_t)-1; X[g] = one; Y[g] = one; ACT[g] = REAL[g] = 0; live--; }
+            }
+        }
+    }
+}
+
 static u64 mulmod(u64 a, u64 b, u64 m) { return (u64)((u128)a * b % m); }
 static u64 powmod(u64 a, u64 e, u64 m) {
     u64 r = 1 % m;
@@ -131,9 +214,38 @@ static u64 binom_mod(u64 k, int j, u64 m) {   /* binom(k, j) mod m for j <= 4, k
 
 static double now(void) { struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t); return t.tv_sec + 1e-9 * t.tv_nsec; }
 
+static u64 gcd64(u64 u, u64 v) { while (v) { u64 w = u % v; u = v; v = w; } return u; }
+
 int main(int argc, char **argv) {
-    if (argc != 6) { fprintf(stderr, "usage: level2 TABLE p a_p c eps\n"); return 2; }
+    if (argc != 6) { fprintf(stderr, "usage: level2 TABLE p a_p c eps | level2 TABLE vtest q count seed\n"); return 2; }
     load_table(argv[1]);
+    fill_phi8();
+    if (!strcmp(argv[2], "vtest")) {
+        u64 q = strtoull(argv[3], 0, 10), n = strtoull(argv[4], 0, 10), x = strtoull(argv[5], 0, 10) | 1;
+        if (q < 3 || q >= (1ULL << 40) || n == 0) { fprintf(stderr, "bad arguments\n"); return 2; }
+        size_t nb = (n + 7) / 8, ndest = 4096;
+        double *tb = malloc(nb * 8 * sizeof(double)), *tl = malloc(nb * 8 * sizeof(double));
+        int32_t *td = malloc(nb * 8 * sizeof(int32_t));
+        i64 *ref = calloc(ndest, sizeof(i64)), *acc = calloc(ndest, sizeof(i64)), *lean = calloc(ndest, sizeof(i64));
+        for (size_t t = 0; t < nb * 8; t++) {
+            if (t >= n) { tb[t] = NAN; tl[t] = 1.0; td[t] = 0; continue; }
+            u64 b;
+            do { x ^= x << 13; x ^= x >> 7; x ^= x << 17; b = x % q; } while (b == 0 || gcd64(b, q) != 1);
+            tb[t] = tl[t] = (double)b; td[t] = (int32_t)(t % ndest);
+            ref[t % ndest] += msym(b, q);
+        }
+        double t0 = now();
+        run_blocks(tb, td, nb, q, acc);
+        double t1 = now();
+        run_blocks_lean(tl, td, nb, n, q, lean);
+        double t2 = now();
+        size_t bad = 0, badl = 0;
+        for (size_t d = 0; d < ndest; d++) { bad += acc[d] != ref[d]; badl += lean[d] != ref[d]; }
+        printf("vtest q=%llu n=%llu: run_blocks %.1f ns/eval, %zu destinations differ from msym; "
+               "run_blocks_lean %.1f ns/eval, %zu differ\n", (unsigned long long)q, (unsigned long long)n,
+               1e9 * (t1 - t0) / n, bad, 1e9 * (t2 - t1) / n, badl);
+        return bad != 0 || badl != 0;
+    }
     u64 p = strtoull(argv[2], 0, 10);
     i64 ap = strtoll(argv[3], 0, 10);
     u64 c = strtoull(argv[4], 0, 10);
@@ -175,8 +287,13 @@ int main(int argc, char **argv) {
         }
         evals += n;
         size_t nb = (n + 7) / 8;
+#ifdef REFERENCE_KERNEL
         for (size_t t = n; t < nb * 8; t++) { tb[t] = NAN; td[t] = 0; }
         run_blocks(tb, td, nb, p2, acc);
+#else
+        for (size_t t = n; t < nb * 8; t++) { tb[t] = 1.0; td[t] = 0; }
+        run_blocks_lean(tb, td, nb, n, p2, acc);
+#endif
         for (size_t r = 0; r < nr; r++) {
             u64 i = reps[r0 + r];
             i64 *R = acc + r * p, tot = 0;
@@ -207,6 +324,10 @@ int main(int argc, char **argv) {
         printf(" %llu", (unsigned long long)s);
     }
     for (int j = 0; j <= 4; j++) printf(" %llu", (unsigned long long)W[j]);
-    printf(" %llu %.2f\n", (unsigned long long)evals, now() - t0);
+#ifdef REFERENCE_KERNEL
+    printf(" %llu %.2f run_blocks\n", (unsigned long long)evals, now() - t0);
+#else
+    printf(" %llu %.2f lean\n", (unsigned long long)evals, now() - t0);
+#endif
     return 0;
 }
