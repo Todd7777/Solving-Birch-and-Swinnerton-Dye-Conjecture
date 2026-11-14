@@ -25,4 +25,4 @@ SW Thm 12.3 (cited, not re-derived) proves Sha(389a1)[p] = 0 for p = 2 and every
 
 ## Beyond 48859
 
-From 48859 (itself prime) on, every prime is certified directly by beyond/run_beyond.py, with the compiled level-2 sum (ordinary: unit c_2, Lemma A, Lemma B; supersingular: unit [T^2]L^-, D_p-valued regulator, saturation): 4568 of the 4568 primes in [48859, 100000). **Altogether, Sha(389a1)[p] = 0 for every prime p < 100000.**
+From 48859 (itself prime) on, every prime is certified directly by beyond/run_beyond.py, with the compiled level-2 sum (ordinary: unit c_2, Lemma A, Lemma B; supersingular: unit [T^2]L^-, D_p-valued regulator, saturation): 6277 of the 6277 primes in [48859, 120000). **Altogether, Sha(389a1)[p] = 0 for every prime p < 120000.**
