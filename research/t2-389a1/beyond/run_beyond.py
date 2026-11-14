@@ -13,7 +13,7 @@ A prime where c_2 = 0 mod p would need level 3 (see ../level3/); the certified r
 
 Usage: python3 research/t2-389a1/beyond/run_beyond.py build
        python3 research/t2-389a1/beyond/run_beyond.py validate
-       python3 research/t2-389a1/beyond/run_beyond.py validate-lean   (lean kernel = run_blocks, whole output lines)
+       python3 research/t2-389a1/beyond/run_beyond.py validate-kernel  (the three kernels agree, whole output lines)
        python3 research/t2-389a1/beyond/run_beyond.py run --pmax 120000 [--shard i --nshards k]
        python3 research/t2-389a1/beyond/run_beyond.py aggregate --pmax 120000
 """
@@ -169,37 +169,45 @@ def validate():
     return ok
 
 
-def validate_lean(primes=(101, 1009, 4999, 15101, 20011, 30011, 48859, 58631, 75431, 78787, 99991, 100003)):
-    """The lean kernel (default build) against run_blocks (-DREFERENCE_KERNEL build of the same source): the whole
-    output line, every C_j and W_j mod p^3 included, must agree; then vtest at q up to 2^40."""
+def validate_kernel(primes=(101, 1009, 4999, 15101, 20011, 30011, 48859, 58631, 75431, 78787, 99991, 100003,
+                           100333, 119033, 120011),
+                    out="beyond_nicf_validation.json"):
+    """The default build (run_blocks_nicf) against -DLEAN_KERNEL (run_blocks_lean) and -DREFERENCE_KERNEL (run_blocks)
+    builds of the same source: the whole output line, every C_j and W_j mod p^3 included, must agree; then vtest,
+    which checks all three kernels against the scalar msym on random b/q up to 2^40."""
     import tempfile
     from concurrent.futures import ThreadPoolExecutor
     pari, E = curve()
-    ref = os.path.join(tempfile.mkdtemp(), "level2_ref")
-    subprocess.run(["gcc", "-O3", "-march=native", "-DREFERENCE_KERNEL", "-o", ref, os.path.join(HERE, "level2.c")],
-                   check=True)
+    tmp = tempfile.mkdtemp()
+    builds = {}
+    for tag, flag in (("lean", "-DLEAN_KERNEL"), ("run_blocks", "-DREFERENCE_KERNEL")):
+        builds[tag] = os.path.join(tmp, "level2_" + tag)
+        subprocess.run(["gcc", "-O3", "-march=native", flag, "-o", builds[tag], os.path.join(HERE, "level2.c")],
+                       check=True)
     keys = ("p", "a_p", "c", "eps", "S1", "m0", "rows", "hecke_fail", "fricke_fail", "C", "W", "evals")
 
-    def both(p):
-        a, b = level2(p, E), level2(p, E, binary=ref)
-        return dict(p=p, a_p=a["a_p"], identical=all(a[k] == b[k] for k in keys) and a["kernel"] == "lean"
-                    and b["kernel"] == "run_blocks", seconds_lean=a["seconds"], seconds_run_blocks=b["seconds"])
+    def three(p):
+        d = level2(p, E)
+        others = {tag: level2(p, E, binary=b) for tag, b in builds.items()}
+        same = d["kernel"] == "nicf" and all(o["kernel"] == tag and all(o[k] == d[k] for k in keys)
+                                             for tag, o in others.items())
+        return dict(p=p, a_p=d["a_p"], identical=same, seconds={d["kernel"]: d["seconds"],
+                    **{tag: o["seconds"] for tag, o in others.items()}})
 
     with ThreadPoolExecutor(max_workers=4) as ex:
-        rows = list(ex.map(both, sorted(primes, reverse=True)))
+        rows = list(ex.map(three, sorted(primes, reverse=True)))
     rows.sort(key=lambda r: r["p"])
     for r in rows:
-        print(f"p = {r['p']}: identical output {r['identical']} (lean {r['seconds_lean']} s, "
-              f"run_blocks {r['seconds_run_blocks']} s)", flush=True)
+        print(f"p = {r['p']}: identical output {r['identical']} (seconds {r['seconds']})", flush=True)
     vt = []
-    for q in (10 ** 6 + 3, 16231 ** 2, 524287 ** 2, 1048573 ** 2, 999999999989):
-        r = subprocess.run([BINARY, TABLE, "vtest", str(q), "4000000", "20261113"], capture_output=True, text=True)
+    for q in (10 ** 6 + 3, 16231 ** 2, 120011 ** 2, 524287 ** 2, 1048573 ** 2, 999999999989):
+        r = subprocess.run([BINARY, TABLE, "vtest", str(q), "4000000", "20261114"], capture_output=True, text=True)
         vt.append(dict(q=q, ok=r.returncode == 0, line=r.stdout.strip()))
         print(r.stdout.strip(), flush=True)
     ok = all(r["identical"] for r in rows) and all(v["ok"] for v in vt)
-    with open(os.path.join(T2, "data", "beyond_lean_validation.json"), "w") as fh:
+    with open(os.path.join(T2, "data", out), "w") as fh:
         json.dump(dict(primes=rows, vtest=vt, ok=ok), fh, indent=1)
-    print("lean validation", "PASSED" if ok else "FAILED")
+    print("kernel validation", "PASSED" if ok else "FAILED")
     return ok
 
 
@@ -250,7 +258,7 @@ def aggregate(pmax):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["build", "validate", "validate-lean", "run", "aggregate"])
+    ap.add_argument("cmd", choices=["build", "validate", "validate-kernel", "run", "aggregate"])
     ap.add_argument("--pmax", type=int, default=120000)
     ap.add_argument("--shard", type=int, default=0)
     ap.add_argument("--nshards", type=int, default=1)
@@ -259,8 +267,8 @@ def main():
         build()
     elif a.cmd == "validate":
         sys.exit(0 if validate() else 1)
-    elif a.cmd == "validate-lean":
-        sys.exit(0 if validate_lean() else 1)
+    elif a.cmd == "validate-kernel":
+        sys.exit(0 if validate_kernel() else 1)
     elif a.cmd == "run":
         run(a.pmax, a.shard, a.nshards)
     else:

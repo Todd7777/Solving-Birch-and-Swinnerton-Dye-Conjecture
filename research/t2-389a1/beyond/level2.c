@@ -15,16 +15,20 @@
    For an orbit of size 2 (tau(i) = +-i) the second relation becomes the check R_i(k) = eps R_i(c - k).
 
    Output (one line):  p a_p c eps S1 m0 rows hecke_fail fricke_fail C_0..C_4 W_0..W_4 evals seconds kernel
-   with C_j = sum_k binom(k, j) A2(k) and W_j = sum_k binom(k, j), both mod p^3, and kernel = "lean".
+   with C_j = sum_k binom(k, j) A2(k) and W_j = sum_k binom(k, j), both mod p^3, and kernel = nicf, lean or run_blocks.
 
    msym (scalar) and run_blocks (vector) are copied verbatim from ../level3/level3.c, where they are validated.
-   The rows are computed by run_blocks_lean (2026-11-13), the same continued-fraction arithmetic with fewer vector
-   instructions per step (about 1.3 times faster); its exactness argument is at the function. `vtest` checks it
-   against run_blocks and msym on random b/q, and its output line equals that of the run_blocks version at every
-   prime compared (../data/beyond_lean_validation.json).
+   Kernels for the rows, each exact (arguments at the functions) and selected at build time:
+     run_blocks_nicf (default since 2026-11-14): the nearest-integer continued fraction, about 30% fewer steps;
+     run_blocks_lean (-DLEAN_KERNEL, used 2026-11-13 for 100000 < p < 120000): the regular expansion with fewer
+       vector instructions per step;
+     run_blocks (-DREFERENCE_KERNEL, used below 100000).
+   `vtest` checks all three against msym on random b/q, and `run_beyond.py validate-kernel` checks that the three
+   builds print the same output line at a list of primes (../data/beyond_lean_validation.json and
+   ../data/beyond_nicf_validation.json).
    Usage: level2 TABLE p a_p c eps
-          level2 TABLE vtest q count seed     (lean kernel = run_blocks = msym on random b/q, q < 2^40)
-   Build: gcc -O3 -march=native -o level2 level2.c   (-DREFERENCE_KERNEL computes the rows with run_blocks) */
+          level2 TABLE vtest q count seed     (each kernel = msym on random b/q, q < 2^40)
+   Build: gcc -O3 -march=native -o level2 level2.c */
 #include <immintrin.h>
 #include <math.h>
 #include <stdint.h>
@@ -197,6 +201,71 @@ static void run_blocks_lean(const double *tb, const int32_t *td, size_t nblk, si
     }
 }
 
+
+/* NICF kernel: m'(b/q) along the nearest-integer continued fraction of b/q, in the style of run_blocks_lean. Any
+   expansion b/q = 1/(a_1 + eps_2/(a_2 + eps_3/(...))) with eps_j = +-1 has convergents p_j/q_j with
+   q_j = a_j q_{j-1} + eps_j q_{j-2} (q_{-1} = 0, q_0 = 1, eps_1 = +1) and det_j = p_j q_{j-1} - p_{j-1} q_j = -eps_j det_{j-1},
+   det_0 = -1, so det_j = +-1 and {p_{j-1}/q_{j-1}, p_j/q_j} is a Manin symbol. Its value is a function of
+   (q_{j-1} mod N, q_j mod N, det_j), the one the table PHI[det_j = +1][q_{j-1}][q_j] holds (for the regular expansion
+   det_j = (-1)^(j-1), the parity of run_blocks). The pieces sum to {0, b/q}, whatever the expansion.
+   - Each step takes A = round(fl(X/Y)). |fl(X/Y) - X/Y| <= 2^40 2^-53, so |X/Y - A| <= 1/2 + 2^-13 and R = X - A Y
+     (exact, as in run_blocks) has |R| < Y; the next pair is (Y, |R|), eps_{j+1} = sign R. Hence A >= 1, the expansion
+     terminates with R = 0 (b and q coprime), and every remainder is at most (1/2 + 2^-13) times the previous one:
+     at most 41 steps for q < 2^40, so the byte sum stays below 2 * 41 < 128.
+   - T = A K1 + eps K2 lies in [-N, 2^49); floor(fl(T fl(1/N))) is exact except that it may be one less when N | T,
+     so Kn = T - F N lies in [0, N], as in run_blocks_lean.
+   - Per lane, NEG marks eps = -1 and DETP marks det = +1; parked lanes keep valid indices as in run_blocks_lean. */
+#define GN 4
+static void run_blocks_nicf(const double *tb, const int32_t *td, size_t nblk, size_t ntask, u64 q, i64 *acc) {
+    const __m512d vq = _mm512_set1_pd((double)q), vN = _mm512_set1_pd((double)N), vN1 = _mm512_set1_pd((double)N1);
+    const __m512d invN = _mm512_set1_pd(1.0 / N), one = _mm512_set1_pd(1.0), zero = _mm512_setzero_pd();
+    const __m256i off1 = _mm256_set1_epi32(N1 * N1);
+    const i64 s0 = PHI[0][0][1];
+    __m512d X[GN], Y[GN], K1[GN], K2[GN];
+    __m256i S[GN];
+    __mmask8 ACT[GN], REAL[GN], NEG[GN], DETP[GN];
+    size_t blk[GN], next = 0, live = 0;
+    for (int g = 0; g < GN; g++) {
+        X[g] = vq; K1[g] = one; K2[g] = zero; S[g] = _mm256_setzero_si256(); NEG[g] = 0; DETP[g] = 0;
+        if (next < nblk) {
+            blk[g] = next++; live++;
+            Y[g] = _mm512_loadu_pd(tb + 8 * blk[g]);
+            size_t left = ntask - 8 * blk[g];
+            ACT[g] = REAL[g] = left >= 8 ? 0xFF : (__mmask8)((1u << left) - 1);
+        } else { blk[g] = (size_t)-1; X[g] = one; Y[g] = one; ACT[g] = REAL[g] = 0; }
+    }
+    while (live) {
+        for (int g = 0; g < GN; g++) {
+            __m512d A = _mm512_roundscale_pd(_mm512_div_pd(X[g], Y[g]), _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+            __m512d R = _mm512_fnmadd_pd(A, Y[g], X[g]);                 /* exact, |R| < Y */
+            __m512d T = _mm512_fmadd_pd(A, K1[g], _mm512_mask_sub_pd(K2[g], NEG[g], zero, K2[g]));   /* A K1 + eps K2 */
+            __m512d F = _mm512_roundscale_pd(_mm512_mul_pd(T, invN), _MM_FROUND_TO_NEG_INF | _MM_FROUND_NO_EXC);
+            __m512d Kn = _mm512_fnmadd_pd(F, vN, T);                     /* T mod N in [0, N], exact */
+            DETP[g] = _kxnor_mask8(DETP[g], NEG[g]);                    /* det_j = -eps_j det_{j-1} */
+            __m256i idx = _mm512_cvttpd_epi32(_mm512_fmadd_pd(K1[g], vN1, Kn));
+            idx = _mm256_mask_add_epi32(idx, DETP[g], idx, off1);
+            S[g] = _mm256_mask_add_epi32(S[g], ACT[g], S[g], _mm256_i32gather_epi32((const int *)PHI8, idx, 1));
+            NEG[g] = _mm512_cmp_pd_mask(R, zero, _CMP_LT_OQ);
+            __mmask8 done = _mm512_cmp_pd_mask(R, zero, _CMP_EQ_OQ) & ACT[g];
+            ACT[g] &= ~done;
+            K2[g] = K1[g]; K1[g] = Kn; X[g] = Y[g]; Y[g] = _mm512_mask_mov_pd(one, ACT[g], _mm512_abs_pd(R));
+            if (__builtin_expect(ACT[g] == 0 && blk[g] != (size_t)-1, 0)) {
+                int32_t s[8];
+                _mm256_storeu_si256((__m256i *)s, S[g]);
+                for (int l = 0; l < 8; l++)
+                    if (REAL[g] >> l & 1) acc[td[8 * blk[g] + l]] += s0 + (int8_t)(s[l] & 0xFF);
+                X[g] = vq; K1[g] = one; K2[g] = zero; S[g] = _mm256_setzero_si256(); NEG[g] = 0; DETP[g] = 0;
+                if (next < nblk) {
+                    blk[g] = next++;
+                    Y[g] = _mm512_loadu_pd(tb + 8 * blk[g]);
+                    size_t left = ntask - 8 * blk[g];
+                    ACT[g] = REAL[g] = left >= 8 ? 0xFF : (__mmask8)((1u << left) - 1);
+                } else { blk[g] = (size_t)-1; X[g] = one; Y[g] = one; ACT[g] = REAL[g] = 0; live--; }
+            }
+        }
+    }
+}
+
 static u64 mulmod(u64 a, u64 b, u64 m) { return (u64)((u128)a * b % m); }
 static u64 powmod(u64 a, u64 e, u64 m) {
     u64 r = 1 % m;
@@ -234,17 +303,21 @@ int main(int argc, char **argv) {
             tb[t] = tl[t] = (double)b; td[t] = (int32_t)(t % ndest);
             ref[t % ndest] += msym(b, q);
         }
+        i64 *nic = calloc(ndest, sizeof(i64));
         double t0 = now();
         run_blocks(tb, td, nb, q, acc);
         double t1 = now();
         run_blocks_lean(tl, td, nb, n, q, lean);
         double t2 = now();
-        size_t bad = 0, badl = 0;
-        for (size_t d = 0; d < ndest; d++) { bad += acc[d] != ref[d]; badl += lean[d] != ref[d]; }
+        run_blocks_nicf(tl, td, nb, n, q, nic);
+        double t3 = now();
+        size_t bad = 0, badl = 0, badn = 0;
+        for (size_t d = 0; d < ndest; d++) { bad += acc[d] != ref[d]; badl += lean[d] != ref[d]; badn += nic[d] != ref[d]; }
         printf("vtest q=%llu n=%llu: run_blocks %.1f ns/eval, %zu destinations differ from msym; "
-               "run_blocks_lean %.1f ns/eval, %zu differ\n", (unsigned long long)q, (unsigned long long)n,
-               1e9 * (t1 - t0) / n, bad, 1e9 * (t2 - t1) / n, badl);
-        return bad != 0 || badl != 0;
+               "run_blocks_lean %.1f ns/eval, %zu differ; run_blocks_nicf %.1f ns/eval, %zu differ\n",
+               (unsigned long long)q, (unsigned long long)n, 1e9 * (t1 - t0) / n, bad, 1e9 * (t2 - t1) / n, badl,
+               1e9 * (t3 - t2) / n, badn);
+        return bad != 0 || badl != 0 || badn != 0;
     }
     u64 p = strtoull(argv[2], 0, 10);
     i64 ap = strtoll(argv[3], 0, 10);
@@ -287,12 +360,15 @@ int main(int argc, char **argv) {
         }
         evals += n;
         size_t nb = (n + 7) / 8;
-#ifdef REFERENCE_KERNEL
+#if defined(REFERENCE_KERNEL)
         for (size_t t = n; t < nb * 8; t++) { tb[t] = NAN; td[t] = 0; }
         run_blocks(tb, td, nb, p2, acc);
-#else
+#elif defined(LEAN_KERNEL)
         for (size_t t = n; t < nb * 8; t++) { tb[t] = 1.0; td[t] = 0; }
         run_blocks_lean(tb, td, nb, n, p2, acc);
+#else
+        for (size_t t = n; t < nb * 8; t++) { tb[t] = 1.0; td[t] = 0; }
+        run_blocks_nicf(tb, td, nb, n, p2, acc);
 #endif
         for (size_t r = 0; r < nr; r++) {
             u64 i = reps[r0 + r];
@@ -324,10 +400,12 @@ int main(int argc, char **argv) {
         printf(" %llu", (unsigned long long)s);
     }
     for (int j = 0; j <= 4; j++) printf(" %llu", (unsigned long long)W[j]);
-#ifdef REFERENCE_KERNEL
+#if defined(REFERENCE_KERNEL)
     printf(" %llu %.2f run_blocks\n", (unsigned long long)evals, now() - t0);
-#else
+#elif defined(LEAN_KERNEL)
     printf(" %llu %.2f lean\n", (unsigned long long)evals, now() - t0);
+#else
+    printf(" %llu %.2f nicf\n", (unsigned long long)evals, now() - t0);
 #endif
     return 0;
 }
