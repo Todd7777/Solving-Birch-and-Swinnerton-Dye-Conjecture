@@ -14,8 +14,8 @@ A prime where c_2 = 0 mod p would need level 3 (see ../level3/); the certified r
 Usage: python3 research/t2-389a1/beyond/run_beyond.py build
        python3 research/t2-389a1/beyond/run_beyond.py validate
        python3 research/t2-389a1/beyond/run_beyond.py validate-kernel  (the three kernels agree, whole output lines)
-       python3 research/t2-389a1/beyond/run_beyond.py run --pmax 120000 [--shard i --nshards k]
-       python3 research/t2-389a1/beyond/run_beyond.py aggregate --pmax 120000
+       python3 research/t2-389a1/beyond/run_beyond.py run --pmax 150000 [--shard i --nshards k]
+       python3 research/t2-389a1/beyond/run_beyond.py aggregate --pmax 150000
 """
 from __future__ import annotations
 
@@ -259,7 +259,7 @@ def aggregate(pmax):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["build", "validate", "validate-kernel", "run", "aggregate"])
-    ap.add_argument("--pmax", type=int, default=120000)
+    ap.add_argument("--pmax", type=int, default=150000)
     ap.add_argument("--shard", type=int, default=0)
     ap.add_argument("--nshards", type=int, default=1)
     a = ap.parse_args()
